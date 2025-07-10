@@ -1,4 +1,4 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -15,10 +15,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post {
+public class Post extends BaseEntity{
 
-    @DocumentId
-    String id;
     String category_id;
     String seller_id;
     BigDecimal price;
@@ -27,8 +25,6 @@ public class Post {
     String currency;
     String description;
     String location;
-    String create_at;
-    String update_at;
     BigInteger view_count;
     String ward;
     String province;

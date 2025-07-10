@@ -1,5 +1,6 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 
 import lombok.AccessLevel;
@@ -12,11 +13,11 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Image {
+public class BaseEntity {
 
     @DocumentId
     String id;
-    String post_id;
-    String link;
+    Timestamp update_at;
+    Timestamp create_at;
 
 }

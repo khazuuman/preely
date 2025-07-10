@@ -1,4 +1,4 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -12,12 +12,13 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tag {
+public class Transaction extends BaseEntity{
 
-    @DocumentId
-    String id;
-    String name;
-    String create_at;
-    String update_at;
+    String giver_id;
+    String post_id;
+    String requester_id;
+    Number amount;
+    String status;
+    String transaction_date;
 
 }

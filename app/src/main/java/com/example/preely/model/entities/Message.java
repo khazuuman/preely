@@ -1,4 +1,4 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -12,11 +12,12 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostTag {
+public class Message extends BaseEntity{
 
-    @DocumentId
-    String id;
+    String sender_id;
+    String receiver_id;
     String post_id;
-    String tag_id;
-
+    String content;
+    boolean is_read;
+    String send_at;
 }

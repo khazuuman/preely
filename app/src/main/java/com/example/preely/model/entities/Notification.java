@@ -1,4 +1,4 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -12,15 +12,10 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Notification {
+public class Notification extends BaseEntity{
 
-    @DocumentId
-    String id;
     String user_id;
     String content;
     boolean is_read;
     String url;
-    String create_at;
-    String update_at;
-
 }

@@ -1,5 +1,6 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 
 import lombok.AccessLevel;
@@ -12,17 +13,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transaction {
+public class Category extends BaseEntity{
 
-    @DocumentId
-    String id;
-    String giver_id;
-    String post_id;
-    String requester_id;
-    Number amount;
-    String status;
-    String transaction_date;
-    String update_at;
-    String create_at;
-
+    String name;
+    String parent_category_id;
 }

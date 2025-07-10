@@ -1,4 +1,4 @@
-package com.example.preely.model;
+package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -12,12 +12,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Savedpost {
+public class Image extends BaseEntity{
 
-    @DocumentId
-    String id;
     String post_id;
-    String save_date;
-    String user_id;
-
+    String link;
 }
