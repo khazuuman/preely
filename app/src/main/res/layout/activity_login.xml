@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.Login"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:paddingStart="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="30dp">
+
+        <ImageView
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/twitter_logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login to Your Account"
+            android:fontFamily="@font/zain_regular"
+            android:textSize="42sp"
+            android:textFontWeight="800"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/username_til"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            app:startIconDrawable="@drawable/account_icon"
+            app:startIconTint="@null"
+            app:boxBackgroundMode="none"
+            android:textColorHint="#9F9F9F">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/username_input"
+                android:hint="Username"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="20sp"
+                android:paddingStart="50dp"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/username_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="50dp"
+            android:text="Username is required"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_til"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            app:startIconDrawable="@drawable/pass_icon"
+            android:hint="Password"
+            android:textColorHint="#9F9F9F"
+            app:boxBackgroundMode="none"
+            app:startIconTint="@null"
+            app:endIconMode="password_toggle"
+            app:endIconTint="#393939">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="20sp"
+                android:paddingStart="50dp"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/password_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="50dp"
+            android:text="Username is required"/>
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/remember_cb"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            app:useMaterialThemeColors="false"
+            app:buttonTint="@drawable/custom_checkbox"
+            android:textSize="18sp"
+            android:text="Remember me"
+            android:fontFamily="@font/zain_regular" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/login_btn"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Sign in"
+            android:textSize="24sp"
+            android:fontFamily="@font/zain_regular"
+            android:backgroundTint="#393939"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/forgot_pass_btn"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot the password?"
+            android:backgroundTint="@android:color/transparent"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:fontFamily="@font/zain_bold"/>
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="or continue with"
+            android:textSize="24sp"
+            android:textColor="#454545"
+            android:fontFamily="@font/zain_bold"/>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <ImageView
+                android:layout_weight="1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/facebook_icon"/>
+            <ImageView
+                android:layout_weight="1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/google_icon"/>
+            <ImageView
+                android:layout_weight="1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/apple_icon"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't have an account?"
+                android:textSize="20sp"
+                android:textColor="#9E9E9E"/>
+            <com.google.android.material.button.MaterialButton
+                android:paddingLeft="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sign up"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:backgroundTint="@android:color/transparent"
+                android:fontFamily="@font/zain_bold"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

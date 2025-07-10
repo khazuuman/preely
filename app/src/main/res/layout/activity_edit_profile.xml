@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.EditProfile"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:icon="@drawable/outline_arrow_left_alt_24"
+            app:iconSize="30sp"
+            app:iconGravity="textStart"
+            app:iconTint="@color/black"
+            android:backgroundTint="@android:color/transparent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:fontFamily="@font/zain_bold"
+            android:text="Fill Your Profile"
+            android:textColor="@color/black"
+            android:textFontWeight="600"
+            android:textSize="24sp" />
+
+        <FrameLayout
+            android:layout_width="200dp"
+            android:layout_height="200dp">
+
+<!--            &lt;!&ndash; Ảnh nền (image) &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:src="@drawable/your_image"-->
+<!--                android:scaleType="centerCrop" />-->
+
+<!--            &lt;!&ndash; Icon đặt "absolute" ở góc dưới bên phải &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:src="@drawable/your_icon"-->
+<!--                android:layout_gravity="bottom|end"-->
+<!--                android:layout_margin="8dp" />-->
+        </FrameLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

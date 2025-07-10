@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1080272614668",
+    "firebase_url": "https://preely-ca05a-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "preely-ca05a",
+    "storage_bucket": "preely-ca05a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080272614668:android:8f11850eb5eccac4f90529",
+        "android_client_info": {
+          "package_name": "com.example.preely"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUAHgBz7p3asJdoy9_p0iFpGynxZSNjLw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
