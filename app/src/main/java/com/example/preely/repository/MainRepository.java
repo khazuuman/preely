@@ -1,7 +1,16 @@
 package com.example.preely.repository;
 
 import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.preely.util.DataUtil;
+import com.example.preely.util.DbUtil;
 import com.example.preely.util.FirestoreCallback;
+import com.google.firebase.firestore.AggregateSource;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -14,187 +23,192 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class MainRepository<T> {
-    private final FirebaseFirestore db;
-    private final String tableName;
-    private final Class<T> modelClass;
+    private FirebaseFirestore db;
+    private String collectionName;
+    private Class<T> modelCl;
 
-    public MainRepository(String tableName, Class<T> modelClass) {
+    public MainRepository(Class<T> modelCl) {
         this.db = FirebaseFirestore.getInstance();
-        this.tableName = tableName;
-        this.modelClass = modelClass;
+        this.modelCl = modelCl;
     }
 
-    // Getters
-    public String getTableName() {
-        return tableName;
-    }
-
-    public Class<T> getModelClass() {
-        return modelClass;
-    }
-
-    // Retrieve a single document by ID
-    public T getById(String id) {
-        try {
-            DocumentSnapshot document = Tasks.await(db.collection(tableName).document(id).get());
-            if (document.exists()) {
-                return document.toObject(modelClass);
+    public LiveData<T> getById(Query query) {
+        MutableLiveData<T> result = new MutableLiveData<>();
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                result.setValue(doc.toObject(modelCl));
+            } else {
+                result.setValue(null);
             }
-            return null;
-        } catch (Exception e) {
-            Log.e("Error", "Error getting document by ID: " + id, e);
-            throw new RuntimeException("Failed to get document by ID: " + id, e);
-        }
+        });
+        return result;
     }
 
-    public List<T> getAll(FirestoreCallback<T> callback) {
+    public LiveData<List<T>> getAll(Query query) {
+        MutableLiveData<List<T>> result = new MutableLiveData<>();
         List<T> resultList = new ArrayList<>();
-        try {
-            for (QueryDocumentSnapshot document : Tasks.await(db.collection(tableName).get())) {
-                resultList.add(document.toObject(modelClass));
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    resultList.add(document.toObject(modelCl));
+                }
+                result.setValue(resultList);
+            } else {
+                result.setValue(null);
             }
-            if (callback != null) {
-                callback.onCallback(resultList);
-            }
-            return resultList;
-        } catch (Exception e) {
-            Log.e("Error", "Error getting documents", e);
-            if (callback != null) {
-                callback.onCallback(resultList);
-            }
-            throw new RuntimeException("Failed to get all documents", e);
-        }
+        });
+        return result;
     }
 
-    public T getOne(Function<Query, Query> queryBuilder) {
-        try {
-            Query query = db.collection(tableName);
-            if (queryBuilder != null) {
-                query = queryBuilder.apply(query);
+    public LiveData<T> getOne(Query query) {
+        MutableLiveData<T> result = new MutableLiveData<>();
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                result.setValue(doc.toObject(modelCl));
+            } else {
+                result.setValue(null);
             }
-            List<DocumentSnapshot> documents = Tasks.await(query.limit(1).get()).getDocuments();
-            if (!documents.isEmpty()) {
-                return documents.get(0).toObject(modelClass);
-            }
-            return null;
-        } catch (Exception e) {
-            Log.e("Error", "Error getting one document", e);
-            throw new RuntimeException("Failed to get one document", e);
-        }
+        });
+        return result;
     }
 
     // Retrieve a list of documents with optional filter, ordering, and pagination
-    public List<T> getList(Function<Query, Query> queryBuilder, Integer pageSize, Integer pageNumber) {
-        try {
-            Query query = db.collection(tableName);
-            if (queryBuilder != null) {
-                query = queryBuilder.apply(query);
-            }
-            if (pageSize != null && pageNumber != null && pageSize > 0 && pageNumber > 0) {
-                query = query.limit(pageSize).startAfter((pageNumber - 1) * pageSize);
-            }
-            List<T> resultList = new ArrayList<>();
-            for (QueryDocumentSnapshot document : Tasks.await(query.get())) {
-                resultList.add(document.toObject(modelClass));
-            }
-            return resultList;
-        } catch (Exception e) {
-            Log.e("Error", "Error getting document list", e);
-            throw new RuntimeException("Failed to get document list", e);
+    public LiveData<List<T>> getList(Query query, Integer pageSize, Integer pageNumber) {
+        MutableLiveData<List<T>> result = new MutableLiveData<>();
+        if (pageSize != null && pageNumber != null && pageSize > 0 && pageNumber > 0) {
+            query = query.limit(pageSize).startAfter((pageNumber - 1) * pageSize);
         }
+        List<T> resultList = new ArrayList<>();
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    resultList.add(document.toObject(modelCl));
+                }
+                result.setValue(resultList);
+            } else {
+                result.setValue(null);
+            }
+        });
+        return result;
     }
 
     // Insert a single document
-    public void add(T entity) {
-        try {
-            WriteBatch batch = db.batch();
-            batch.set(db.collection(tableName).document(), entity);
-            Tasks.await(batch.commit());
-            Log.d("Success", "DocumentSnapshot successfully added!");
-        } catch (Exception e) {
-            Log.e("Error", "Error adding document", e);
-            throw new RuntimeException("Failed to add document", e);
-        }
+    public void add(T object, String collectionName, DbUtil.OnInsertCallback callback) {
+        db.collection(collectionName)
+                .add(object)
+                .addOnSuccessListener(documentReference -> {
+                    if (callback != null) {
+                        callback.onSuccess(documentReference);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e);
+                    }
+                });
     }
 
     // Insert multiple documents using a batch
-    public void addRange(List<T> entities) {
+    public void addRange(List<T> objects, DbUtil.OnInsertManyCallback callback) {
+        WriteBatch batch = db.batch();
+        CollectionReference collectionRef = db.collection(getCollectionName());
         try {
-            WriteBatch batch = db.batch();
-            for (T entity : entities) {
-                batch.set(db.collection(tableName).document(), entity);
+            for (T object : objects) {
+                DocumentReference docRef = collectionRef.document();
+                batch.set(docRef, object);
             }
-            Tasks.await(batch.commit());
-            Log.d("Success", "DocumentSnapshots successfully added!");
+            batch.commit()
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null) callback.onSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null) callback.onFailure(e);
+                    });
         } catch (Exception e) {
-            Log.e("Error", "Error adding document range", e);
-            throw new RuntimeException("Failed to add document range", e);
+            Log.e("addRange", "Exception while batching", e);
+            if (callback != null) callback.onFailure(e);
         }
     }
 
     // Update a single document
-    public void update(T entity, String documentId) {
-        try {
-            Tasks.await(db.collection(tableName).document(documentId).set(entity));
-            Log.d("Success", "DocumentSnapshot successfully updated!");
-        } catch (Exception e) {
-            Log.e("Error", "Error updating document", e);
-            throw new RuntimeException("Failed to update document", e);
-        }
+    public void update(T object, String documentId, DbUtil.OnUpdateCallback callback) {
+        DocumentReference docRef = db.collection(getCollectionName()).document(documentId);
+        docRef.set(object)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
     }
 
     // Update multiple documents using a batch
-    public void updateRange(Map<String, T> entities) {
+    public void updateRange(Map<String, T> entities, DbUtil.OnUpdateCallback callback) {
+        WriteBatch batch = db.batch();
         try {
-            WriteBatch batch = db.batch();
-            entities.forEach((id, entity) -> batch.set(db.collection(tableName).document(id), entity));
-            Tasks.await(batch.commit());
-            Log.d("Success", "DocumentSnapshots successfully updated!");
+            for (Map.Entry<String, T> entry : entities.entrySet()) {
+                String id = entry.getKey();
+                T object = entry.getValue();
+                batch.set(db.collection(getCollectionName()).document(id), object);
+            }
+            batch.commit()
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null) callback.onSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null) callback.onFailure(e);
+                    });
         } catch (Exception e) {
-            Log.e("Error", "Error updating document range", e);
-            throw new RuntimeException("Failed to update document range", e);
+            if (callback != null) callback.onFailure(e);
         }
     }
+
 
     // Delete a single document
-    public void delete(String documentId) {
-        try {
-            Tasks.await(db.collection(tableName).document(documentId).delete());
-            Log.d("Success", "DocumentSnapshot successfully deleted!");
-        } catch (Exception e) {
-            Log.e("Error", "Error deleting document", e);
-            throw new RuntimeException("Failed to delete document", e);
-        }
+    public void delete(String documentId, DbUtil.OnDeleteCallBack callBack) {
+        db.collection(getCollectionName()).document(documentId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    if (callBack != null) callBack.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callBack != null) callBack.onFailure(e);
+                });
     }
 
+
     // Delete multiple documents using a batch
-    public void deleteRange(List<String> documentIds) {
-        try {
-            WriteBatch batch = db.batch();
-            for (String id : documentIds) {
-                batch.delete(db.collection(tableName).document(id));
-            }
-            Tasks.await(batch.commit());
-            Log.d("Success", "DocumentSnapshots successfully deleted!");
-        } catch (Exception e) {
-            Log.e("Error", "Error deleting document range", e);
-            throw new RuntimeException("Failed to delete document range", e);
+    public void deleteRange(List<String> documentIds, DbUtil.OnDeleteCallBack callBack) {
+        WriteBatch batch = db.batch();
+        for (String documentId : documentIds) {
+            batch.delete(db.collection(getCollectionName()).document(documentId));
         }
+        batch.commit()
+                .addOnSuccessListener(unused -> {
+                    if (callBack != null) callBack.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callBack != null) callBack.onFailure(e);
+                });
     }
 
     // Get count of documents with optional filter
-    public int getCount(Function<Query, Query> queryBuilder) {
-        try {
-            Query query = db.collection(tableName);
-            if (queryBuilder != null) {
-                query = queryBuilder.apply(query);
-            }
-            return Tasks.await(query.get()).size();
-        } catch (Exception e) {
-            Log.e("Error", "Error getting document count", e);
-            throw new RuntimeException("Failed to get document count", e);
-        }
+    public LiveData<Integer> getCount(Query query) {
+        MutableLiveData<Integer> result = new MutableLiveData<>();
+        query.count().get(AggregateSource.SERVER)
+                .addOnSuccessListener(aggregateQuerySnapshot -> {
+                    long countL = aggregateQuerySnapshot.getCount();
+                    result.setValue(Integer.parseInt(String.valueOf(countL)));
+                });
+        return result;
     }
 
     // Emulate transaction start (Firestore uses WriteBatch for batch operations)

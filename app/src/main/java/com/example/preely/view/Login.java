@@ -18,15 +18,18 @@ import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.UserRequest;
 import com.example.preely.util.Constraints.NotificationType;
 import com.example.preely.viewmodel.LoginService;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class Login extends AppCompatActivity {
     private TextInputLayout usernameTil;
     private TextInputLayout passwordTil;
-    private com.google.android.material.button.MaterialButton loginBtn;
+    private MaterialButton loginBtn;
     private LoginService loginService;
     private TextView usernameErrorTv;
     private TextView passwordErrorTv;
@@ -38,16 +41,15 @@ public class Login extends AppCompatActivity {
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_login);
         sessionManager = new SessionManager(getApplicationContext());
-        if (sessionManager.getLogin() && sessionManager.getUserId() != null) {
+        if (sessionManager.getLogin()) {
             startActivity(new Intent(this, HomeActivity.class));
             finish();
             return;
         }
-
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
 
         // Initialize views
         usernameTil = findViewById(R.id.username_til);
@@ -84,9 +86,7 @@ public class Login extends AppCompatActivity {
         // Observe login result
         loginService.getLoginResult().observe(this, userResponse -> {
             if (userResponse != null) {
-                sessionManager.setLogin(true);
                 sessionManager.setUserId(userResponse.getId());
-                Log.i("LoginActivity", "Login successful, ID: " + userResponse.getId());
                 CustomToast.makeText(this, "Login Successful", CustomToast.LENGTH_SHORT, NotificationType.SUCCESS).show();
                 startActivity(new Intent(this, HomeActivity.class));
                 finishAffinity();
@@ -98,13 +98,14 @@ public class Login extends AppCompatActivity {
         // Set remember me checkbox listener
         rememberCb.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sessionManager.setSessionTimeOut(isChecked ? TimeUnit.DAYS.toMillis(7) : 0);
+            sessionManager.setRemember(isChecked);
         });
 
         // Handle login button click
         loginBtn.setOnClickListener(v -> {
             UserRequest request = new UserRequest();
-            request.setUsername(usernameInput.getText().toString());
-            request.setPassword(passwordInput.getText().toString());
+            request.setUsername(Objects.requireNonNull(usernameInput.getText()).toString());
+            request.setPassword(Objects.requireNonNull(passwordInput.getText()).toString());
             loginService.loginByUsername(request);
         });
 
