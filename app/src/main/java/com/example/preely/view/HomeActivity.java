@@ -27,11 +27,11 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         SessionManager sessionManager = new SessionManager(getApplicationContext());
-        if (sessionManager.isSessionExpired()) {
-            sessionManager.clearSession();
-            startActivity(new Intent(this, Login.class));
-            finish();
-        }
+//        if (!sessionManager.getLogin()) {
+//            sessionManager.clearSession();
+//            startActivity(new Intent(this, Login.class));
+//            finish();
+//        }
 
         homeText = findViewById(R.id.homeText);
         homeText.setOnClickListener(v -> {
