@@ -1,5 +1,6 @@
 package com.example.preely.model.entities;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 
 import lombok.AccessLevel;
@@ -19,6 +20,6 @@ public class Transaction extends BaseEntity{
     String requester_id;
     Number amount;
     String status;
-    String transaction_date;
+    Timestamp transaction_date;
 
 }

@@ -1,5 +1,6 @@
 package com.example.preely.model.entities;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 
 import lombok.AccessLevel;
@@ -15,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 public class Savedpost extends BaseEntity{
 
     String post_id;
-    String save_date;
+    Timestamp save_date;
     String user_id;
 
 }

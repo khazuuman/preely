@@ -5,6 +5,8 @@ public class Constraints {
     public interface CollectionName {
         String USERS = "user";
         String CATEGORIES = "category";
+        String MESSAGES = "message";
+        String NOTIFICATIONS = "notification";
     }
 
     public interface NotificationType {

@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.github.nkzawa.socketio.client.Socket;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -88,6 +89,18 @@ public class Login extends AppCompatActivity {
             if (userResponse != null) {
                 sessionManager.setUserId(userResponse.getId());
                 CustomToast.makeText(this, "Login Successful", CustomToast.LENGTH_SHORT, NotificationType.SUCCESS).show();
+
+                // Khởi tạo Socket kết nối
+                Socket socket = SocketManager.getSocket();
+                socket.on(Socket.EVENT_CONNECT, args -> {
+                    // Join với user ID
+                    socket.emit("join", sessionManager.getUserId());
+                    Log.d("Socket", "Connected and joined user: " + sessionManager.getUserId());
+                });
+                socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
+                    Log.e("Socket", "Connection error: " + args[0]);
+                });
+
                 startActivity(new Intent(this, HomeActivity.class));
                 finishAffinity();
             } else {
@@ -159,5 +172,11 @@ public class Login extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SocketManager.disconnect();
     }
 }

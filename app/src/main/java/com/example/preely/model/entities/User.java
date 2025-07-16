@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity {
-    String full_fame;
+    String full_name;
     String username;
     String phone_number;
     String encode_password;

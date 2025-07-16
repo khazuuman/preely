@@ -19,7 +19,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class UserResponse extends CommonDto {
 
-    String full_fame;
+    String full_name;
     String username;
     String phone_number;
     String address;

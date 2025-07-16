@@ -1,5 +1,6 @@
 package com.example.preely.model.entities;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 
 import lombok.AccessLevel;
@@ -19,5 +20,6 @@ public class Message extends BaseEntity{
     String post_id;
     String content;
     boolean is_read;
-    String send_at;
+    Timestamp send_at;
+    String room;
 }
