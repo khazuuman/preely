@@ -17,4 +17,15 @@
         android:text="Home Page"
         android:textSize="50sp"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_create_transaction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Tạo giao dịch trung gian"
+        android:textSize="20sp"
+        android:fontFamily="@font/zain_bold"
+        android:backgroundTint="#393939"
+        android:textColor="@android:color/white"/>
+
 </LinearLayout>

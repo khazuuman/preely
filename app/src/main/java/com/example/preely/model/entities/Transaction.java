@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transaction extends BaseEntity{
+public class Transaction extends BaseEntity implements java.io.Serializable {
 
     String giver_id;
     String post_id;

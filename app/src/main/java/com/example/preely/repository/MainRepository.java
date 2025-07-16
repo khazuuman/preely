@@ -57,10 +57,20 @@ public class MainRepository<T> {
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    resultList.add(document.toObject(modelCl));
+                    try {
+                        T obj = document.toObject(modelCl);
+                        if (obj != null) {
+                            resultList.add(obj);
+                        }
+                    } catch (Exception e) {
+                        Log.e("MainRepository", "Error deserializing document " + document.getId() + " to " + modelCl.getSimpleName(), e);
+                        // Continue with other documents instead of failing completely
+                    }
                 }
+                Log.d("MainRepository", "Successfully loaded " + resultList.size() + " documents of type " + modelCl.getSimpleName());
                 result.setValue(resultList);
             } else {
+                Log.e("MainRepository", "Error getting documents", task.getException());
                 result.setValue(null);
             }
         });
@@ -71,9 +81,16 @@ public class MainRepository<T> {
         MutableLiveData<T> result = new MutableLiveData<>();
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
-                result.setValue(doc.toObject(modelCl));
+                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                if (documents != null && !documents.isEmpty()) {
+                    DocumentSnapshot doc = documents.get(0);
+                    result.setValue(doc.toObject(modelCl));
+                } else {
+                    Log.d("MainRepository", "No documents found for query");
+                    result.setValue(null);
+                }
             } else {
+                Log.e("MainRepository", "Error getting document", task.getException());
                 result.setValue(null);
             }
         });
@@ -90,10 +107,19 @@ public class MainRepository<T> {
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    resultList.add(document.toObject(modelCl));
+                    try {
+                        T obj = document.toObject(modelCl);
+                        if (obj != null) {
+                            resultList.add(obj);
+                        }
+                    } catch (Exception e) {
+                        Log.e("MainRepository", "Error deserializing document " + document.getId() + " to " + modelCl.getSimpleName(), e);
+                        // Continue with other documents instead of failing completely
+                    }
                 }
                 result.setValue(resultList);
             } else {
+                Log.e("MainRepository", "Error getting documents", task.getException());
                 result.setValue(null);
             }
         });

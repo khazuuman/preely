@@ -2,6 +2,7 @@ package com.example.preely.model.entities;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@IgnoreExtraProperties
 public class BaseEntity {
 
     @DocumentId

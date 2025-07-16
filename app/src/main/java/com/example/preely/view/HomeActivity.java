@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -18,6 +19,7 @@ import com.example.preely.authentication.SessionManager;
 public class HomeActivity extends AppCompatActivity {
 
     TextView homeText;
+    Button btnCreateTransaction;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -36,6 +38,17 @@ public class HomeActivity extends AppCompatActivity {
         homeText = findViewById(R.id.homeText);
         homeText.setOnClickListener(v -> {
             Log.i("user session", sessionManager.getUserId());
+            // Mở trang tạo giao dịch trung gian
+            Intent intent = new Intent(this, TransactionActivity.class);
+            startActivity(intent);
+        });
+
+        btnCreateTransaction = findViewById(R.id.btn_create_transaction);
+        btnCreateTransaction.setOnClickListener(v -> {
+            Intent intent = new Intent(this, TransactionActivity.class);
+            startActivity(intent);
         });
     }
+
+    // Xóa onActivityResult vì không còn dùng PaymentHelper
 }

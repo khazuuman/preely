@@ -2,6 +2,7 @@ package com.example.preely.model.entities;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,8 +14,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@IgnoreExtraProperties
 public class User extends BaseEntity {
-    String full_fame;
+    String full_name;
     String username;
     String phone_number;
     String encode_password;
