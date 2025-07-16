@@ -38,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
         homeText = findViewById(R.id.homeText);
         homeText.setOnClickListener(v -> {
             Log.i("user session", sessionManager.getUserId());
-            // Mở trang tạo giao dịch trung gian
+            // Open the page to create an escrow transaction
             Intent intent = new Intent(this, TransactionActivity.class);
             startActivity(intent);
         });
@@ -50,5 +50,5 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    // Xóa onActivityResult vì không còn dùng PaymentHelper
+    // Remove onActivityResult because PaymentHelper is no longer used
 }

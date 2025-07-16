@@ -32,7 +32,7 @@ public class TransactionService extends ViewModel {
     }
     
     /**
-     * Lấy danh sách tất cả users
+     * Get the list of all users
      */
     public LiveData<List<User>> getAllUsers() {
         Query query = FirebaseFirestore.getInstance()
@@ -41,7 +41,7 @@ public class TransactionService extends ViewModel {
     }
     
     /**
-     * Lấy danh sách tất cả posts
+     * Get the list of all posts
      */
     public LiveData<List<Post>> getAllPosts() {
         Query query = FirebaseFirestore.getInstance()
@@ -50,23 +50,23 @@ public class TransactionService extends ViewModel {
     }
     
     /**
-     * Lưu transaction mới vào Firestore
+     * Save a new transaction to Firestore
      */
     public void saveTransaction(Transaction transaction, TransactionCallback callback) {
         if (transaction == null) {
-            callback.onError("Transaction không hợp lệ");
+            callback.onError("Invalid transaction");
             return;
         }
         
-        // Cập nhật thời gian tạo
+        // Update creation time
         String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
         transaction.setTransaction_date(currentTime);
         
         Log.d("TransactionService", "Saving transaction: " + transaction.getId());
         
-        // Sử dụng document ID cụ thể thay vì auto-generate
+        // Use specific document ID instead of auto-generate
         if (transaction.getId() != null && !transaction.getId().isEmpty()) {
-            // Lưu với document ID cụ thể
+            // Save with specific document ID
             FirebaseFirestore.getInstance()
                 .collection("transactions")
                 .document(transaction.getId())
@@ -77,10 +77,10 @@ public class TransactionService extends ViewModel {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("TransactionService", "Error saving transaction", e);
-                    callback.onError("Lỗi lưu giao dịch: " + e.getMessage());
+                    callback.onError("Error saving transaction: " + e.getMessage());
                 });
         } else {
-            // Fallback: sử dụng auto-generate ID
+            // Fallback: use auto-generate ID
             transactionRepository.add(transaction, "transactions", new com.example.preely.util.DbUtil.OnInsertCallback() {
                 @Override
                 public void onSuccess(com.google.firebase.firestore.DocumentReference documentReference) {
@@ -91,38 +91,38 @@ public class TransactionService extends ViewModel {
                 @Override
                 public void onFailure(Exception e) {
                     Log.e("TransactionService", "Error saving transaction", e);
-                    callback.onError("Lỗi lưu giao dịch: " + e.getMessage());
+                    callback.onError("Error saving transaction: " + e.getMessage());
                 }
             });
         }
     }
     
     /**
-     * Cập nhật trạng thái transaction sau khi thanh toán
+     * Update transaction status after payment
      */
     public void updateTransactionStatus(String transactionId, String status, String responseCode, String responseMessage, TransactionCallback callback) {
         if (transactionId == null || status == null) {
-            callback.onError("Thông tin giao dịch không hợp lệ");
+            callback.onError("Invalid transaction information");
             return;
         }
         
         Log.d("TransactionService", "Updating transaction status: " + transactionId + " -> " + status);
         
-        // Tìm transaction hiện tại bằng document ID trước
+        // Find current transaction by document ID first
         FirebaseFirestore.getInstance()
             .collection("transactions")
             .document(transactionId)
             .get()
             .addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
-                    // Transaction đã tồn tại, cập nhật trạng thái
+                    // Transaction exists, update status
                     Transaction existingTransaction = documentSnapshot.toObject(Transaction.class);
                     if (existingTransaction != null) {
                         existingTransaction.setStatus(status);
                         String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
                         existingTransaction.setTransaction_date(currentTime);
                         
-                        // Lưu lại vào Firestore
+                        // Save back to Firestore
                         transactionRepository.update(existingTransaction, transactionId, new com.example.preely.util.DbUtil.OnUpdateCallback() {
                             @Override
                             public void onSuccess() {
@@ -133,27 +133,27 @@ public class TransactionService extends ViewModel {
                             @Override
                             public void onFailure(Exception e) {
                                 Log.e("TransactionService", "Error updating transaction status", e);
-                                callback.onError("Lỗi cập nhật trạng thái: " + e.getMessage());
+                                callback.onError("Error updating status: " + e.getMessage());
                             }
                         });
                     } else {
-                        callback.onError("Không thể đọc thông tin giao dịch");
+                        callback.onError("Could not read transaction information");
                     }
                 } else {
-                    // Thử tìm bằng field 'id' nếu không tìm thấy bằng document ID
+                    // Try to find by field 'id' if not found by document ID
                     Log.d("TransactionService", "Transaction not found by document ID, searching by field 'id'");
                     searchTransactionByIdField(transactionId, status, callback);
                 }
             })
             .addOnFailureListener(e -> {
                 Log.e("TransactionService", "Error getting transaction by document ID", e);
-                // Thử tìm bằng field 'id' nếu có lỗi
+                // Try to find by field 'id' if error
                 searchTransactionByIdField(transactionId, status, callback);
             });
     }
     
     /**
-     * Tạo transaction mới từ thông tin thanh toán
+     * Create a new transaction from payment information
      */
     public Transaction createTransactionFromPayment(String txnRef, String amount, String requesterId, String giverId, String postId) {
         Transaction transaction = new Transaction();
@@ -178,7 +178,7 @@ public class TransactionService extends ViewModel {
     }
     
     /**
-     * Xử lý kết quả thanh toán từ VNPay
+     * Process payment result from VNPay
      */
     public void processPaymentResult(String responseCode, String responseMessage, String txnRef, String amount, 
                                    String requesterId, String giverId, String postId, TransactionCallback callback) {
@@ -188,11 +188,11 @@ public class TransactionService extends ViewModel {
         
         Log.d("TransactionService", "Processing payment result - Code: " + responseCode + ", Status: " + status);
         
-        // Tạo hoặc cập nhật transaction
+        // Create or update transaction
         updateTransactionStatus(txnRef, status, responseCode, responseMessage, new TransactionCallback() {
             @Override
             public void onSuccess(Transaction transaction) {
-                // Cập nhật thêm thông tin nếu cần
+                // Update additional information if needed
                 if (transaction.getRequester_id() == null && requesterId != null) {
                     transaction.setRequester_id(requesterId);
                 }
@@ -213,7 +213,7 @@ public class TransactionService extends ViewModel {
                     }
                 }
                 
-                // Lưu lại với thông tin đầy đủ
+                // Save back with full information
                 saveTransaction(transaction, callback);
             }
             
@@ -225,7 +225,7 @@ public class TransactionService extends ViewModel {
     }
     
     /**
-     * Lấy danh sách transaction của user
+     * Get the list of transactions for a user
      */
     public LiveData<List<Transaction>> getUserTransactions(String userId) {
         Log.d("TransactionService", "Getting transactions for user: " + userId);
@@ -238,14 +238,14 @@ public class TransactionService extends ViewModel {
     }
     
     /**
-     * Lấy transaction theo ID
+     * Get transaction by ID
      */
     public LiveData<Transaction> getTransactionById(String transactionId) {
         Log.d("TransactionService", "Getting transaction: " + transactionId);
         
         MutableLiveData<Transaction> result = new MutableLiveData<>();
         
-        // Thử tìm bằng document ID trước
+        // Try to find by document ID first
         FirebaseFirestore.getInstance()
             .collection("transactions")
             .document(transactionId)
@@ -255,14 +255,14 @@ public class TransactionService extends ViewModel {
                     Transaction transaction = documentSnapshot.toObject(Transaction.class);
                     result.setValue(transaction);
                 } else {
-                    // Thử tìm bằng field 'id'
+                    // Try to find by field 'id'
                     Log.d("TransactionService", "Transaction not found by document ID, searching by field 'id'");
                     searchTransactionByIdFieldForGet(transactionId, result);
                 }
             })
             .addOnFailureListener(e -> {
                 Log.e("TransactionService", "Error getting transaction by document ID", e);
-                // Thử tìm bằng field 'id' nếu có lỗi
+                // Try to find by field 'id' if error
                 searchTransactionByIdFieldForGet(transactionId, result);
             });
             
@@ -302,12 +302,12 @@ public class TransactionService extends ViewModel {
             
         transactionRepository.getOne(query).observeForever(existingTransaction -> {
             if (existingTransaction != null) {
-                // Tìm thấy transaction, cập nhật trạng thái
+                // Find transaction, update status
                 existingTransaction.setStatus(status);
                 String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
                 existingTransaction.setTransaction_date(currentTime);
                 
-                // Lưu lại vào Firestore
+                // Save back to Firestore
                 transactionRepository.update(existingTransaction, existingTransaction.getId(), new com.example.preely.util.DbUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
@@ -318,11 +318,11 @@ public class TransactionService extends ViewModel {
                     @Override
                     public void onFailure(Exception e) {
                         Log.e("TransactionService", "Error updating transaction status by field search", e);
-                        callback.onError("Lỗi cập nhật trạng thái: " + e.getMessage());
+                        callback.onError("Error updating status: " + e.getMessage());
                     }
                 });
             } else {
-                // Tạo transaction mới nếu không tìm thấy
+                // Create new transaction if not found
                 Log.d("TransactionService", "Transaction not found by field 'id', creating new one");
                 Transaction newTransaction = new Transaction();
                 newTransaction.setId(transactionId);

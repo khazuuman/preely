@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">preely</string>
     <string name="username">Username</string>
+    <string name="create_transaction">Create Escrow Transaction</string>
 </resources>
