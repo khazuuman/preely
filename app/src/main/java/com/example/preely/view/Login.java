@@ -176,7 +176,6 @@ public class Login extends AppCompatActivity {
                     Log.e("Socket", "Connection error: " + args[0]);
                 });
 
-                startActivity(new Intent(this, HomeActivity.class));
                 finishAffinity();
             } else {
                 CustomToast.makeText(this, "Invalid username or password", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();
