@@ -34,6 +34,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    
+    buildFeatures {
+        dataBinding = true
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -46,6 +51,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.credentials)
+    implementation(libs.swiperefreshlayout)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
     testImplementation(libs.junit)
@@ -58,6 +64,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.shortcutbadger.leolin)
     implementation(libs.glide)
+    implementation(libs.cloudinary.android)
+    implementation(libs.picasso)
     implementation(libs.google.play.services.auth)
     implementation(libs.circle.image.view)
     implementation(libs.facebook.android.sdk)

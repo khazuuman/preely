@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:name=".authentication.DetectActivity"
@@ -53,6 +55,9 @@
             android:name=".view.Login"
             android:exported="false" />
         <activity
+            android:name=".view.TestUploadActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.Splash"
             android:exported="true">
 
@@ -86,6 +91,15 @@
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />
+        <activity
+            android:name=".view.SavedPostsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ProfileActivityV2"
+            android:exported="false" />
     </application>
 
 </manifest>
