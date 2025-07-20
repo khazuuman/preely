@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:name=".authentication.DetectActivity"
@@ -35,6 +37,9 @@
             android:name=".view.Login"
             android:exported="false" />
         <activity
+            android:name=".view.TestUploadActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.Splash"
             android:exported="true">
             <intent-filter>
@@ -43,6 +48,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".view.SavedPostsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ProfileActivityV2"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">preely</string>
     <string name="username">Username</string>
+    <string name="save_post_button">Save or unsave this furniture item</string>
+    <string name="navigate_back">Navigate back to previous screen</string>
+    <string name="search_saved_posts">Search through saved posts</string>
+    <string name="desc_icon">Icon</string>
+    <string name="desc_arrow">Arrow</string>
+    <string name="setting_title">Setting Title</string>
+    <string name="setting_subtitle">Setting Subtitle</string>
+    <string name="logout">Logout</string>
 </resources>
