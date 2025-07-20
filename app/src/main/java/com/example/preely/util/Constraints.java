@@ -7,6 +7,8 @@ public class Constraints {
         String CATEGORIES = "category";
         String POSTS = "post";
         String TAGS = "tag";
+        String MESSAGES = "message";
+        String NOTIFICATIONS = "notification";
         String SAVED_POST = "savedposts";
     }
 

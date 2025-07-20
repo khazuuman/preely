@@ -17,6 +17,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -26,6 +29,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -52,6 +56,7 @@ dependencies {
     implementation(libs.jbcrypt)
     implementation(libs.security.crypto)
     implementation(libs.gson)
+    implementation(libs.shortcutbadger.leolin)
     implementation(libs.glide)
     implementation(libs.google.play.services.auth)
     implementation(libs.circle.image.view)

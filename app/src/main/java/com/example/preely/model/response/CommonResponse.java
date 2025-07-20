@@ -1,5 +1,6 @@
 package com.example.preely.model.response;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -16,4 +17,5 @@ import lombok.experimental.FieldDefaults;
 public class CommonResponse {
     @DocumentId
     DocumentReference id;
+    Timestamp save_date;
 }

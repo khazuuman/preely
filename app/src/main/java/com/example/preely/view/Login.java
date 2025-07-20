@@ -43,6 +43,7 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -163,6 +164,18 @@ public class Login extends AppCompatActivity {
             if (userResponse != null) {
                 sessionManager.setUserSession(userResponse);
                 CustomToast.makeText(this, "Login Successful", CustomToast.LENGTH_SHORT, NotificationType.SUCCESS).show();
+
+                // Khởi tạo Socket kết nối
+                Socket socket = SocketManager.getSocket();
+                socket.on(Socket.EVENT_CONNECT, args -> {
+                    // Join với user ID
+                    socket.emit("join", sessionManager.getUserId());
+                    Log.d("Socket", "Connected and joined user: " + sessionManager.getUserId());
+                });
+                socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
+                    Log.e("Socket", "Connection error: " + args[0]);
+                });
+
                 startActivity(new Intent(this, HomeActivity.class));
                 finishAffinity();
             } else {
@@ -298,6 +311,12 @@ public class Login extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SocketManager.disconnect();
     }
 
 }
