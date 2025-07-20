@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/select_giver"
-            app:startIconDrawable="@drawable/account_icon">
+            app:startIconDrawable="@drawable/ic_account">
             <AutoCompleteTextView
                 android:id="@+id/giver_dropdown"
                 android:layout_width="match_parent"
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/select_post"
-            app:startIconDrawable="@drawable/edit_24px">
+            app:startIconDrawable="@drawable/ic_edit">
             <AutoCompleteTextView
                 android:id="@+id/post_dropdown"
                 android:layout_width="match_parent"

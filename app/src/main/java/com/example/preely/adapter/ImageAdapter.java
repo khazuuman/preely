@@ -108,7 +108,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             
             // TODO: Load image using Glide or Picasso
             // For now, set a placeholder
-            ivImage.setImageResource(R.drawable.img);
+//            ivImage.setImageResource(R.drawable.img);
         }
     }
 } 

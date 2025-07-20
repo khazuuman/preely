@@ -48,8 +48,8 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         User user = dc.getDocument().toObject(User.class);
                         if (user != null) {
-                            user.setId(dc.getDocument().getId());
-                            
+                            user.setId(dc.getDocument().getReference());
+
                             switch (dc.getType()) {
                                 case ADDED:
                                     if (listener != null) listener.onDataAdded(user);
@@ -86,7 +86,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Post post = dc.getDocument().toObject(Post.class);
                         if (post != null) {
-                            post.setId(dc.getDocument().getId());
+                            post.setId(dc.getDocument().getReference());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -124,7 +124,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Transaction transaction = dc.getDocument().toObject(Transaction.class);
                         if (transaction != null) {
-                            transaction.setId(dc.getDocument().getId());
+                            transaction.setId(dc.getDocument().getReference());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -162,7 +162,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Category category = dc.getDocument().toObject(Category.class);
                         if (category != null) {
-                            category.setId(dc.getDocument().getId());
+                            category.setId(dc.getDocument().getReference());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -200,7 +200,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Tag tag = dc.getDocument().toObject(Tag.class);
                         if (tag != null) {
-                            tag.setId(dc.getDocument().getId());
+                            tag.setId(dc.getDocument().getReference());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -238,7 +238,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Image image = dc.getDocument().toObject(Image.class);
                         if (image != null) {
-                            image.setId(dc.getDocument().getId());
+                            image.setId(dc.getDocument().getReference());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -278,7 +278,7 @@ public class FirestoreRealtimeUtil {
                         // Set ID if the class has setId method
                         try {
                             item.getClass().getMethod("setId", String.class)
-                                .invoke(item, dc.getDocument().getId());
+                                .invoke(item, dc.getDocument().getReference());
                         } catch (Exception e) {
                             Log.w(TAG, "Could not set ID for " + clazz.getSimpleName());
                         }

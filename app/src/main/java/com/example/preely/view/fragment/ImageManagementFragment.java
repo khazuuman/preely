@@ -19,6 +19,7 @@ import com.example.preely.adapter.ImageAdapter;
 import com.example.preely.dialog.AddEditImageDialog;
 import com.example.preely.model.entities.Image;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.FirestoreRealtimeUtil;
 import com.example.preely.util.PaginationUtil;
 import com.example.preely.util.SearchFilterUtil;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
+import com.example.preely.util.Constraints.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +72,7 @@ public class ImageManagementFragment extends Fragment implements ImageAdapter.On
         recyclerView = view.findViewById(R.id.recycler_images);
         fabAdd = view.findViewById(R.id.fab_add_image);
         etSearch = view.findViewById(R.id.et_search_images);
-        imageRepository = new MainRepository<>(Image.class);
+        imageRepository = new MainRepository<>(Image.class, CollectionName.IMAGE);
         realtimeUtil = new FirestoreRealtimeUtil();
         db = FirebaseFirestore.getInstance();
     }
@@ -207,7 +209,7 @@ public class ImageManagementFragment extends Fragment implements ImageAdapter.On
     }
 
     private void saveImage(Image image) {
-        imageRepository.add(image, "image", new DbUtil.OnInsertCallback() {
+        imageRepository.add(image, "image", new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Image saved successfully", Toast.LENGTH_SHORT).show();
@@ -221,7 +223,7 @@ public class ImageManagementFragment extends Fragment implements ImageAdapter.On
     }
 
     private void updateImage(Image image) {
-        imageRepository.update(image, image.getId(), "image", new DbUtil.OnUpdateCallback() {
+        imageRepository.update(image, image.getId().getId(), new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Image updated successfully", Toast.LENGTH_SHORT).show();
@@ -261,7 +263,7 @@ public class ImageManagementFragment extends Fragment implements ImageAdapter.On
             .setTitle("Delete Image")
             .setMessage("Are you sure you want to delete this image?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                imageRepository.delete(image.getId(), "image", new DbUtil.OnDeleteCallBack() {
+                imageRepository.delete(image.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "Image deleted successfully", Toast.LENGTH_SHORT).show();

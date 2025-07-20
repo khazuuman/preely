@@ -19,8 +19,9 @@ import com.example.preely.adapter.TransactionAdapter;
 import com.example.preely.dialog.AddEditTransactionDialog;
 import com.example.preely.model.entities.Transaction;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.FirestoreRealtimeUtil;
-import com.example.preely.util.PaginationUtil;
+import com.example.preely.util.Constraints.*;
 import com.example.preely.util.SearchFilterUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -70,7 +71,7 @@ public class TransactionManagementFragment extends Fragment implements Transacti
         recyclerView = view.findViewById(R.id.recycler_transactions);
         fabAdd = view.findViewById(R.id.fab_add_transaction);
         etSearch = view.findViewById(R.id.et_search_transactions);
-        transactionRepository = new MainRepository<>(Transaction.class);
+        transactionRepository = new MainRepository<>(Transaction.class, CollectionName.TRANSACTION);
         realtimeUtil = new FirestoreRealtimeUtil();
         db = FirebaseFirestore.getInstance();
     }
@@ -207,7 +208,7 @@ public class TransactionManagementFragment extends Fragment implements Transacti
     }
 
     private void saveTransaction(Transaction transaction) {
-        transactionRepository.add(transaction, "transaction", new DbUtil.OnInsertCallback() {
+        transactionRepository.add(transaction, "transaction", new CallBackUtil.OnInsertCallback()  {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Transaction saved successfully", Toast.LENGTH_SHORT).show();
@@ -221,7 +222,7 @@ public class TransactionManagementFragment extends Fragment implements Transacti
     }
 
     private void updateTransaction(Transaction transaction) {
-        transactionRepository.update(transaction, transaction.getId(), "transaction", new DbUtil.OnUpdateCallback() {
+        transactionRepository.update(transaction, transaction.getId().getId(),  new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Transaction updated successfully", Toast.LENGTH_SHORT).show();
@@ -239,7 +240,7 @@ public class TransactionManagementFragment extends Fragment implements Transacti
             .setTitle("Delete Transaction")
             .setMessage("Are you sure you want to delete this transaction?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                transactionRepository.delete(transaction.getId(), "transaction", new DbUtil.OnDeleteCallBack() {
+                transactionRepository.delete(transaction.getId().getId(),  new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "Transaction deleted successfully", Toast.LENGTH_SHORT).show();

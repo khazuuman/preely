@@ -14,7 +14,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginBottom="24dp"
-        android:src="@drawable/success_icon"
+        android:src="@drawable/ic_success"
         android:visibility="gone" />
 
     <!-- Failure Icon -->
@@ -23,7 +23,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginBottom="24dp"
-        android:src="@drawable/error_icon"
+        android:src="@drawable/ic_error"
         android:visibility="gone" />
 
     <!-- Result Title -->

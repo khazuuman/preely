@@ -19,6 +19,7 @@ import com.example.preely.adapter.TagAdapter;
 import com.example.preely.dialog.AddEditTagDialog;
 import com.example.preely.model.entities.Tag;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.FirestoreRealtimeUtil;
 import com.example.preely.util.PaginationUtil;
 import com.example.preely.util.SearchFilterUtil;
@@ -28,7 +29,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
-
+import com.example.preely.util.Constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
         recyclerView = view.findViewById(R.id.recycler_tags);
         fabAdd = view.findViewById(R.id.fab_add_tag);
         etSearch = view.findViewById(R.id.et_search_tags);
-        tagRepository = new MainRepository<>(Tag.class);
+        tagRepository = new MainRepository<>(Tag.class, CollectionName.TAGS);
         realtimeUtil = new FirestoreRealtimeUtil();
         db = FirebaseFirestore.getInstance();
     }
@@ -207,7 +208,7 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     }
 
     private void saveTag(Tag tag) {
-        tagRepository.add(tag, "tag", new DbUtil.OnInsertCallback() {
+        tagRepository.add(tag, "tag", new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Tag saved successfully", Toast.LENGTH_SHORT).show();
@@ -221,7 +222,7 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     }
 
     private void updateTag(Tag tag) {
-        tagRepository.update(tag, tag.getId(), "tag", new DbUtil.OnUpdateCallback() {
+        tagRepository.update(tag, tag.getId().getId(), new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Tag updated successfully", Toast.LENGTH_SHORT).show();
@@ -239,7 +240,7 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
             .setTitle("Delete Tag")
             .setMessage("Are you sure you want to delete \"" + tag.getName() + "\"?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                tagRepository.delete(tag.getId(), "tag", new DbUtil.OnDeleteCallBack() {
+                tagRepository.delete(tag.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "Tag deleted successfully", Toast.LENGTH_SHORT).show();

@@ -12,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.model.entities.Transaction;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
 
@@ -97,8 +99,8 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             tvTransactionId.setText(transaction.getId() != null ? "ID: " + transaction.getId() : "N/A");
             tvTransactionAmount.setText(transaction.getAmount() != null ? "$" + transaction.getAmount() : "N/A");
             tvTransactionStatus.setText(transaction.getStatus() != null ? transaction.getStatus() : "N/A");
-            tvTransactionDate.setText(transaction.getTransaction_date() != null ? transaction.getTransaction_date() : "N/A");
-            
+            tvTransactionDate.setText(transaction.getTransaction_date() != null ? transaction.getTransaction_date().toString() : "N/A");
+
             // Set status color
             if (transaction.getStatus() != null) {
                 switch (transaction.getStatus().toLowerCase()) {

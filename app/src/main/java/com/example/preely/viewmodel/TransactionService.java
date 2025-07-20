@@ -10,10 +10,13 @@ import com.example.preely.model.entities.Transaction;
 import com.example.preely.model.entities.User;
 import com.example.preely.model.entities.Post;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.Constraints;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-
+import com.example.preely.util.Constraints.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -26,9 +29,9 @@ public class TransactionService extends ViewModel {
     private final MainRepository<Post> postRepository;
     
     public TransactionService() {
-        this.transactionRepository = new MainRepository<>(Transaction.class);
-        this.userRepository = new MainRepository<>(User.class);
-        this.postRepository = new MainRepository<>(Post.class);
+        this.transactionRepository = new MainRepository<>(Transaction.class, CollectionName.TRANSACTION);
+        this.userRepository = new MainRepository<>(User.class, CollectionName.USERS);
+        this.postRepository = new MainRepository<>(Post.class, CollectionName.POSTS);
     }
     
     /**
@@ -59,17 +62,17 @@ public class TransactionService extends ViewModel {
         }
         
         // Update creation time
-        String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-        transaction.setTransaction_date(currentTime);
+//        String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        transaction.setTransaction_date(Timestamp.now());
         
         Log.d("TransactionService", "Saving transaction: " + transaction.getId());
         
         // Use specific document ID instead of auto-generate
-        if (transaction.getId() != null && !transaction.getId().isEmpty()) {
+        if (transaction.getId() != null && !transaction.getId().getId().isEmpty()) {
             // Save with specific document ID
             FirebaseFirestore.getInstance()
                 .collection("transactions")
-                .document(transaction.getId())
+                .document(transaction.getId().getId())
                 .set(transaction)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("TransactionService", "Transaction saved successfully with ID: " + transaction.getId());
@@ -81,7 +84,7 @@ public class TransactionService extends ViewModel {
                 });
         } else {
             // Fallback: use auto-generate ID
-            transactionRepository.add(transaction, "transactions", new com.example.preely.util.DbUtil.OnInsertCallback() {
+            transactionRepository.add(transaction, "transactions", new CallBackUtil.OnInsertCallback() {
                 @Override
                 public void onSuccess(com.google.firebase.firestore.DocumentReference documentReference) {
                     Log.d("TransactionService", "Transaction saved successfully with auto-generated ID: " + documentReference.getId());
@@ -100,7 +103,7 @@ public class TransactionService extends ViewModel {
     /**
      * Update transaction status after payment
      */
-    public void updateTransactionStatus(String transactionId, String status, String responseCode, String responseMessage, TransactionCallback callback) {
+    public void updateTransactionStatus(DocumentReference transactionId, String status, String responseCode, String responseMessage, TransactionCallback callback) {
         if (transactionId == null || status == null) {
             callback.onError("Invalid transaction information");
             return;
@@ -111,7 +114,7 @@ public class TransactionService extends ViewModel {
         // Find current transaction by document ID first
         FirebaseFirestore.getInstance()
             .collection("transactions")
-            .document(transactionId)
+            .document(String.valueOf(transactionId))
             .get()
             .addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
@@ -119,11 +122,10 @@ public class TransactionService extends ViewModel {
                     Transaction existingTransaction = documentSnapshot.toObject(Transaction.class);
                     if (existingTransaction != null) {
                         existingTransaction.setStatus(status);
-                        String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-                        existingTransaction.setTransaction_date(currentTime);
+                        existingTransaction.setTransaction_date(Timestamp.now());
                         
                         // Save back to Firestore
-                        transactionRepository.update(existingTransaction, existingTransaction.getId(), "transactions", new com.example.preely.util.DbUtil.OnUpdateCallback() {
+                        transactionRepository.update(existingTransaction, existingTransaction.getId().getId(), new CallBackUtil.OnUpdateCallback() {
                             @Override
                             public void onSuccess() {
                                 Log.d("TransactionService", "Transaction status updated successfully");
@@ -155,7 +157,7 @@ public class TransactionService extends ViewModel {
     /**
      * Create a new transaction from payment information
      */
-    public Transaction createTransactionFromPayment(String txnRef, String amount, String requesterId, String giverId, String postId) {
+    public Transaction createTransactionFromPayment(DocumentReference txnRef, String amount, String requesterId, String giverId, String postId) {
         Transaction transaction = new Transaction();
         transaction.setId(txnRef);
         
@@ -180,16 +182,16 @@ public class TransactionService extends ViewModel {
     /**
      * Process payment result from VNPay
      */
-    public void processPaymentResult(String responseCode, String responseMessage, String txnRef, String amount, 
-                                   String requesterId, String giverId, String postId, TransactionCallback callback) {
-        
+    public void processPaymentResult(String responseCode, String responseMessage, String txnRef, String amount,
+                                     String requesterId, String giverId, String postId, TransactionCallback callback) {
+        DocumentReference txtRefDocRef = txnRef.isEmpty() ? null : FirebaseFirestore.getInstance().document(txnRef);
         boolean isSuccess = "00".equals(responseCode);
         String status = isSuccess ? "Paid" : "Failed";
         
         Log.d("TransactionService", "Processing payment result - Code: " + responseCode + ", Status: " + status);
         
         // Create or update transaction
-        updateTransactionStatus(txnRef, status, responseCode, responseMessage, new TransactionCallback() {
+        updateTransactionStatus(txtRefDocRef, status, responseCode, responseMessage, new TransactionCallback() {
             @Override
             public void onSuccess(Transaction transaction) {
                 // Update additional information if needed
@@ -293,7 +295,7 @@ public class TransactionService extends ViewModel {
     /**
      * Tìm transaction bằng field 'id'
      */
-    private void searchTransactionByIdField(String transactionId, String status, TransactionCallback callback) {
+    private void searchTransactionByIdField(DocumentReference transactionId, String status, TransactionCallback callback) {
         Log.d("TransactionService", "Searching transaction by field 'id': " + transactionId);
         
         Query query = FirebaseFirestore.getInstance()
@@ -304,11 +306,10 @@ public class TransactionService extends ViewModel {
             if (existingTransaction != null) {
                 // Find transaction, update status
                 existingTransaction.setStatus(status);
-                String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-                existingTransaction.setTransaction_date(currentTime);
+                existingTransaction.setTransaction_date(Timestamp.now());
                 
                 // Save back to Firestore
-                transactionRepository.update(existingTransaction, existingTransaction.getId(), "transactions", new com.example.preely.util.DbUtil.OnUpdateCallback() {
+                transactionRepository.update(existingTransaction, existingTransaction.getId().getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
                         Log.d("TransactionService", "Transaction status updated successfully by field search");
@@ -328,7 +329,7 @@ public class TransactionService extends ViewModel {
                 newTransaction.setId(transactionId);
                 newTransaction.setStatus(status);
                 String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-                newTransaction.setTransaction_date(currentTime);
+                newTransaction.setTransaction_date(Timestamp.now());
                 
                 saveTransaction(newTransaction, callback);
             }

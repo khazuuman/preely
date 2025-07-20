@@ -10,6 +10,8 @@ public class Constraints {
         String MESSAGES = "message";
         String NOTIFICATIONS = "notification";
         String SAVED_POST = "savedposts";
+        String IMAGE = "image";
+        String TRANSACTION = "transactions";
     }
 
     public interface NotificationType {

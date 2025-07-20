@@ -48,7 +48,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // Init ViewModel
         viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        viewModel.initChat(receiverId, sessionManager.getUserId());
+        viewModel.initChat(receiverId, sessionManager.getUserSession().getId().getId());
 
         // Observe data
         viewModel.getMessages().observe(this, messages -> {
@@ -65,7 +65,7 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(v -> {
             String content = messageInput.getText().toString().trim();
             if (!content.isEmpty()) {
-                viewModel.sendMessage(content, sessionManager.getUserId(), receiverId);
+                viewModel.sendMessage(content, sessionManager.getUserSession().getId().getId(), receiverId);
                 messageInput.setText("");
             }
         });

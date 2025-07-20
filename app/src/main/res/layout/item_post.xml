@@ -84,7 +84,7 @@
                 android:id="@+id/btn_edit_post"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/edit_24px"
+                android:src="@drawable/ic_edit"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Edit post"
                 android:layout_marginEnd="8dp"/>
@@ -93,10 +93,10 @@
                 android:id="@+id/btn_delete_post"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/close_icon"
+                android:src="@drawable/ic_close"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Delete post"
-                android:tint="#FF0000"/>
+                app:tint="#FF0000" />
 
         </LinearLayout>
 

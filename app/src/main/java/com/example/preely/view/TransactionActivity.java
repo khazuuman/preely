@@ -1,5 +1,6 @@
 package com.example.preely.view;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -20,6 +21,8 @@ import com.example.preely.model.entities.Transaction;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.viewmodel.TransactionService;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.Timestamp;
+
 import androidx.lifecycle.ViewModelProvider;
 
 import java.text.SimpleDateFormat;
@@ -67,7 +70,7 @@ public class TransactionActivity extends AppCompatActivity {
 
         // Get requester ID from session
         SessionManager sessionManager = new SessionManager(this);
-        requesterId = sessionManager.getUserId();
+        requesterId = sessionManager.getUserSession().getId().getId();
         if (requesterId == null) {
             Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_SHORT).show();
             finish();
@@ -225,7 +228,7 @@ public class TransactionActivity extends AppCompatActivity {
                     List<User> searchList = filteredUserList.isEmpty() ? userList : filteredUserList;
                     for (User u : searchList) {
                         if (u.getFull_name() != null && u.getFull_name().equals(name)) {
-                            selectedGiverId = u.getId();
+                            selectedGiverId = u.getId().getId();
                             Log.d("TransactionActivity", "Selected user: " + name + " with ID: " + selectedGiverId);
                             Log.d("TransactionActivity", "User details - Full name: " + u.getFull_name() + ", ID: " + u.getId() + ", Email: " + u.getEmail());
                             
@@ -289,10 +292,10 @@ public class TransactionActivity extends AppCompatActivity {
                     
                     // Find the post in the filtered list
                     for (Post p : postList) {
-                        if (p != null && p.getSellerId() != null) {
-                            if (p.getSellerId().equals(selectedGiverId) 
+                        if (p != null && p.getSeller_id() != null) {
+                            if (p.getSeller_id().equals(selectedGiverId) 
                                 && p.getTitle() != null && p.getTitle().equals(title)) {
-                                selectedPostId = p.getId();
+                                selectedPostId = p.getId().getId();
                                 Log.d("TransactionActivity", "Selected post: " + title + " with ID: " + selectedPostId);
                                 break;
                             }
@@ -350,8 +353,8 @@ public class TransactionActivity extends AppCompatActivity {
         
         List<Post> filteredPosts = new ArrayList<>();
         for (Post p : postList) {
-            if (p != null && p.getSellerId() != null) {
-                if (p.getSellerId().equals(selectedGiverId)) {
+            if (p != null && p.getSeller_id() != null) {
+                if (p.getSeller_id().equals(selectedGiverId)) {
                     if (query.isEmpty() || (p.getTitle() != null && p.getTitle().toLowerCase().contains(query.toLowerCase()))) {
                         filteredPosts.add(p);
                     }
@@ -376,6 +379,7 @@ public class TransactionActivity extends AppCompatActivity {
         Log.d("TransactionActivity", "Filtered posts count: " + titles.size());
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void loadPostsForGiver(String giverId) {
         Log.d("TransactionActivity", "Loading posts for giver ID: " + giverId);
         Log.d("TransactionActivity", "Total posts available: " + postList.size());
@@ -387,16 +391,16 @@ public class TransactionActivity extends AppCompatActivity {
         
         for (Post p : postList) {
             checkedPosts++;
-            if (p != null && p.getSellerId() != null) {
+            if (p != null && p.getSeller_id() != null) {
                 Log.d("TransactionActivity", "Checking post " + checkedPosts + ": " + p.getTitle() + 
-                      " | Seller ID: " + p.getSellerId() + 
+                      " | Seller ID: " + p.getSeller_id() + 
                       " | Target giver: " + giverId + 
-                      " | Match: " + p.getSellerId().equals(giverId));
+                      " | Match: " + p.getSeller_id().equals(giverId));
                 
-                if (p.getSellerId().equals(giverId)) {
+                if (p.getSeller_id().equals(giverId)) {
                     giverPosts.add(p);
                     matchedPosts++;
-                    Log.d("TransactionActivity", "✓ MATCHED post: " + p.getTitle() + " with seller ID: " + p.getSellerId());
+                    Log.d("TransactionActivity", "✓ MATCHED post: " + p.getTitle() + " with seller ID: " + p.getSeller_id());
                 }
             } else {
                 Log.e("TransactionActivity", "Post " + checkedPosts + " is null or has null seller_id");
@@ -432,6 +436,7 @@ public class TransactionActivity extends AppCompatActivity {
 
 
 
+    @SuppressLint("StringFormatInvalid")
     private void filterPostsByGiver(String giverId) {
         Log.d("TransactionActivity", "Filtering posts for giver ID: " + giverId);
         Log.d("TransactionActivity", "Total posts available: " + postList.size());
@@ -440,8 +445,8 @@ public class TransactionActivity extends AppCompatActivity {
         for (Post p : postList) {
             // Check seller_id field
             boolean isGiverPost = false;
-            if (p != null && p.getSellerId() != null) {
-                if (p.getSellerId().equals(giverId)) {
+            if (p != null && p.getSeller_id() != null) {
+                if (p.getSeller_id().equals(giverId)) {
                     isGiverPost = true;
                     Log.d("TransactionActivity", "Found post by seller_id: " + p.getTitle());
                 }
@@ -449,7 +454,7 @@ public class TransactionActivity extends AppCompatActivity {
             
             if (isGiverPost) {
                 filteredPostList.add(p);
-                Log.d("TransactionActivity", "Found post: " + p.getTitle() + " with seller ID: " + p.getSellerId());
+                Log.d("TransactionActivity", "Found post: " + p.getTitle() + " with seller ID: " + p.getSeller_id());
             }
         }
         
@@ -503,8 +508,7 @@ public class TransactionActivity extends AppCompatActivity {
         transaction.setPost_id(selectedPostId);
         transaction.setAmount(amount);
         transaction.setStatus("Unpaid");
-        String today = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
-        transaction.setTransaction_date(today);
+        transaction.setTransaction_date(Timestamp.now());
 
         // Lưu transaction vào Firestore trước khi thanh toán
         transactionService.saveTransaction(transaction, new TransactionService.TransactionCallback() {

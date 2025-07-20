@@ -190,7 +190,7 @@ public class PaymentResultActivity extends AppCompatActivity {
         if (transaction != null) {
             transactionDetails.setVisibility(View.VISIBLE);
             
-            transactionId.setText(transaction.getId() != null ? transaction.getId() : "N/A");
+            transactionId.setText(transaction.getId() != null ? (CharSequence) transaction.getId() : "N/A");
             transactionAmount.setText(String.format("%,.0f VND", transaction.getAmount()));
             transactionStatus.setText(transaction.getStatus());
             

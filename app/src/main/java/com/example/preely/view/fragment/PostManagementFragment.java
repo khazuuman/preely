@@ -19,6 +19,7 @@ import com.example.preely.adapter.PostAdapter;
 import com.example.preely.dialog.AddEditPostDialog;
 import com.example.preely.model.entities.Post;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.FirestoreRealtimeUtil;
 import com.example.preely.util.PaginationUtil;
 import com.example.preely.util.SearchFilterUtil;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
+import com.example.preely.util.Constraints.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +72,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
         recyclerView = view.findViewById(R.id.recycler_posts);
         fabAdd = view.findViewById(R.id.fab_add_post);
         etSearch = view.findViewById(R.id.et_search_posts);
-        postRepository = new MainRepository<>(Post.class);
+        postRepository = new MainRepository<>(Post.class, CollectionName.POSTS);
         realtimeUtil = new FirestoreRealtimeUtil();
         db = FirebaseFirestore.getInstance();
     }
@@ -207,7 +209,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void savePost(Post post) {
-        postRepository.add(post, "post", new DbUtil.OnInsertCallback() {
+        postRepository.add(post, "post", new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Post saved successfully", Toast.LENGTH_SHORT).show();
@@ -221,7 +223,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void updatePost(Post post) {
-        postRepository.update(post, post.getId(), "post", new DbUtil.OnUpdateCallback() {
+        postRepository.update(post, post.getId().getId(), new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Post updated successfully", Toast.LENGTH_SHORT).show();
@@ -239,7 +241,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
             .setTitle("Delete Post")
             .setMessage("Are you sure you want to delete \"" + post.getTitle() + "\"?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                postRepository.delete(post.getId(), "post", new DbUtil.OnDeleteCallBack() {
+                postRepository.delete(post.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "Post deleted successfully", Toast.LENGTH_SHORT).show();

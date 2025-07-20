@@ -14,6 +14,7 @@ import com.example.preely.R;
 import com.example.preely.model.entities.Transaction;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -157,8 +158,7 @@ public class AddEditTransactionDialog extends Dialog {
         
         // Set current timestamp for new transactions
         if (!isEditMode) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            transactionToSave.setTransaction_date(sdf.format(new Date()));
+            transactionToSave.setTransaction_date(Timestamp.now());
         }
 
         if (listener != null) {

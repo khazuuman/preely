@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Category Name"
-        app:startIconDrawable="@drawable/edit_24px"
+        app:startIconDrawable="@drawable/ic_edit"
         android:layout_marginBottom="16dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_name"
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Parent Category ID (Optional)"
-        app:startIconDrawable="@drawable/edit_24px"
+        app:startIconDrawable="@drawable/ic_edit"
         android:layout_marginBottom="16dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_parent_category_id"

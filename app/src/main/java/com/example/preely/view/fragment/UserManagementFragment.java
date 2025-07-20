@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.preely.util.CallBackUtil;
+import com.example.preely.util.Constraints.*;
 import com.example.preely.R;
 import com.example.preely.adapter.UserAdapter;
 import com.example.preely.dialog.AddEditUserDialog;
@@ -70,7 +72,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
         recyclerView = view.findViewById(R.id.recycler_users);
         fabAdd = view.findViewById(R.id.fab_add_user);
         etSearch = view.findViewById(R.id.et_search_users);
-        userRepository = new MainRepository<>(User.class);
+        userRepository = new MainRepository<>(User.class, CollectionName.USERS);
         realtimeUtil = new FirestoreRealtimeUtil();
         db = FirebaseFirestore.getInstance();
     }
@@ -209,7 +211,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void saveUser(User user) {
-        userRepository.add(user, "user", new DbUtil.OnInsertCallback() {
+        userRepository.add(user, "user", new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "User saved successfully", Toast.LENGTH_SHORT).show();
@@ -223,7 +225,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void updateUser(User user) {
-        userRepository.update(user, user.getId(), "user", new DbUtil.OnUpdateCallback() {
+        userRepository.update(user, user.getId().getId(),  new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "User updated successfully", Toast.LENGTH_SHORT).show();
@@ -241,7 +243,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
             .setTitle("Delete User")
             .setMessage("Are you sure you want to delete \"" + user.getFull_name() + "\"?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                userRepository.delete(user.getId(), "user", new DbUtil.OnDeleteCallBack() {
+                userRepository.delete(user.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "User deleted successfully", Toast.LENGTH_SHORT).show();

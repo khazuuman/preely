@@ -100,7 +100,7 @@ public class SearchFilterUtil {
                 String query = s.toString().toLowerCase().trim();
                 List<Transaction> filteredList = originalList.stream()
                     .filter(transaction -> transaction.getId() != null && 
-                                         transaction.getId().toLowerCase().contains(query) ||
+                                         transaction.getId().toString().toLowerCase().contains(query) ||
                                          transaction.getStatus() != null && 
                                          transaction.getStatus().toLowerCase().contains(query) ||
                                          transaction.getGiver_id() != null && 
@@ -227,8 +227,8 @@ public class SearchFilterUtil {
             return originalList;
         }
         return originalList.stream()
-            .filter(post -> post.getCategoryId() != null && 
-                          post.getCategoryId().equals(categoryId))
+            .filter(post -> post.getCategory_id() != null &&
+                          post.getCategory_id().toString().equals(categoryId))
             .collect(Collectors.toList());
     }
 

@@ -38,22 +38,22 @@ public class Post extends BaseEntity {
     String province;
     List<String> tag_ids;
 
-    // Helper methods to extract IDs from DocumentReference
-    @Exclude
-    public String getCategoryId() {
-        return category_id != null ? category_id.getId() : null;
-    }
-    
-    @Exclude
-    public String getSellerId() {
-        return seller_id != null ? seller_id.getId() : null;
-    }
-    
-    @Exclude
-    public String getLocationString() {
-        if (location != null) {
-            return location.getLatitude() + "," + location.getLongitude();
-        }
-        return null;
-    }
+//    // Helper methods to extract IDs from DocumentReference
+//    @Exclude
+//    public String getCategoryId() {
+//        return category_id != null ? category_id.getId() : null;
+//    }
+//
+//    @Exclude
+//    public String getSellerId() {
+//        return seller_id != null ? seller_id.getId() : null;
+//    }
+//
+//    @Exclude
+//    public String getLocationString() {
+//        if (location != null) {
+//            return location.getLatitude() + "," + location.getLongitude();
+//        }
+//        return null;
+//    }
 }

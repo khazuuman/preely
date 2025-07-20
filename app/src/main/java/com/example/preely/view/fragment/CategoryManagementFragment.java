@@ -19,6 +19,7 @@ import com.example.preely.adapter.CategoryAdapter;
 import com.example.preely.dialog.AddEditCategoryDialog;
 import com.example.preely.model.entities.Category;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.FirestoreRealtimeUtil;
 import com.example.preely.util.PaginationUtil;
 import com.example.preely.util.SearchFilterUtil;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
+import com.example.preely.util.Constraints.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,20 +51,20 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_category_management, container, false);
-        
+
         initViews(view);
         setupRecyclerView();
         setupSearch();
         loadCategories(); // Load data first
         setupListeners();
-        
+
         // Setup real-time listener after a short delay to ensure data is loaded
         view.post(() -> {
             if (isAdded()) { // Check if fragment is still attached
                 setupRealtimeListener();
             }
         });
-        
+
         return view;
     }
 
@@ -70,7 +72,7 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
         recyclerView = view.findViewById(R.id.recycler_categories);
         fabAdd = view.findViewById(R.id.fab_add_category);
         etSearch = view.findViewById(R.id.et_search_categories);
-        categoryRepository = new MainRepository<>(Category.class);
+        categoryRepository = new MainRepository<>(Category.class, CollectionName.CATEGORIES);
         realtimeUtil = new FirestoreRealtimeUtil();
         db = FirebaseFirestore.getInstance();
     }
@@ -83,14 +85,14 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void setupSearch() {
-        SearchFilterUtil.setupCategorySearch(etSearch, originalCategoryList, categoryAdapter, 
-            new SearchFilterUtil.SearchFilterCallback<Category>() {
-                @Override
-                public void onFiltered(List<Category> filteredList) {
-                    categoryList.clear();
-                    categoryList.addAll(filteredList);
-                }
-            });
+        SearchFilterUtil.setupCategorySearch(etSearch, originalCategoryList, categoryAdapter,
+                new SearchFilterUtil.SearchFilterCallback<Category>() {
+                    @Override
+                    public void onFiltered(List<Category> filteredList) {
+                        categoryList.clear();
+                        categoryList.addAll(filteredList);
+                    }
+                });
     }
 
     private void setupRealtimeListener() {
@@ -101,8 +103,8 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
                     getActivity().runOnUiThread(() -> {
                         // Check if category already exists to avoid duplicate notifications
                         boolean categoryExists = originalCategoryList.stream()
-                            .anyMatch(existingCategory -> existingCategory.getId().equals(category.getId()));
-                        
+                                .anyMatch(existingCategory -> existingCategory.getId().equals(category.getId()));
+
                         if (!categoryExists) {
                             originalCategoryList.add(category);
                             categoryList.add(category);
@@ -181,33 +183,33 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void showAddCategoryDialog() {
-        AddEditCategoryDialog dialog = new AddEditCategoryDialog(getContext(), null, 
-            new AddEditCategoryDialog.OnCategoryDialogListener() {
-                @Override
-                public void onCategorySaved(Category category, boolean isEdit) {
-                    if (isEdit) {
-                        updateCategory(category);
-                    } else {
-                        saveCategory(category);
+        AddEditCategoryDialog dialog = new AddEditCategoryDialog(getContext(), null,
+                new AddEditCategoryDialog.OnCategoryDialogListener() {
+                    @Override
+                    public void onCategorySaved(Category category, boolean isEdit) {
+                        if (isEdit) {
+                            updateCategory(category);
+                        } else {
+                            saveCategory(category);
+                        }
                     }
-                }
-            });
+                });
         dialog.show();
     }
 
     private void showEditCategoryDialog(Category category) {
-        AddEditCategoryDialog dialog = new AddEditCategoryDialog(getContext(), category, 
-            new AddEditCategoryDialog.OnCategoryDialogListener() {
-                @Override
-                public void onCategorySaved(Category category, boolean isEdit) {
-                    updateCategory(category);
-                }
-            });
+        AddEditCategoryDialog dialog = new AddEditCategoryDialog(getContext(), category,
+                new AddEditCategoryDialog.OnCategoryDialogListener() {
+                    @Override
+                    public void onCategorySaved(Category category, boolean isEdit) {
+                        updateCategory(category);
+                    }
+                });
         dialog.show();
     }
 
     private void saveCategory(Category category) {
-        categoryRepository.add(category, "category", new DbUtil.OnInsertCallback() {
+        categoryRepository.add(category, "category", new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Category saved successfully", Toast.LENGTH_SHORT).show();
@@ -221,7 +223,7 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void updateCategory(Category category) {
-        categoryRepository.update(category, category.getId(), "category", new DbUtil.OnUpdateCallback() {
+        categoryRepository.update(category, category.getId().getId(), new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Category updated successfully", Toast.LENGTH_SHORT).show();
@@ -236,23 +238,23 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
 
     private void deleteCategory(Category category) {
         new AlertDialog.Builder(getContext())
-            .setTitle("Delete Category")
-            .setMessage("Are you sure you want to delete \"" + category.getName() + "\"?")
-            .setPositiveButton("Delete", (dialog, which) -> {
-                categoryRepository.delete(category.getId(), "category", new DbUtil.OnDeleteCallBack() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(getContext(), "Category deleted successfully", Toast.LENGTH_SHORT).show();
-                    }
+                .setTitle("Delete Category")
+                .setMessage("Are you sure you want to delete \"" + category.getName() + "\"?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    categoryRepository.delete(category.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(getContext(), "Category deleted successfully", Toast.LENGTH_SHORT).show();
+                        }
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        Toast.makeText(getContext(), "Error deleting category: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getContext(), "Error deleting category: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
@@ -267,11 +269,11 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
         }
 
         new AlertDialog.Builder(getContext())
-            .setTitle("Category Details")
-            .setMessage(details.toString())
-            .setPositiveButton("Edit", (dialog, which) -> showEditCategoryDialog(category))
-            .setNegativeButton("Close", null)
-            .show();
+                .setTitle("Category Details")
+                .setMessage(details.toString())
+                .setPositiveButton("Edit", (dialog, which) -> showEditCategoryDialog(category))
+                .setNegativeButton("Close", null)
+                .show();
     }
 
     @Override
