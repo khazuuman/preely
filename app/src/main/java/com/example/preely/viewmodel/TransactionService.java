@@ -123,7 +123,7 @@ public class TransactionService extends ViewModel {
                         existingTransaction.setTransaction_date(currentTime);
                         
                         // Save back to Firestore
-                        transactionRepository.update(existingTransaction, transactionId, new com.example.preely.util.DbUtil.OnUpdateCallback() {
+                        transactionRepository.update(existingTransaction, existingTransaction.getId(), "transactions", new com.example.preely.util.DbUtil.OnUpdateCallback() {
                             @Override
                             public void onSuccess() {
                                 Log.d("TransactionService", "Transaction status updated successfully");
@@ -308,7 +308,7 @@ public class TransactionService extends ViewModel {
                 existingTransaction.setTransaction_date(currentTime);
                 
                 // Save back to Firestore
-                transactionRepository.update(existingTransaction, existingTransaction.getId(), new com.example.preely.util.DbUtil.OnUpdateCallback() {
+                transactionRepository.update(existingTransaction, existingTransaction.getId(), "transactions", new com.example.preely.util.DbUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
                         Log.d("TransactionService", "Transaction status updated successfully by field search");

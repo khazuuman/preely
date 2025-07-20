@@ -59,6 +59,20 @@ public class LoginService extends ViewModel {
             return;
         }
 
+        // Check for admin credentials first
+        if ("Admin".equals(request.getUsername()) && "Admin@123".equals(request.getPassword())) {
+            // Create admin user response
+            UserResponse adminUser = new UserResponse();
+            adminUser.setId("admin");
+            adminUser.setUsername("Admin");
+            adminUser.setFull_fame("Administrator");
+            adminUser.setEmail("admin@preely.com");
+            adminUser.setPhone_number("0000000000");
+            loginResult.setValue(adminUser);
+            return;
+        }
+
+        // Check database for regular users
         Query query = FirebaseFirestore.getInstance()
                 .collection(CollectionName.USERS)
                 .whereEqualTo("username", request.getUsername());
@@ -67,6 +81,8 @@ public class LoginService extends ViewModel {
             if (user != null && DataUtil.checkPassword(request.getPassword(), user.getEncode_password())) {
                 Log.i("User info", user.getId());
                 loginResult.setValue(DataUtil.mapObj(user, UserResponse.class));
+            } else {
+                loginResult.setValue(null);
             }
         });
     }

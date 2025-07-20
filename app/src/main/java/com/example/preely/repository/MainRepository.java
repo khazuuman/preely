@@ -143,9 +143,9 @@ public class MainRepository<T> {
     }
 
     // Insert multiple documents using a batch
-    public void addRange(List<T> objects, DbUtil.OnInsertManyCallback callback) {
+    public void addRange(List<T> objects, String collectionName, DbUtil.OnInsertManyCallback callback) {
         WriteBatch batch = db.batch();
-        CollectionReference collectionRef = db.collection(getCollectionName());
+        CollectionReference collectionRef = db.collection(collectionName);
         try {
             for (T object : objects) {
                 DocumentReference docRef = collectionRef.document();
@@ -165,8 +165,8 @@ public class MainRepository<T> {
     }
 
     // Update a single document
-    public void update(T object, String documentId, DbUtil.OnUpdateCallback callback) {
-        DocumentReference docRef = db.collection(getCollectionName()).document(documentId);
+    public void update(T object, String documentId, String collectionName, DbUtil.OnUpdateCallback callback) {
+        DocumentReference docRef = db.collection(collectionName).document(documentId);
         docRef.set(object)
                 .addOnSuccessListener(aVoid -> {
                     if (callback != null) callback.onSuccess();
@@ -177,13 +177,13 @@ public class MainRepository<T> {
     }
 
     // Update multiple documents using a batch
-    public void updateRange(Map<String, T> entities, DbUtil.OnUpdateCallback callback) {
+    public void updateRange(Map<String, T> entities, String collectionName, DbUtil.OnUpdateCallback callback) {
         WriteBatch batch = db.batch();
         try {
             for (Map.Entry<String, T> entry : entities.entrySet()) {
                 String id = entry.getKey();
                 T object = entry.getValue();
-                batch.set(db.collection(getCollectionName()).document(id), object);
+                batch.set(db.collection(collectionName).document(id), object);
             }
             batch.commit()
                     .addOnSuccessListener(aVoid -> {
@@ -199,8 +199,8 @@ public class MainRepository<T> {
 
 
     // Delete a single document
-    public void delete(String documentId, DbUtil.OnDeleteCallBack callBack) {
-        db.collection(getCollectionName()).document(documentId)
+    public void delete(String documentId, String collectionName, DbUtil.OnDeleteCallBack callBack) {
+        db.collection(collectionName).document(documentId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
                     if (callBack != null) callBack.onSuccess();
@@ -212,10 +212,10 @@ public class MainRepository<T> {
 
 
     // Delete multiple documents using a batch
-    public void deleteRange(List<String> documentIds, DbUtil.OnDeleteCallBack callBack) {
+    public void deleteRange(List<String> documentIds, String collectionName, DbUtil.OnDeleteCallBack callBack) {
         WriteBatch batch = db.batch();
         for (String documentId : documentIds) {
-            batch.delete(db.collection(getCollectionName()).document(documentId));
+            batch.delete(db.collection(collectionName).document(documentId));
         }
         batch.commit()
                 .addOnSuccessListener(unused -> {

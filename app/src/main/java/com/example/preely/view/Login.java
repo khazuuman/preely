@@ -88,7 +88,13 @@ public class Login extends AppCompatActivity {
             if (userResponse != null) {
                 sessionManager.setUserId(userResponse.getId());
                 CustomToast.makeText(this, "Login Successful", CustomToast.LENGTH_SHORT, NotificationType.SUCCESS).show();
-                startActivity(new Intent(this, HomeActivity.class));
+                
+                Intent intent = new Intent(this, HomeActivity.class);
+                // Check if user is admin
+                if ("admin".equals(userResponse.getId()) || "Admin".equals(userResponse.getUsername())) {
+                    intent.putExtra("isAdmin", true);
+                }
+                startActivity(intent);
                 finishAffinity();
             } else {
                 CustomToast.makeText(this, "Invalid username or password", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();

@@ -4,22 +4,29 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.preely.R;
 import com.example.preely.authentication.SessionManager;
+import com.example.preely.view.fragment.CategoryManagementFragment;
+import com.example.preely.view.fragment.HomeFragment;
+import com.example.preely.view.fragment.ImageManagementFragment;
+import com.example.preely.view.fragment.ManagementFragment;
+import com.example.preely.view.fragment.PostManagementFragment;
+import com.example.preely.view.fragment.TagManagementFragment;
+import com.example.preely.view.fragment.TransactionManagementFragment;
+import com.example.preely.view.fragment.UserManagementFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 
-    TextView homeText;
-    Button btnCreateTransaction;
+    private BottomNavigationView bottomNavigationView;
+    private FragmentManager fragmentManager;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -29,26 +36,72 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         SessionManager sessionManager = new SessionManager(getApplicationContext());
-//        if (!sessionManager.getLogin()) {
-//            sessionManager.clearSession();
-//            startActivity(new Intent(this, Login.class));
-//            finish();
-//        }
+        if (!sessionManager.getLogin()) {
+            sessionManager.clearSession();
+            startActivity(new Intent(this, Login.class));
+            finish();
+            return;
+        }
 
-        homeText = findViewById(R.id.homeText);
-        homeText.setOnClickListener(v -> {
-            Log.i("user session", sessionManager.getUserId());
-            // Open the page to create an escrow transaction
-            Intent intent = new Intent(this, TransactionActivity.class);
-            startActivity(intent);
-        });
+        initViews();
+        setupBottomNavigation();
+        
+        // Check if user is admin
+        boolean isAdmin = getIntent().getBooleanExtra("isAdmin", false);
+        
+        if (isAdmin) {
+            // For admin, start with User Management tab
+            bottomNavigationView.setSelectedItemId(R.id.navigation_users);
+            loadFragment(new UserManagementFragment());
+        } else {
+            // For regular users, start with Home tab
+            loadFragment(new HomeFragment());
+        }
+    }
 
-        btnCreateTransaction = findViewById(R.id.btn_create_transaction);
-        btnCreateTransaction.setOnClickListener(v -> {
-            Intent intent = new Intent(this, TransactionActivity.class);
-            startActivity(intent);
+    private void initViews() {
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        fragmentManager = getSupportFragmentManager();
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            Fragment fragment = null;
+            
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_home) {
+                fragment = new HomeFragment();
+            } else if (itemId == R.id.navigation_users) {
+                fragment = new UserManagementFragment();
+            } else if (itemId == R.id.navigation_posts) {
+                fragment = new PostManagementFragment();
+            } else if (itemId == R.id.navigation_transactions) {
+                fragment = new TransactionManagementFragment();
+            } else if (itemId == R.id.navigation_management) {
+                fragment = new ManagementFragment();
+            }
+
+            if (fragment != null) {
+                loadFragment(fragment);
+                return true;
+            }
+            return false;
         });
     }
 
-    // Remove onActivityResult because PaymentHelper is no longer used
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (fragmentManager.getBackStackEntryCount() > 1) {
+            fragmentManager.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

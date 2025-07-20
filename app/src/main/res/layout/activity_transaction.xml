@@ -17,17 +17,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tạo giao dịch trung gian"
+            android:text="@string/transaction_title"
             android:textSize="28sp"
             android:fontFamily="@font/zain_bold"
             android:layout_marginBottom="24dp"/>
 
-        <!-- Chọn người nhận (giver_id) -->
+        <!-- Select recipient (giver_id) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/giver_til"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Chọn người nhận (giver)"
+            android:hint="@string/select_giver"
             app:startIconDrawable="@drawable/account_icon">
             <AutoCompleteTextView
                 android:id="@+id/giver_dropdown"
@@ -45,12 +45,12 @@
                 android:fontFamily="@font/zain_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Chọn bài post (post_id) -->
+        <!-- Select post (post_id) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/post_til"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Chọn bài post"
+            android:hint="@string/select_post"
             app:startIconDrawable="@drawable/edit_24px">
             <AutoCompleteTextView
                 android:id="@+id/post_dropdown"
@@ -68,12 +68,12 @@
                 android:fontFamily="@font/zain_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Nhập số tiền -->
+        <!-- Enter amount -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/amount_til"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Số tiền">
+            android:hint="@string/enter_amount">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/amount_input"
                 android:layout_width="match_parent"
@@ -82,34 +82,34 @@
                 android:hint=""/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Trạng thái -->
+        <!-- Status -->
         <TextView
             android:id="@+id/status_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Trạng thái: Unpaid"
+            android:text="@string/status_unpaid"
             android:textSize="16sp"
             android:fontFamily="@font/zain_regular"
             android:layout_marginTop="12dp"
             android:visibility="gone"/>
 
-        <!-- Ngày giao dịch -->
+        <!-- Transaction date -->
         <TextView
             android:id="@+id/transaction_date_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ngày giao dịch: 01/01/2024"
+            android:text="@string/transaction_date"
             android:textSize="16sp"
             android:fontFamily="@font/zain_regular"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="24dp"/>
 
-        <!-- Nút thanh toán -->
+        <!-- Pay button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_pay_vnpay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thanh toán qua VNPay"
+            android:text="@string/pay_with_vnpay"
             android:textSize="20sp"
             android:fontFamily="@font/zain_bold"
             android:backgroundTint="#1DABDD"

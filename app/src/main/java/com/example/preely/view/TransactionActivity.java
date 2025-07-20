@@ -62,21 +62,21 @@ public class TransactionActivity extends AppCompatActivity {
 
         // Initialize progress dialog
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Đang tải dữ liệu...");
+        progressDialog.setMessage(getString(R.string.loading_data));
         progressDialog.setCancelable(false);
 
         // Get requester ID from session
         SessionManager sessionManager = new SessionManager(this);
         requesterId = sessionManager.getUserId();
         if (requesterId == null) {
-            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         // Set current date
         String today = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
-        transactionDateTv.setText("Ngày giao dịch: " + today);
+        transactionDateTv.setText(getString(R.string.transaction_date, today));
 
         // Initially disable post dropdown until giver is selected
         postDropdown.setEnabled(false);
@@ -96,8 +96,8 @@ public class TransactionActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && data != null && data.hasExtra("transaction")) {
             Transaction transaction = (Transaction) data.getSerializableExtra("transaction");
             if (transaction != null) {
-                statusTv.setText("Trạng thái: " + transaction.getStatus());
-                Toast.makeText(this, "Kết quả thanh toán: " + transaction.getStatus(), Toast.LENGTH_LONG).show();
+                statusTv.setText("Status: " + transaction.getStatus());
+                Toast.makeText(this, "Payment result: " + transaction.getStatus(), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -125,10 +125,10 @@ public class TransactionActivity extends AppCompatActivity {
                 Log.d("TransactionActivity", "Loaded users: " + names.size());
                 debugAllUsers(); // Debug all users
                 if (names.isEmpty()) {
-                    Toast.makeText(this, "Không có người dùng để chọn!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.no_users_to_select), Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(this, "Không thể tải danh sách người dùng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.cannot_load_users), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -194,11 +194,11 @@ public class TransactionActivity extends AppCompatActivity {
                 Log.d("TransactionActivity", "Loaded posts: " + postList.size());
                 debugAllPosts(); // Debug all posts
                 if (postList.isEmpty()) {
-                    Toast.makeText(this, "Không có bài post để chọn!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.no_posts_to_select), Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Log.e("TransactionActivity", "Posts response is null");
-                Toast.makeText(this, "Không thể tải danh sách bài post", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.cannot_load_posts), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -209,7 +209,7 @@ public class TransactionActivity extends AppCompatActivity {
                 giverDropdown.showDropDown();
                 Log.d("TransactionActivity", "Show user dropdown: " + userAdapter.getCount());
             } else {
-                Toast.makeText(this, "Không có người dùng để chọn!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.no_users_to_select), Toast.LENGTH_SHORT).show();
             }
         });
         giverDropdown.setOnFocusChangeListener((v, hasFocus) -> {
@@ -235,7 +235,7 @@ public class TransactionActivity extends AppCompatActivity {
                             
                             // Enable post dropdown first
                             postDropdown.setEnabled(true);
-                            postDropdown.setHint("Chọn bài post");
+                            postDropdown.setHint(getString(R.string.select_post));
                             
                             // Then filter and load posts
                             loadPostsForGiver(selectedGiverId);
@@ -245,7 +245,7 @@ public class TransactionActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Log.e("TransactionActivity", "Error selecting user", e);
-                Toast.makeText(this, "Lỗi khi chọn người dùng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_selecting_user), Toast.LENGTH_SHORT).show();
             }
         });
         giverDropdown.addTextChangedListener(new android.text.TextWatcher() {
@@ -261,7 +261,7 @@ public class TransactionActivity extends AppCompatActivity {
                   ", Selected giver: " + selectedGiverId);
             
             if (selectedGiverId == null) {
-                Toast.makeText(this, "Vui lòng chọn người gửi trước!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.select_giver_first), Toast.LENGTH_SHORT).show();
                 return;
             }
             
@@ -269,7 +269,7 @@ public class TransactionActivity extends AppCompatActivity {
                 postDropdown.showDropDown();
                 Log.d("TransactionActivity", "Show post dropdown: " + postAdapter.getCount());
             } else {
-                Toast.makeText(this, "Không có bài post để chọn!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.no_posts_to_select), Toast.LENGTH_SHORT).show();
             }
         });
         postDropdown.setOnFocusChangeListener((v, hasFocus) -> {
@@ -301,7 +301,7 @@ public class TransactionActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Log.e("TransactionActivity", "Error selecting post", e);
-                Toast.makeText(this, "Lỗi khi chọn bài post", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_selecting_post), Toast.LENGTH_SHORT).show();
             }
         });
         postDropdown.addTextChangedListener(new android.text.TextWatcher() {
@@ -342,7 +342,7 @@ public class TransactionActivity extends AppCompatActivity {
     
     private void filterPostDropdown(String query) {
         if (selectedGiverId == null) {
-            Toast.makeText(this, "Vui lòng chọn người gửi trước!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.select_giver_first), Toast.LENGTH_SHORT).show();
             return;
         }
         
@@ -421,7 +421,7 @@ public class TransactionActivity extends AppCompatActivity {
         postDropdown.setThreshold(1); // Show dropdown after 1 character
         
         if (titles.isEmpty()) {
-            Toast.makeText(this, "Người dùng này chưa có bài post nào!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.no_posts_found_for_giver, giverId), Toast.LENGTH_SHORT).show();
             Log.d("TransactionActivity", "No posts found for giver: " + giverId);
         } else {
             Log.d("TransactionActivity", "Successfully loaded " + titles.size() + " posts for giver: " + giverId);
@@ -466,7 +466,7 @@ public class TransactionActivity extends AppCompatActivity {
         postDropdown.setAdapter(postAdapter);
         
         if (titles.isEmpty()) {
-            Toast.makeText(this, "Người dùng này chưa có bài post nào!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.no_posts_found_for_giver, giverId), Toast.LENGTH_SHORT).show();
             Log.d("TransactionActivity", "No posts found for giver: " + giverId);
         } else {
             postDropdown.showDropDown();
@@ -477,22 +477,22 @@ public class TransactionActivity extends AppCompatActivity {
     private void handlePayVNPay() {
         String amountStr = amountInput.getText().toString().trim();
         if (selectedGiverId == null) {
-            Toast.makeText(this, "Vui lòng chọn người nhận!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_select_giver), Toast.LENGTH_SHORT).show();
             return;
         }
         if (selectedPostId == null) {
-            Toast.makeText(this, "Vui lòng chọn bài post!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_select_post), Toast.LENGTH_SHORT).show();
             return;
         }
         if (amountStr.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập số tiền!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_enter_amount), Toast.LENGTH_SHORT).show();
             return;
         }
         final double amount;
         try {
             amount = Double.parseDouble(amountStr);
         } catch (Exception e) {
-            Toast.makeText(this, "Số tiền không hợp lệ!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.invalid_amount), Toast.LENGTH_SHORT).show();
             return;
         }
         
@@ -515,7 +515,7 @@ public class TransactionActivity extends AppCompatActivity {
             
             @Override
             public void onError(String error) {
-                Toast.makeText(TransactionActivity.this, "Lỗi tạo giao dịch: " + error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(TransactionActivity.this, getString(R.string.create_transaction_error, error), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -523,7 +523,7 @@ public class TransactionActivity extends AppCompatActivity {
     private void startVNPayActivity(Transaction savedTransaction, double amount) {
         Intent intent = new Intent(TransactionActivity.this, VNPayActivity.class);
         intent.putExtra("amount", amount);
-        intent.putExtra("orderInfo", "Giao dịch trung gian cho post: " + getPostTitleById(selectedPostId));
+        intent.putExtra("orderInfo", getString(R.string.order_info, getPostTitleById(selectedPostId)));
         intent.putExtra("transaction", savedTransaction);
         intent.putExtra("requesterId", requesterId);
         intent.putExtra("giverId", selectedGiverId);
