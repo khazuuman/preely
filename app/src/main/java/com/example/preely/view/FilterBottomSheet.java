@@ -11,12 +11,10 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
-import com.example.preely.adapter.CategoryAdapter;
 import com.example.preely.adapter.CategoryFilterAdapter;
 import com.example.preely.model.request.CategoryFilterRequest;
 import com.example.preely.model.response.CategoryResponse;

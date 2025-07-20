@@ -1,30 +1,22 @@
 package com.example.preely.view;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
-import com.example.preely.adapter.CategoryAdapter;
-import com.example.preely.adapter.PostAdapter;
+import com.example.preely.adapter.CategoryMarketAdapter;
+import com.example.preely.adapter.PostMarketAdapter;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.PostFilterRequest;
 import com.example.preely.model.response.CategoryResponse;
@@ -35,7 +27,6 @@ import com.example.preely.viewmodel.PostService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -43,8 +34,8 @@ public class HomeActivity extends AppCompatActivity {
     private final List<PostResponse> postList = new ArrayList<>();
     private CategoryService categoryService;
     private PostService postService;
-    private CategoryAdapter categoryAdapter;
-    private PostAdapter postAdapter;
+    private CategoryMarketAdapter categoryAdapter;
+    private PostMarketAdapter postAdapter;
     RecyclerView cateRecycleView, postRecycleView;
     TextView nameTv;
     ImageButton scrollToTopBtn;
@@ -88,14 +79,14 @@ public class HomeActivity extends AppCompatActivity {
         categoryService.getCateList();
         cateRecycleView = findViewById(R.id.cate_recycle_view);
         cateRecycleView.setLayoutManager(new GridLayoutManager(this, 4));
-        categoryAdapter = new CategoryAdapter(categoryList);
+        categoryAdapter = new CategoryMarketAdapter(categoryList);
         cateRecycleView.setAdapter(categoryAdapter);
 
         // post list
         postService = new ViewModelProvider(this).get(PostService.class);
         postRecycleView = findViewById(R.id.post_recycle_view);
         postRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostAdapter(postList);
+        postAdapter = new PostMarketAdapter(postList);
         postRecycleView.setAdapter(postAdapter);
         observePostList();
         currentRequest = new PostFilterRequest();

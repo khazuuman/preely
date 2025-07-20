@@ -3,7 +3,6 @@ package com.example.preely.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,12 +13,12 @@ import com.example.preely.model.response.CategoryResponse;
 
 import java.util.List;
 
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
+public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAdapter.CategoryViewHolder> {
 
 
     private final List<CategoryResponse> categoryList;
 
-    public CategoryAdapter(List<CategoryResponse> categoryList) {
+    public CategoryMarketAdapter(List<CategoryResponse> categoryList) {
         this.categoryList = categoryList;
     }
 

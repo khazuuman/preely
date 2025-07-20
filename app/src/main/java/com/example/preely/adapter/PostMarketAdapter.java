@@ -1,8 +1,5 @@
 package com.example.preely.adapter;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +18,13 @@ import com.example.preely.viewmodel.PostService;
 
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<PostResponse> postList;
     private final int VIEW_TYPE_LOADING = 0;
     private final int VIEW_TYPE_ITEM = 1;
 
-    public PostAdapter(List<PostResponse> postList) {
+    public PostMarketAdapter(List<PostResponse> postList) {
         this.postList = postList;
     }
 
