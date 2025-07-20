@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">preely</string>
     <string name="username">Username</string>
+    <string name="client_id">1080272614668-2id7ppmb6konpbps55epd6qf9158p1b5.apps.googleusercontent.com</string>
+
+
+    <string name="facebook_app_id">1274291724291780</string>
+    <string name="fb_login_protocol_scheme">fb1274291724291780</string>
+    <string name="facebook_client_token">b591e53c66bb8cdfdf13e8e6b3b08e53</string>
+    <string name="sort_filter"><![CDATA[Sort & Filter]]></string>
+
+
 </resources>

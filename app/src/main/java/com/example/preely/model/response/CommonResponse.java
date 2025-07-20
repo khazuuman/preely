@@ -1,4 +1,7 @@
-package com.example.preely.model.request;
+package com.example.preely.model.response;
+
+import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.DocumentReference;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequest {
-    String username;
-    String password;
+public class CommonResponse {
+    @DocumentId
+    DocumentReference id;
 }

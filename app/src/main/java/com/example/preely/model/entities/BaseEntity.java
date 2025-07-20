@@ -2,6 +2,8 @@ package com.example.preely.model.entities;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Exclude;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,11 +15,10 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @DocumentId
-    String id;
+    DocumentReference id;
     Timestamp update_at;
     Timestamp create_at;
-
 }

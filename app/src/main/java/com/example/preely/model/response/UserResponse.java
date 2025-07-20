@@ -17,9 +17,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse extends CommonDto {
+public class UserResponse extends CommonResponse {
 
-    String full_fame;
+    String full_name;
     String username;
     String phone_number;
     String address;

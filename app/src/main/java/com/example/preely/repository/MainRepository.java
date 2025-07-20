@@ -1,13 +1,10 @@
 package com.example.preely.repository;
 
 import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
-import com.example.preely.util.DataUtil;
-import com.example.preely.util.DbUtil;
-import com.example.preely.util.FirestoreCallback;
+import com.example.preely.model.entities.BaseEntity;
+import com.example.preely.util.CallBackUtil;
 import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -17,24 +14,22 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.android.gms.tasks.Tasks;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MainRepository<T> {
+public class MainRepository<T extends BaseEntity> {
     private FirebaseFirestore db;
     private String collectionName;
     private Class<T> modelCl;
 
-    public MainRepository(Class<T> modelCl) {
+    public MainRepository(Class<T> modelCl, String collectionName) {
         this.db = FirebaseFirestore.getInstance();
+        this.collectionName = collectionName;
         this.modelCl = modelCl;
     }
 
@@ -71,8 +66,13 @@ public class MainRepository<T> {
         MutableLiveData<T> result = new MutableLiveData<>();
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
-                result.setValue(doc.toObject(modelCl));
+                List<DocumentSnapshot> resultList = task.getResult().getDocuments();
+                if (!resultList.isEmpty()) {
+                    DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                    result.setValue(doc.toObject(modelCl));
+                } else {
+                    result.setValue(null);
+                }
             } else {
                 result.setValue(null);
             }
@@ -101,7 +101,7 @@ public class MainRepository<T> {
     }
 
     // Insert a single document
-    public void add(T object, String collectionName, DbUtil.OnInsertCallback callback) {
+    public void add(T object, String collectionName, CallBackUtil.OnInsertCallback callback) {
         db.collection(collectionName)
                 .add(object)
                 .addOnSuccessListener(documentReference -> {
@@ -117,7 +117,7 @@ public class MainRepository<T> {
     }
 
     // Insert multiple documents using a batch
-    public void addRange(List<T> objects, DbUtil.OnInsertManyCallback callback) {
+    public void addRange(List<T> objects, CallBackUtil.OnInsertManyCallback callback) {
         WriteBatch batch = db.batch();
         CollectionReference collectionRef = db.collection(getCollectionName());
         try {
@@ -139,8 +139,8 @@ public class MainRepository<T> {
     }
 
     // Update a single document
-    public void update(T object, String documentId, DbUtil.OnUpdateCallback callback) {
-        DocumentReference docRef = db.collection(getCollectionName()).document(documentId);
+    public void update(T object, String documentId, CallBackUtil.OnUpdateCallback callback) {
+        DocumentReference docRef = db.collection(getCollectionName()).document(String.valueOf(documentId));
         docRef.set(object)
                 .addOnSuccessListener(aVoid -> {
                     if (callback != null) callback.onSuccess();
@@ -151,7 +151,7 @@ public class MainRepository<T> {
     }
 
     // Update multiple documents using a batch
-    public void updateRange(Map<String, T> entities, DbUtil.OnUpdateCallback callback) {
+    public void updateRange(Map<String, T> entities, CallBackUtil.OnUpdateCallback callback) {
         WriteBatch batch = db.batch();
         try {
             for (Map.Entry<String, T> entry : entities.entrySet()) {
@@ -173,7 +173,7 @@ public class MainRepository<T> {
 
 
     // Delete a single document
-    public void delete(String documentId, DbUtil.OnDeleteCallBack callBack) {
+    public void delete(String documentId, CallBackUtil.OnDeleteCallBack callBack) {
         db.collection(getCollectionName()).document(documentId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
@@ -186,7 +186,7 @@ public class MainRepository<T> {
 
 
     // Delete multiple documents using a batch
-    public void deleteRange(List<String> documentIds, DbUtil.OnDeleteCallBack callBack) {
+    public void deleteRange(List<String> documentIds, CallBackUtil.OnDeleteCallBack callBack) {
         WriteBatch batch = db.batch();
         for (String documentId : documentIds) {
             batch.delete(db.collection(getCollectionName()).document(documentId));

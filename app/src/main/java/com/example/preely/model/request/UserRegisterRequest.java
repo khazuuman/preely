@@ -1,6 +1,4 @@
-package com.example.preely.model.entities;
-
-import com.google.firebase.firestore.DocumentId;
+package com.example.preely.model.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,9 +10,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostTag extends BaseEntity{
-
-    String post_id;
-    String tag_id;
-
+public class UserRegisterRequest {
+    String username;
+    String password;
+    String confirmPassword;
 }

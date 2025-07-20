@@ -1,8 +1,19 @@
 package com.example.preely.util;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 public class DataUtil {
 
@@ -15,13 +26,12 @@ public class DataUtil {
         return BCrypt.checkpw(password, hashedPassword);
     }
 
-    public static <T> T mapObj(Object source, Class<T> targetClass) {
+    public static <T> T mapObj(Object source, Class<T> targetClass) throws IllegalAccessException, InstantiationException {
+        T target = targetClass.newInstance();
         try {
-            T target = targetClass.newInstance();
-
             Field[] declaredSourceFields = source.getClass().getDeclaredFields();
             Field[] declaredSourceSuperFields = source.getClass().getSuperclass() != null
-                    ?  targetClass.getSuperclass().getDeclaredFields()
+                    ? source.getClass().getSuperclass().getDeclaredFields()
                     : new Field[0];
 
             Field[] sourceFields = new Field[declaredSourceFields.length + declaredSourceSuperFields.length];
@@ -50,8 +60,45 @@ public class DataUtil {
                 }
             }
             return target;
-        } catch (IllegalAccessException | InstantiationException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean isValidPassword(String input) {
+        return input.matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$");
+    }
+
+    public static Gson buildGsonAccountSession() {
+        return new GsonBuilder()
+                // GeoPoint
+                .registerTypeAdapter(GeoPoint.class, (JsonSerializer<GeoPoint>) (src, typeOfSrc, context) -> {
+                    if (src == null) return null;
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("lat", src.getLatitude());
+                    obj.addProperty("lng", src.getLongitude());
+                    return obj;
+                })
+                .registerTypeAdapter(GeoPoint.class, (JsonDeserializer<GeoPoint>) (json, typeOfT, context) -> {
+                    if (json == null || !json.isJsonObject()) return null;
+                    JsonObject obj = json.getAsJsonObject();
+                    double lat = obj.get("lat").getAsDouble();
+                    double lng = obj.get("lng").getAsDouble();
+                    return new GeoPoint(lat, lng);
+                })
+
+                // DocumentReference
+                .registerTypeAdapter(DocumentReference.class, (JsonSerializer<DocumentReference>) (src, typeOfSrc, context) -> {
+                    if (src == null) return null;
+                    return new JsonPrimitive(src.getId());
+                })
+                .registerTypeAdapter(DocumentReference.class, (JsonDeserializer<DocumentReference>) (json, typeOfT, context) -> {
+                    if (json == null || !json.isJsonPrimitive()) return null;
+                    String id = json.getAsString();
+                    return FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(id);
+                })
+                .create();
     }
 }

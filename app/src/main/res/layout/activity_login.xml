@@ -26,14 +26,14 @@
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/twitter_logo" />
+            android:src="@drawable/ic_twitter" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Login to Your Account"
             android:fontFamily="@font/zain_regular"
-            android:textSize="42sp"
+            android:textSize="40sp"
             android:textFontWeight="800"/>
     </LinearLayout>
 
@@ -51,7 +51,7 @@
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            app:startIconDrawable="@drawable/account_icon"
+            app:startIconDrawable="@drawable/ic_account"
             app:startIconTint="@null"
             app:boxBackgroundMode="none"
             android:textColorHint="#9F9F9F">
@@ -79,7 +79,7 @@
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            app:startIconDrawable="@drawable/pass_icon"
+            app:startIconDrawable="@drawable/ic_pass"
             android:hint="Password"
             android:textColorHint="#9F9F9F"
             app:boxBackgroundMode="none"
@@ -134,7 +134,7 @@
             android:text="Forgot the password?"
             android:backgroundTint="@android:color/transparent"
             android:textColor="@color/black"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:fontFamily="@font/zain_bold"/>
 
         <TextView
@@ -142,7 +142,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="or continue with"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textColor="#454545"
             android:fontFamily="@font/zain_bold"/>
 
@@ -153,20 +153,23 @@
             android:orientation="horizontal"
             android:gravity="center">
             <ImageView
+                android:id="@+id/face_icon"
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/facebook_icon"/>
+                android:src="@drawable/ic_facebook"/>
             <ImageView
+                android:id="@+id/google_icon"
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/google_icon"/>
+                android:src="@drawable/ic_google"/>
             <ImageView
+                android:id="@+id/ggLogout_btn"
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/apple_icon"/>
+                android:src="@drawable/ic_apple"/>
         </LinearLayout>
 
         <LinearLayout
@@ -182,6 +185,7 @@
                 android:textSize="20sp"
                 android:textColor="#9E9E9E"/>
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/signup_btn"
                 android:paddingLeft="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

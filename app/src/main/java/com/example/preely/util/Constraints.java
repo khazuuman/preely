@@ -5,6 +5,9 @@ public class Constraints {
     public interface CollectionName {
         String USERS = "user";
         String CATEGORIES = "category";
+        String POSTS = "post";
+        String TAGS = "tag";
+        String SAVED_POST = "savedposts";
     }
 
     public interface NotificationType {

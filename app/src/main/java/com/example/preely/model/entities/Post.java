@@ -1,9 +1,12 @@
 package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,18 +18,19 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post extends BaseEntity{
+public class Post extends BaseEntity {
 
-    String category_id;
-    String seller_id;
-    BigDecimal price;
+    DocumentReference category_id;
+    DocumentReference seller_id;
+    Double price;
     String status;
     String title;
     String currency;
     String description;
-    String location;
-    BigInteger view_count;
+    GeoPoint location;
+    Long view_count;
     String ward;
     String province;
+    List<String> tag_ids;
 
 }

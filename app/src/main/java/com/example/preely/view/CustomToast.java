@@ -32,10 +32,10 @@ public class CustomToast extends Toast {
         l1.setText(message);
         if (type == NotificationType.SUCCESS) {
             constraintLayout.setBackgroundResource(R.drawable.success_shape);
-            iconImg.setImageResource(R.drawable.success_icon);
+            iconImg.setImageResource(R.drawable.ic_success);
         } else if (type == NotificationType.ERROR) {
             constraintLayout.setBackgroundResource(R.drawable.error_shape);
-            iconImg.setImageResource(R.drawable.error_icon);
+            iconImg.setImageResource(R.drawable.ic_error);
         }
         toast.setView(layout);
         toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 100);

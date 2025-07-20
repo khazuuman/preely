@@ -4,9 +4,21 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.preely.model.response.UserResponse;
+import com.example.preely.util.DataUtil;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
+
 public class SessionManager {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+
+    private final Gson gson = DataUtil.buildGsonAccountSession();
 
     public SessionManager(Context context) {
         sharedPreferences = context.getSharedPreferences("AppKey", Context.MODE_PRIVATE);
@@ -15,20 +27,27 @@ public class SessionManager {
     }
 
     public boolean getLogin() {
-        return getUserId() != null && !isSessionExpired() && getRemember();
+        return getUserSession() != null && !isSessionExpired() && getRemember();
     }
 
-//    user information
-    public void setUserId(String userId) {
-        editor.putString("KEY_USER_ID", userId);
-        editor.apply();
+    //    user information
+    public void setUserSession(UserResponse user) {
+        if (user != null) {
+            String userJson = gson.toJson(user);
+            editor.putString("user", userJson);
+            editor.apply();
+        }
     }
 
-    public String getUserId() {
-        return sharedPreferences.getString("KEY_USER_ID", null);
+    public UserResponse getUserSession() {
+        String userJson = sharedPreferences.getString("user", null);
+        if (userJson != null) {
+            return gson.fromJson(userJson, UserResponse.class);
+        }
+        return null;
     }
 
-//    session duration
+    //    session duration
     public void setSessionTimeOut(long timeOut) {
         long currentTime = System.currentTimeMillis();
         long expireTime = currentTime + timeOut;
@@ -42,7 +61,7 @@ public class SessionManager {
         return currentTime > expireTime;
     }
 
-//    clear session
+    //    clear session
     public void clearSession() {
         editor.remove("KEY_USER_ID");
         editor.remove("KEY_SESSION_TIME_OUT");
@@ -50,7 +69,7 @@ public class SessionManager {
         editor.apply();
     }
 
-//    remember user
+    //    remember user
     public void setRemember(boolean remember) {
         editor.putBoolean("KEY_REMEMBER", remember);
         editor.apply();

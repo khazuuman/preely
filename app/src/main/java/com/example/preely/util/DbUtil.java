@@ -63,23 +63,4 @@ public class DbUtil {
         }
     }
 
-    public interface OnInsertCallback {
-        void onSuccess(DocumentReference documentReference);
-        void onFailure(Exception e);
-    }
-
-    public interface OnInsertManyCallback {
-        void onSuccess();
-        void onFailure(Exception e);
-    }
-
-    public interface OnUpdateCallback {
-        void onSuccess();
-        void onFailure(Exception e);
-    }
-
-    public interface OnDeleteCallBack {
-        void onSuccess();
-        void onFailure(Exception e);
-    }
 }

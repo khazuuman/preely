@@ -24,7 +24,7 @@
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/twitter_logo"/>
+            android:src="@drawable/ic_twitter"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,11 +48,12 @@
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            app:startIconDrawable="@drawable/account_icon"
+            app:startIconDrawable="@drawable/ic_account"
             app:startIconTint="@null"
             app:boxBackgroundMode="none"
             android:textColorHint="#9F9F9F">
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/username_input"
                 android:hint="Username"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -60,13 +61,22 @@
                 android:paddingStart="50dp"
                 android:inputType="text"/>
         </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/username_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="50dp"
+            android:text="Username is required"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_til"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            app:startIconDrawable="@drawable/pass_icon"
+            app:startIconDrawable="@drawable/ic_pass"
             android:textColorHint="#9F9F9F"
             app:boxBackgroundMode="none"
             app:startIconTint="@null"
@@ -81,13 +91,22 @@
                 android:paddingStart="50dp"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/password_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="50dp"
+            android:text="Username is required"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_confirm"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            app:startIconDrawable="@drawable/pass_icon"
+            app:startIconDrawable="@drawable/ic_pass"
             android:textColorHint="#9F9F9F"
             app:boxBackgroundMode="none"
             app:startIconTint="@null"
@@ -102,9 +121,18 @@
                 android:paddingStart="50dp"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/password_confirm_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="50dp"
+            android:text="Username is required"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/login_btn"
+            android:id="@+id/signup_btn"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -132,17 +160,17 @@
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/facebook_icon"/>
+                android:src="@drawable/ic_facebook"/>
             <ImageView
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/google_icon"/>
+                android:src="@drawable/ic_google"/>
             <ImageView
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/apple_icon"/>
+                android:src="@drawable/ic_apple"/>
         </LinearLayout>
 
         <LinearLayout
@@ -158,6 +186,7 @@
                 android:textSize="20sp"
                 android:textColor="#9E9E9E"/>
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/login_redirect_btn"
                 android:paddingLeft="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

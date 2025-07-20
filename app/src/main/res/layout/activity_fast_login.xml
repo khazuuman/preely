@@ -19,7 +19,7 @@
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/twitter_logo"/>
+            android:src="@drawable/ic_twitter"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginRight="10dp"
-                android:src="@drawable/facebook_icon"/>
+                android:src="@drawable/ic_facebook"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -77,7 +77,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginRight="10dp"
-                android:src="@drawable/google_icon"/>
+                android:src="@drawable/ic_google"/>
 
             <TextView
                 android:layout_width="wrap_content"

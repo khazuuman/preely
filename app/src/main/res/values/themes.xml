@@ -3,7 +3,7 @@
     <style name="Base.Theme.Preely" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowContentTransitions">true</item>
-        <item name="fontFamily">@font/zain_regular</item>
+        <item name="fontFamily">@font/roboto_original</item>
     </style>
 
     <style name="Theme.Preely" parent="Base.Theme.Preely" />

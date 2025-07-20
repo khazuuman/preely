@@ -13,7 +13,20 @@
           "package_name": "com.example.preely"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1080272614668-c7rone7hfrs5smu9f1mv48uoe7ggaieo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.preely",
+            "certificate_hash": "00c8563a02cac201d16afe212dd8e95cfd755706"
+          }
+        },
+        {
+          "client_id": "1080272614668-2id7ppmb6konpbps55epd6qf9158p1b5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAUAHgBz7p3asJdoy9_p0iFpGynxZSNjLw"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080272614668-2id7ppmb6konpbps55epd6qf9158p1b5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

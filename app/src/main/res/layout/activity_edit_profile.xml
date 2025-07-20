@@ -18,7 +18,7 @@
         <com.google.android.material.button.MaterialButton
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:icon="@drawable/outline_arrow_left_alt_24"
+            app:icon="@drawable/ic_arrow_left"
             app:iconSize="30sp"
             app:iconGravity="textStart"
             app:iconTint="@color/black"
