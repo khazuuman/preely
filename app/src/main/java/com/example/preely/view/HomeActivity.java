@@ -31,6 +31,7 @@ import com.example.preely.model.response.PostResponse;
 import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CategoryService;
 import com.example.preely.viewmodel.PostService;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +121,16 @@ public class HomeActivity extends AppCompatActivity {
             if (value != null) {
                 isLastPage = value;
             }
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.navigation_settings) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                return true;
+            }
+            // TODO: Xử lý các mục khác nếu cần
+            return false;
         });
 
         seeAllPost.setOnClickListener(v -> {

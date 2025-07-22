@@ -77,8 +77,6 @@ public class SavedPostsActivity extends AppCompatActivity {
                 }
             }
         });
-
-        // Setup SwipeRefreshLayout
         binding.swipeRefresh.setOnRefreshListener(this::refreshData);
     }
 
@@ -160,8 +158,11 @@ public class SavedPostsActivity extends AppCompatActivity {
     }
 
     private String getCurrentUserId() {
-        // Trả về userId đúng với bản ghi Firestore để test
-        return "aK9Fun5gK5DDVYYpLpiU";
+        // Lấy userId từ session
+        if (sessionManager != null && sessionManager.getUserSession() != null && sessionManager.getUserSession().getId() != null) {
+            return sessionManager.getUserSession().getId().getId();
+        }
+        return null;
     }
 
     private List<SavedPostDTO> convertToDTO(List<Post> posts) {

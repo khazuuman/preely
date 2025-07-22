@@ -21,7 +21,7 @@
         android:title="@string/menu_transactions" />
     
     <item
-        android:id="@+id/navigation_management"
-        android:icon="@drawable/ic_edit"
-        android:title="More" />
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/menu_settings" />
 </menu> 
