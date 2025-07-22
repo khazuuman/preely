@@ -4,4 +4,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="twitter">#1DABDD</color>
     <color name="grey">#fafafa</color>"
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="divider_color">#F0F0F0</color>
+    <color name="online_indicator">#4CAF50</color>
+    <color name="unread_indicator">#2196F3</color>
 </resources>

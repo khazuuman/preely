@@ -43,7 +43,6 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-//import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -92,6 +91,8 @@ public class Login extends AppCompatActivity {
             return;
         }
 
+        Log.d("LoginActivity", "getLogin: " + sessionManager.getLogin());
+
         mAuth = FirebaseAuth.getInstance();
 
         // google setting
@@ -130,23 +131,7 @@ public class Login extends AppCompatActivity {
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra("toast_mess", "Đăng nhập thành công");
                 startActivity(intent);
-//                // Khởi tạo Socket kết nối
-//                Socket socket = SocketManager.getSocket();
-//                socket.on(Socket.EVENT_CONNECT, args -> {
-//                    // Join với user ID
-//                    socket.emit("join", sessionManager.getUserId());
-//                    Log.d("Socket", "Connected and joined user: " + sessionManager.getUserId());
-//
-//                Intent intent = new Intent(this, HomeActivity.class);
-//                // Check if user is admin
-//                if ("admin".equals(userResponse.getId()) || "Admin".equals(userResponse.getUsername())) {
-//                    intent.putExtra("isAdmin", true);
-//                }
-//                startActivity(intent);
-//                });
-//                socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
-//                    Log.e("Socket", "Connection error: " + args[0]);
-//                });
+                startActivity(intent);
 
                 finishAffinity();
             } else {
@@ -223,6 +208,7 @@ public class Login extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             userLoginService.handleGoogleLoginDetail(user);
+                            sessionManager.setLogin(true);
                             Intent intent = new Intent(this, HomeActivity.class);
                             intent.putExtra("toast_mess", "Đăng nhập thành công");
                             startActivity(intent);
@@ -255,5 +241,6 @@ public class Login extends AppCompatActivity {
         }
     }
 
+                                sessionManager.setLogin(true);
 
 }

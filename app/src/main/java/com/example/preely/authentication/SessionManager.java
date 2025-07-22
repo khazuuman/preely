@@ -27,7 +27,8 @@ public class SessionManager {
     }
 
     public boolean getLogin() {
-        return getUserSession() != null && !isSessionExpired() && getRemember();
+        boolean isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false);
+        return isLoggedIn && getUserSession() != null && !isSessionExpired() && getRemember();
     }
 
     //    user information
@@ -66,7 +67,10 @@ public class SessionManager {
         editor.remove("KEY_USER_ID");
         editor.remove("KEY_SESSION_TIME_OUT");
         editor.remove("KEY_REMEMBER");
+        editor.remove("user");
+        editor.remove("is_logged_in");
         editor.apply();
+        Log.d("SessionManager", "Session cleared");
     }
 
     //    remember user
@@ -78,4 +82,11 @@ public class SessionManager {
     public boolean getRemember() {
         return sharedPreferences.getBoolean("KEY_REMEMBER", false);
     }
+
+    public void setLogin(boolean isLoggedIn) {
+        editor.putBoolean("is_logged_in", isLoggedIn);
+        editor.apply();
+        Log.d("SessionManager", "setLogin: " + isLoggedIn);
+    }
+
 }
