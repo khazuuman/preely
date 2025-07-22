@@ -240,7 +240,4 @@ public class Login extends AppCompatActivity {
             }
         }
     }
-
-                                sessionManager.setLogin(true);
-
 }

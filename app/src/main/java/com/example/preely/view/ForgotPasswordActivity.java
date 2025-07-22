@@ -18,7 +18,7 @@ import com.example.preely.viewmodel.ForgotPasswordService;
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     ForgotPasswordService forgotPasswordService;
-    ImageView backToLogin;
+    //ImageView backToLogin;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -27,7 +27,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_forgot_password);
 
-        backToLogin = findViewById(R.id.back_to_login);
+        //backToLogin = findViewById(R.id.back_to_login);
 
         forgotPasswordService = new ForgotPasswordService();
 
@@ -37,10 +37,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     .commit();
         }
 
-        backToLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(this, Login.class);
-            startActivity(intent);
-            finish();
-        });
+//        backToLogin.setOnClickListener(v -> {
+//            Intent intent = new Intent(this, Login.class);
+//            startActivity(intent);
+//            finish();
+//        });
     }
 }
