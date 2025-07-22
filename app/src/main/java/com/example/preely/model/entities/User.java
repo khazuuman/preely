@@ -7,9 +7,11 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+@EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @AllArgsConstructor
@@ -29,4 +31,5 @@ public class User extends BaseEntity {
     GeoPoint location;
     Timestamp last_login;
     Timestamp registration_date;
+    String avatar;
 }

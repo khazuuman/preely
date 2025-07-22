@@ -29,5 +29,6 @@ public class UserResponse extends CommonResponse {
     boolean is_active;
     float rating;
     GeoPoint location;
+    String avatar;
 
 }

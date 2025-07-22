@@ -13,6 +13,7 @@ firebaseDatabase = "21.0.0"
 firebaseFirestore = "25.1.4"
 jbcrypt = "0.4"
 credentials = "1.5.0"
+minio = "8.5.8"
 shortcutBadger = "1.1.22"
 picasso = "2.8"
 swiperefreshlayout = "1.1.0"
@@ -35,6 +36,7 @@ lombok = { group = "org.projectlombok", name = "lombok", version = "1.18.38" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "33.16.0" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 jbcrypt = { group = "org.mindrot", name = "jbcrypt", version.ref = "jbcrypt" }
+minio = { module = "io.minio:minio", version.ref = "minio" }
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version = "1.1.0-beta01" }
 gson = { group = "com.google.code.gson", name = "gson", version = "2.11.0" }

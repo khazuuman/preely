@@ -95,4 +95,17 @@
     <string name="title_transaction_management">Transaction Management</string>
     <string name="title_category_management">Category Management</string>
     <string name="title_tag_management">Tag Management</string>
+    <string name="editPhone">Số điện thoại</string>
+    <string name="Address">Địa chỉ</string>
+    <string name="hint_full_name">Họ và tên</string>
+    <string name="hint_username">Tên đăng nhập</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_phone">Số điện thoại</string>
+    <string name="hint_address">Địa chỉ</string>
+    <string name="hint_province">Tỉnh/Thành phố</string>
+    <string name="hint_ward">Phường/Xã</string>
+    <string name="feedback">Đánh giá: 0.0</string>
+    <string name="saveBtn">Save</string>
+    <string name="menu_settings">Setting</string>
+    <string name="BackBtn">Back</string>
 </resources>

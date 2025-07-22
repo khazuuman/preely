@@ -50,7 +50,7 @@
         android:id="@+id/ivArrow"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:src="@drawable/outline_arrow_left_alt_24"
+        android:src="@drawable/ic_arrow_left"
         android:rotation="180"
         app:tint="#CCCCCC"
         android:contentDescription="@string/desc_arrow"

@@ -117,12 +117,12 @@
         <activity
             android:name=".view.SavedPostsActivity"
             android:exported="false" />
-<!--        <activity-->
-<!--            android:name=".view.ProfileActivity"-->
-<!--            android:exported="false" />-->
+        <activity android:name=".view.ProfileActivity" />
 <!--        <activity-->
 <!--            android:name=".view.ProfileActivityV2"-->
 <!--            android:exported="false" />-->
+        <activity android:name=".view.PrivacyPolicyActivity" />
+        <activity android:name=".view.ChangePasswordActivity" />
     </application>
 
 </manifest>

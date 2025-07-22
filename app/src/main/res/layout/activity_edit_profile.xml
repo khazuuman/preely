@@ -8,52 +8,165 @@
     tools:context=".view.EditProfile"
     android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:icon="@drawable/ic_arrow_left"
-            app:iconSize="30sp"
-            app:iconGravity="textStart"
-            app:iconTint="@color/black"
-            android:backgroundTint="@android:color/transparent" />
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:fontFamily="@font/zain_bold"
-            android:text="Fill Your Profile"
-            android:textColor="@color/black"
-            android:textFontWeight="600"
-            android:textSize="24sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <FrameLayout
-            android:layout_width="200dp"
-            android:layout_height="200dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_arrow_left"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Quay lại"
+                    android:padding="12dp" />
 
-<!--            &lt;!&ndash; Ảnh nền (image) &ndash;&gt;-->
-<!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:src="@drawable/your_image"-->
-<!--                android:scaleType="centerCrop" />-->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:fontFamily="@font/zain_bold"
+                    android:text="Fill Your Profile"
+                    android:textColor="@color/black"
+                    android:textFontWeight="600"
+                    android:textSize="24sp" />
+            </LinearLayout>
 
-<!--            &lt;!&ndash; Icon đặt "absolute" ở góc dưới bên phải &ndash;&gt;-->
-<!--            <ImageView-->
-<!--                android:layout_width="40dp"-->
-<!--                android:layout_height="40dp"-->
-<!--                android:src="@drawable/your_icon"-->
-<!--                android:layout_gravity="bottom|end"-->
-<!--                android:layout_margin="8dp" />-->
-        </FrameLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="24dp">
 
+                <FrameLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp">
+                    <ImageView
+                        android:id="@+id/imgAvatar"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/ic_image"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/rounded_edge"/>
+                    <ImageView
+                        android:id="@+id/btnEditAvatar"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="bottom|end"
+                        android:src="@drawable/ic_edit"
+                        android:background="@drawable/rounded_edge"
+                        android:padding="6dp"/>
+                </FrameLayout>
 
-    </LinearLayout>
+                <EditText
+                    android:id="@+id/edtName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_full_name"
+                    android:inputType="textPersonName"
+                    android:layout_marginTop="24dp"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="name"/>
+
+                <EditText
+                    android:id="@+id/edtUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_username"
+                    android:inputType="text"
+                    android:layout_marginTop="16dp"
+                    android:enabled="false"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="username"/>
+
+                <EditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_email"
+                    android:inputType="textEmailAddress"
+                    android:layout_marginTop="16dp"
+                    android:enabled="false"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="emailAddress"/>
+
+                <EditText
+                    android:id="@+id/edtPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_phone"
+                    android:inputType="phone"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="phone"/>
+
+                <EditText
+                    android:id="@+id/edtAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_address"
+                    android:inputType="textPostalAddress"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="postalAddress"/>
+
+                <EditText
+                    android:id="@+id/edtProvince"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_province"
+                    android:inputType="text"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="addressLocality"/>
+
+                <EditText
+                    android:id="@+id/edtWard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_ward"
+                    android:inputType="text"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:autofillHints="addressRegion"/>
+
+                <TextView
+                    android:id="@+id/tvRating"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/feedback"
+                    android:textSize="16sp"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/black"/>
+
+                <Button
+                    android:id="@+id/btnSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/saveBtn"
+                    android:layout_marginTop="32dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
