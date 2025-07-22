@@ -39,6 +39,7 @@ public class EditProfile extends AppCompatActivity {
     private UserResponse user;
     private String avatarUrl;
     private TextView tvRating;
+    private boolean isUploading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +86,26 @@ public class EditProfile extends AppCompatActivity {
         cloudinaryService.getUploadedImageUrl().observe(this, url -> {
             if (url != null) {
                 avatarUrl = url;
+                isUploading = false;
+                btnSave.setEnabled(true);
+                // Ẩn loading nếu có
                 Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_image).error(R.drawable.ic_image).into(imgAvatar);
             }
         });
 
+        cloudinaryService.getUploadStatus().observe(this, status -> {
+            if ("Uploading...".equals(status)) {
+                isUploading = true;
+                btnSave.setEnabled(false);
+                // Hiện loading nếu muốn
+            }
+        });
+
         btnSave.setOnClickListener(v -> {
+            if (isUploading) {
+                Toast.makeText(this, "Vui lòng chờ ảnh tải xong!", Toast.LENGTH_SHORT).show();
+                return;
+            }
             String name = edtName.getText().toString().trim();
             String phone = edtPhone.getText().toString().trim();
             String address = edtAddress.getText().toString().trim();
