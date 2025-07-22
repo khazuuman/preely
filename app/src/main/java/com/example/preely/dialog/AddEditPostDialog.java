@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.example.preely.R;
 import com.example.preely.model.entities.Post;
@@ -22,10 +23,13 @@ import java.util.List;
 import com.example.preely.viewmodel.CloudinaryService;
 import android.widget.Toast;
 import com.example.preely.dialog.ImagePreviewAdapter;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 public class AddEditPostDialog extends Dialog {
 
     private Context context;
+    private LifecycleOwner lifecycleOwner;
     private Post post;
     private OnPostDialogListener listener;
     private boolean isEditMode;
@@ -39,18 +43,21 @@ public class AddEditPostDialog extends Dialog {
     private CloudinaryService cloudinaryService;
     private List<String> uploadedImageUrls = new ArrayList<>();
     private boolean isUploadingImages = false;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     public interface OnPostDialogListener {
         void onPostSaved(Post post, boolean isEdit);
     }
 
-    public AddEditPostDialog(@NonNull Context context, Post post, OnPostDialogListener listener) {
+    public AddEditPostDialog(@NonNull Context context, @NonNull LifecycleOwner lifecycleOwner, Post post, OnPostDialogListener listener, ActivityResultLauncher<Intent> imagePickerLauncher) {
         super(context);
         this.context = context;
+        this.lifecycleOwner = lifecycleOwner;
         this.post = post;
         this.listener = listener;
         this.isEditMode = post != null;
         this.cloudinaryService = new CloudinaryService((android.app.Application) ((android.app.Activity) context).getApplication());
+        this.imagePickerLauncher = imagePickerLauncher;
     }
 
     public void setOnPostDialogListener(OnPostDialogListener listener) {
@@ -94,7 +101,12 @@ public class AddEditPostDialog extends Dialog {
     private void setupListeners() {
         btnSave.setOnClickListener(v -> savePost());
         btnCancel.setOnClickListener(v -> dismiss());
-        btnChooseImages.setOnClickListener(v -> chooseImagesFromGallery());
+        btnChooseImages.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            imagePickerLauncher.launch(intent);
+        });
     }
 
     private void populateFields() {
@@ -107,16 +119,9 @@ public class AddEditPostDialog extends Dialog {
         }
     }
 
-    private void chooseImagesFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        ((android.app.Activity) context).startActivityForResult(Intent.createChooser(intent, "Select Images"), 2001);
-    }
-
     // Call this from Activity's onActivityResult
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 2001 && resultCode == android.app.Activity.RESULT_OK) {
+        if (resultCode == android.app.Activity.RESULT_OK && data != null) {
             selectedImageUris.clear();
             uploadedImageUrls.clear();
             if (data.getClipData() != null) {
@@ -140,21 +145,16 @@ public class AddEditPostDialog extends Dialog {
 
     private void uploadAllImagesToCloudinary() {
         uploadedImageUrls.clear();
-        final int total = selectedImageUris.size();
-        final int[] completed = {0};
-        for (Uri imageUri : selectedImageUris) {
-            cloudinaryService.uploadImage(imageUri, "posts");
-            cloudinaryService.getUploadedImageUrl().observeForever(url -> {
-                if (url != null && !url.isEmpty() && !uploadedImageUrls.contains(url)) {
-                    uploadedImageUrls.add(url);
-                    completed[0]++;
-                    if (completed[0] == total) {
-                        isUploadingImages = false;
-                        btnSave.setEnabled(true);
-                    }
-                }
-            });
-        }
+        cloudinaryService.clearUploadedUrls();
+        cloudinaryService.uploadMultipleImages(selectedImageUris, "posts");
+        cloudinaryService.getUploadedUrls().observe(lifecycleOwner, urls -> {
+            if (urls != null && urls.size() == selectedImageUris.size()) {
+                uploadedImageUrls.clear();
+                uploadedImageUrls.addAll(urls);
+                isUploadingImages = false;
+                btnSave.setEnabled(true);
+            }
+        });
     }
 
     private void savePost() {

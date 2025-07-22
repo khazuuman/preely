@@ -42,6 +42,9 @@ import android.widget.LinearLayout;
 import android.view.Gravity;
 import com.bumptech.glide.Glide;
 import com.example.preely.viewmodel.ManagementPostService;
+import android.content.Intent;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 public class PostManagementFragment extends Fragment implements PostAdapter.OnPostClickListener {
 
@@ -59,6 +62,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     private FirebaseFirestore db;
     private boolean isInitialLoad = true;
     private AddEditPostDialog addEditPostDialog; // Lưu instance dialog
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     @Nullable
     @Override
@@ -70,6 +74,16 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
         setupSearch();
         loadPosts(); // Load data first
         setupListeners();
+
+        // Khởi tạo imagePickerLauncher
+        imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (addEditPostDialog != null && result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    addEditPostDialog.onActivityResult(2001, result.getResultCode(), result.getData());
+                }
+            }
+        );
         
         // Setup real-time listener after a short delay to ensure data is loaded
         view.post(() -> {
@@ -208,7 +222,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void showAddPostDialog() {
-        addEditPostDialog = new AddEditPostDialog(getContext(), null, null);
+        addEditPostDialog = new AddEditPostDialog(getContext(), this, null, null, imagePickerLauncher);
         addEditPostDialog.setOnPostDialogListener(new AddEditPostDialog.OnPostDialogListener() {
             @Override
             public void onPostSaved(Post post, boolean isEdit) {
@@ -225,13 +239,13 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void showEditPostDialog(Post post) {
-        AddEditPostDialog dialog = new AddEditPostDialog(getContext(), post, 
+        AddEditPostDialog dialog = new AddEditPostDialog(getContext(), this, post, 
             new AddEditPostDialog.OnPostDialogListener() {
                 @Override
                 public void onPostSaved(Post post, boolean isEdit) {
                     updatePost(post);
                 }
-            });
+            }, imagePickerLauncher);
         dialog.show();
     }
 
