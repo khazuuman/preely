@@ -60,12 +60,11 @@ public class Login extends AppCompatActivity {
     TextView usernameErrorTv, passwordErrorTv;
     TextInputEditText usernameInput, passwordInput;
     SessionManager sessionManager;
-    ImageView ggIcon, ggLogout, faceIcon;
+    ImageView ggIcon;
 
     private static final int RC_SIGN_IN = 1001;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
-    private CallbackManager mCallbackManager;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -179,12 +178,6 @@ public class Login extends AppCompatActivity {
         });
 
         ggIcon.setOnClickListener(v -> signInWithGoogle());
-        ggLogout.setOnClickListener(v -> {
-            mGoogleSignInClient.revokeAccess().addOnCompleteListener(this, task -> {
-                mAuth.signOut();
-                Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
-            });
-        });
 
         // Input tracking for real-time error clearing
         ViewUtil.clearErrorOnTextChanged(usernameInput, usernameErrorTv);
