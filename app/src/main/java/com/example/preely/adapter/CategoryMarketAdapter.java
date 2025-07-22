@@ -25,7 +25,7 @@ public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAd
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category_market, parent, false);
         return new CategoryViewHolder(view);
     }
 

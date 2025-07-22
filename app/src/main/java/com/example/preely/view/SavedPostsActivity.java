@@ -167,7 +167,7 @@ public class SavedPostsActivity extends AppCompatActivity {
         List<SavedPostDTO> dtoList = new ArrayList<>();
         for (Post post : posts) {
             SavedPostDTO dto = new SavedPostDTO();
-            dto.setId(post.getId());
+            dto.setId(post.getId().getId());
             dto.setTitle(post.getTitle());
 //            try { dto.setImageUrl(post.getImageUrl()); } catch (Exception ignored) {}
             try { dto.setPrice(post.getPrice()); } catch (Exception ignored) {}
@@ -201,13 +201,13 @@ public class SavedPostsActivity extends AppCompatActivity {
             SavedPostDTO post = posts.get(position);
             
             // Load image
-            if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
-                Picasso.get()
-                        .load(post.getImageUrl())
-                        .placeholder(R.drawable.img)
-                        .error(R.drawable.img)
-                        .into(holder.binding.imageView);
-            }
+//            if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
+//                Picasso.get()
+//                        .load(post.getImageUrl())
+//                        .placeholder(R.drawable.img)
+//                        .error(R.drawable.img)
+//                        .into(holder.binding.imageView);
+//            }
 
             // Set text
             holder.binding.txtTitle.setText(post.getTitle());

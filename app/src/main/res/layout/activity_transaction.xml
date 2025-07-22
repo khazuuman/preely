@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".view.TransactionActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_title"
+            android:textSize="28sp"
+            android:fontFamily="@font/zain_bold"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Select recipient (giver_id) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/giver_til"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select_giver"
+            app:startIconDrawable="@drawable/ic_account">
+            <AutoCompleteTextView
+                android:id="@+id/giver_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:background="@android:color/transparent"
+                android:dropDownVerticalOffset="8dp"
+                android:dropDownHeight="wrap_content"
+                android:dropDownWidth="match_parent"
+                android:textSize="16sp"
+                android:fontFamily="@font/zain_regular"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Select post (post_id) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/post_til"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select_post"
+            app:startIconDrawable="@drawable/ic_edit">
+            <AutoCompleteTextView
+                android:id="@+id/post_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:background="@android:color/transparent"
+                android:dropDownVerticalOffset="8dp"
+                android:dropDownHeight="wrap_content"
+                android:dropDownWidth="match_parent"
+                android:textSize="16sp"
+                android:fontFamily="@font/zain_regular"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Enter amount -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/amount_til"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/enter_amount">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/amount_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:hint=""/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Status -->
+        <TextView
+            android:id="@+id/status_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/status_unpaid"
+            android:textSize="16sp"
+            android:fontFamily="@font/zain_regular"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"/>
+
+        <!-- Transaction date -->
+        <TextView
+            android:id="@+id/transaction_date_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_date"
+            android:textSize="16sp"
+            android:fontFamily="@font/zain_regular"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Pay button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pay_vnpay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pay_with_vnpay"
+            android:textSize="20sp"
+            android:fontFamily="@font/zain_bold"
+            android:backgroundTint="#1DABDD"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+</ScrollView> 

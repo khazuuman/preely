@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Query;
+import com.example.preely.util.Constraints.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,8 @@ import java.util.List;
 import lombok.SneakyThrows;
 
 public class ChatViewModel extends ViewModel {
-    private MainRepository<Message> messageRepo = new MainRepository<>(Message.class);
-    private MainRepository<User> userRepo = new MainRepository<>(User.class);
+    private MainRepository<Message> messageRepo = new MainRepository<>(Message.class, CollectionName.IMAGE);
+    private MainRepository<User> userRepo = new MainRepository<>(User.class, CollectionName.USERS);
     private MutableLiveData<List<Message>> messages = new MutableLiveData<>(new ArrayList<>());
     private MutableLiveData<User> receiverUser = new MutableLiveData<>();
     private RealtimeDbUtil rtDbUtil = new RealtimeDbUtil();

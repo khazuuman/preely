@@ -2,9 +2,10 @@ package com.example.preely.model.entities;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
-import java.util.List;
 import java.util.List;
 
 import lombok.AccessLevel;
@@ -19,10 +20,12 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@IgnoreExtraProperties
 public class Post extends BaseEntity {
 
     DocumentReference category_id;
     DocumentReference seller_id;
+    
     Double price;
     String status;
     String title;
@@ -30,8 +33,27 @@ public class Post extends BaseEntity {
     String description;
     GeoPoint location;
     Long view_count;
+    
     String ward;
     String province;
     List<String> tag_ids;
 
+//    // Helper methods to extract IDs from DocumentReference
+//    @Exclude
+//    public String getCategoryId() {
+//        return category_id != null ? category_id.getId() : null;
+//    }
+//
+//    @Exclude
+//    public String getSellerId() {
+//        return seller_id != null ? seller_id.getId() : null;
+//    }
+//
+//    @Exclude
+//    public String getLocationString() {
+//        if (location != null) {
+//            return location.getLatitude() + "," + location.getLongitude();
+//        }
+//        return null;
+//    }
 }

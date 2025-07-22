@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/cate_name"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="@drawable/bg_cate_item"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="5dp"
+        android:text="Mỹ phẩm"
+        android:textSize="13sp"
+        android:layout_margin="5dp"
+        android:fontFamily="@font/roboto_original"
+        android:textFontWeight="800"
+        android:maxLines="2"
+        android:ellipsize="end"/>
+
+</LinearLayout>
