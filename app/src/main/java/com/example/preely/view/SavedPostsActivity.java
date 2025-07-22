@@ -77,8 +77,6 @@ public class SavedPostsActivity extends AppCompatActivity {
                 }
             }
         });
-
-        // Setup SwipeRefreshLayout
         binding.swipeRefresh.setOnRefreshListener(this::refreshData);
     }
 
