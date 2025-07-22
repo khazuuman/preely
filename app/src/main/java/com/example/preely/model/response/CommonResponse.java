@@ -17,5 +17,5 @@ import lombok.experimental.FieldDefaults;
 public class CommonResponse {
     @DocumentId
     DocumentReference id;
-    Timestamp save_date;
+//    Timestamp save_date;
 }

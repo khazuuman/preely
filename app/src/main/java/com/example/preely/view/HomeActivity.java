@@ -1,8 +1,13 @@
 package com.example.preely.view;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -37,7 +42,8 @@ public class HomeActivity extends AppCompatActivity {
     private CategoryMarketAdapter categoryAdapter;
     private PostMarketAdapter postAdapter;
     RecyclerView cateRecycleView, postRecycleView;
-    TextView nameTv;
+    TextView nameTv, seeAllPost;
+    EditText searchInput;
     ImageButton scrollToTopBtn;
     ScrollView homeScrollView;
     private boolean isLoading = false;
@@ -59,7 +65,8 @@ public class HomeActivity extends AppCompatActivity {
         nameTv = findViewById(R.id.nameTv);
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
-        nameTv.setText(sessionManager.getUserSession().getFull_name());
+        seeAllPost = findViewById(R.id.seeAllPost);
+        nameTv.setText(sessionManager.getUserSession().getFull_name() == null ? sessionManager.getUserSession().getUsername() : sessionManager.getUserSession().getFull_name());
         scrollToTopBtn.setOnClickListener(v -> {
             homeScrollView.smoothScrollTo(0, 0);
         });
@@ -96,6 +103,31 @@ public class HomeActivity extends AppCompatActivity {
             if (value != null) {
                 isLastPage = value;
             }
+        });
+
+        seeAllPost.setOnClickListener(v -> {
+           startActivity(new Intent(this, PostListActivity.class));
+        });
+
+        searchInput = findViewById(R.id.searchInput);
+        searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_NULL) {
+                String query = searchInput.getText().toString().trim();
+
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
+                }
+
+                Intent intent = new Intent(this, PostListActivity.class);
+                intent.putExtra("query", query);
+                startActivity(intent);
+
+                return true;
+            }
+            return false;
         });
     }
 

@@ -20,6 +20,7 @@ import com.example.preely.util.DataUtil;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,44 +32,59 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class PostService extends ViewModel {
     private static final MainRepository<SavedPost> savedPostRepository = new MainRepository<>(SavedPost.class, CollectionName.SAVED_POST);
     private final MutableLiveData<List<PostResponse>> postResponseListResult = new MutableLiveData<>();
+    private final MutableLiveData<PostResponse> postResponseResult = new MutableLiveData<>();
     private final MutableLiveData<String> insertSavedPostResult = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLastPageResult = new MutableLiveData<>();
     private DocumentSnapshot lastVisible = null;
     private static final int PAGE_SIZE = 6;
+
     public LiveData<Boolean> getIsLastPageResult() {
         return isLastPageResult;
     }
+
     public LiveData<List<PostResponse>> getPostListResult() {
         return postResponseListResult;
     }
 
-    public LiveData<String> getInsertSavedPostResult() {
-        return insertSavedPostResult;
+    public void resetPostListResult() {
+        postResponseListResult.postValue(new ArrayList<>());
+    }
+
+    public LiveData<PostResponse> getPostResult() {
+        return postResponseResult;
     }
 
     private Query buildPostQuery(PostFilterRequest request) {
         Query query = FirebaseFirestore.getInstance().collection(CollectionName.POSTS);
+        if (request.getSortType() != null) {
+            switch (request.getSortType()) {
+                case SortType.MOST_VIEW:
+                    query = query.orderBy("views_count", Query.Direction.DESCENDING);
+                    break;
+                case SortType.DATE_ASC:
+                    query = query.orderBy("create_at", Query.Direction.ASCENDING);
+                    break;
+                case SortType.DATE_DESC:
+                    query = query.orderBy("create_at", Query.Direction.DESCENDING);
+                    break;
+            }
+        }
+        if (request.getTitle() != null && !request.getTitle().isEmpty()) {
+            query = query.whereGreaterThanOrEqualTo("title", request.getTitle())
+                    .whereLessThan("title", request.getTitle() + '\uf8ff');
+        }
         if (request.getCategory_id() != null && !request.getCategory_id().isEmpty()) {
             query = query.whereIn("category_id", request.getCategory_id());
-        }
-        if (request.getStatus() != null && !request.getStatus().isEmpty()) {
-            query = query.whereIn("status", request.getStatus());
-        }
-        if (request.getWard() != null) {
-            query = query.whereEqualTo("ward", request.getWard());
-        }
-        if (request.getProvince() != null) {
-            query = query.whereEqualTo("province", request.getProvince());
         }
         if (request.getTag_id() != null && !request.getTag_id().isEmpty()) {
             query = query.whereArrayContainsAny("tag_ids", request.getTag_id());
         }
-        query = query.orderBy("create_at", Query.Direction.DESCENDING);
         query = query.limit(PostService.PAGE_SIZE);
         return query;
     }
@@ -118,32 +134,27 @@ public class PostService extends ViewModel {
                 postResponse.setTagResponses(tagResponses);
             });
         }
+
+        // images
+        Task<QuerySnapshot> imagesTask = FirebaseFirestore.getInstance()
+                .collection(CollectionName.IMAGE)
+                .whereEqualTo("post_id", post.getId())
+                .get();
+        subTasks.add(imagesTask);
+        imagesTask.addOnSuccessListener(snapshot -> {
+            List<String> images = new ArrayList<>();
+            for (DocumentSnapshot imageDoc : snapshot.getDocuments()) {
+                images.add(imageDoc.getString("link"));
+            }
+            postResponse.setImage(images);
+        });
+
         return Tasks.whenAll(subTasks)
                 .continueWith(task -> postResponse);
     }
 
-//    public void getPostList(PostFilterRequest request) {
-//        Query query = buildPostQuery(request, PAGE_SIZE);
-//
-//        query.get().addOnSuccessListener(querySnapshot -> {
-//            List<Task<PostResponse>> postTasks = new ArrayList<>();
-//
-//            for (DocumentSnapshot postDoc : querySnapshot.getDocuments()) {
-//                Post post = postDoc.toObject(Post.class);
-//                Task<PostResponse> combinedTask = buildPostResponseTask(post);
-//                postTasks.add(combinedTask);
-//            }
-//            Tasks.whenAllSuccess(postTasks).addOnSuccessListener(results -> {
-//                List<PostResponse> finalList = new ArrayList<>();
-//                for (Object obj : results) {
-//                    finalList.add((PostResponse) obj);
-//                }
-//                postResponseListResult.setValue(finalList);
-//            });
-//        });
-//    }
-
     public void getPostList(PostFilterRequest request) {
+
         Query query = buildPostQuery(request);
 
         if (lastVisible != null) {
@@ -167,7 +178,7 @@ public class PostService extends ViewModel {
                     for (Object obj : results) {
                         finalList.add((PostResponse) obj);
                     }
-
+                    Log.i("FINAL LIST", finalList.toString());
                     if (finalList.size() < PAGE_SIZE) {
                         isLastPageResult.setValue(true);
                     }
@@ -179,6 +190,10 @@ public class PostService extends ViewModel {
         });
     }
 
+    public void resetPagination() {
+        lastVisible = null;
+        isLastPageResult.setValue(false);
+    }
 
     // saved post
     public void insertSavedPost(SavedPostRequest request) throws IllegalAccessException, InstantiationException {
@@ -224,6 +239,71 @@ public class PostService extends ViewModel {
         map.put("user_id", savedPost.getUser_id());
 
         return map;
+    }
+
+    public void getPost(String postRef) {
+        DocumentReference postRefDoc = FirebaseFirestore.getInstance()
+                .collection(CollectionName.POSTS)
+                .document(postRef);
+        AtomicReference<PostResponse> postResponse = new AtomicReference<>(new PostResponse());
+        postRefDoc.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Post post = documentSnapshot.toObject(Post.class);
+                try {
+                    assert post != null;
+                    postResponse.set(DataUtil.mapObj(post, PostResponse.class));
+                    if (post.getCategory_id() != null) {
+                        Task<DocumentSnapshot> categoryTask = post.getCategory_id().get();
+                        categoryTask.addOnSuccessListener(doc -> {
+                            if (doc.exists()) {
+                                Category category = doc.toObject(Category.class);
+                                try {
+                                    assert category != null;
+                                    postResponse.get().setCategoryResponse(DataUtil.mapObj(category, CategoryResponse.class));
+                                } catch (IllegalAccessException | InstantiationException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
+                    }
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+                if (post.getTag_ids() != null && !post.getTag_ids().isEmpty()) {
+                    Task<QuerySnapshot> tagsTask = FirebaseFirestore.getInstance()
+                            .collection(CollectionName.TAGS)
+                            .whereIn(FieldPath.documentId(), post.getTag_ids())
+                            .get();
+                    tagsTask.addOnSuccessListener(snapshot -> {
+                        List<TagResponse> tagResponses = new ArrayList<>();
+                        for (DocumentSnapshot tagDoc : snapshot.getDocuments()) {
+                            try {
+                                Tag tag = tagDoc.toObject(Tag.class);
+                                assert tag != null;
+                                tagResponses.add(DataUtil.mapObj(tag, TagResponse.class));
+                            } catch (IllegalAccessException | InstantiationException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        postResponse.get().setTagResponses(tagResponses);
+                    });
+                }
+                Task<QuerySnapshot> imagesTask = FirebaseFirestore.getInstance()
+                        .collection(CollectionName.IMAGE)
+                        .whereEqualTo("post_id", post.getId())
+                        .get();
+                imagesTask.addOnSuccessListener(snapshot -> {
+                    List<String> images = new ArrayList<>();
+                    for (DocumentSnapshot imageDoc : snapshot.getDocuments()) {
+                        images.add(imageDoc.getString("link"));
+                    }
+                    postResponse.get().setImage(images);
+                });
+                postResponseResult.setValue(postResponse.get());
+            } else {
+                postResponseResult.setValue(null);
+            }
+        });
     }
 
 }

@@ -70,5 +70,6 @@ dependencies {
     implementation(libs.circle.image.view)
     implementation(libs.facebook.android.sdk)
     implementation(platform(libs.firebase.bom))
+    implementation(libs.imageslideshow)
 
 }

@@ -132,7 +132,7 @@
 
                     <EditText
                         android:id="@+id/searchInput"
-                        android:layout_width="0dp"
+                        android:layout_width="301dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
@@ -140,13 +140,6 @@
                         android:inputType="text"
                         android:paddingStart="8dp"
                         android:textColorHint="#bbbbbb" />
-
-                    <ImageView
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginEnd="10dp"
-                        android:src="@drawable/ic_filter"
-                        app:tint="@color/black" />
                 </LinearLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -192,6 +185,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
+                        android:id="@+id/seeAllPost"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="See All"
@@ -206,7 +200,6 @@
                     android:id="@+id/post_recycle_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
-
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

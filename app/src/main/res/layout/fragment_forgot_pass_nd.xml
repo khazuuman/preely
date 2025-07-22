@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.fragment.ForgotPassNdFragment"
+    android:id="@+id/fragment_forgot_pass_nd">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginHorizontal="20dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Code has been send to "
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/phone_text"
+                android:textSize="20sp"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/otp_input"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="OTP"/>
+
+        <TextView
+            android:layout_marginTop="30dp"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:textSize="20sp"
+            android:layout_height="wrap_content"
+            android:text="Resend code in 60s"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:text="Verify" />
+    </LinearLayout>
+
+
+
+
+
+
+</FrameLayout>

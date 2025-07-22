@@ -20,4 +20,10 @@ public class Constraints {
 
     }
 
+    public interface SortType {
+        int MOST_VIEW = 0;
+        int DATE_ASC = 1;
+        int DATE_DESC = 2;
+    }
+
 }

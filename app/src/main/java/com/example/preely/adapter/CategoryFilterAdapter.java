@@ -1,5 +1,6 @@
 package com.example.preely.adapter;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +11,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.model.request.CategoryFilterRequest;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAdapter.CategoryFilterViewHolder> {
+import lombok.Setter;
 
+public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAdapter.CategoryFilterViewHolder> {
+    @Setter
+    private RecyclerView recyclerView;
     private final List<CategoryFilterRequest> itemList;
 
     public CategoryFilterAdapter(List<CategoryFilterRequest> itemList) {
@@ -32,13 +37,34 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
     @Override
     public void onBindViewHolder(@NonNull CategoryFilterViewHolder holder, int position) {
         CategoryFilterRequest item = itemList.get(position);
+        holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setText(item.getName());
         holder.checkBox.setChecked(item.isChecked());
 
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             item.setChecked(isChecked);
+            if ("All".equalsIgnoreCase(item.getName()) && isChecked) {
+                item.setChecked(true);
+                for (CategoryFilterRequest otherItem : itemList) {
+                    if (!"All".equalsIgnoreCase(otherItem.getName())) {
+                        otherItem.setChecked(false);
+                    }
+                }
+            } else if (!"All".equalsIgnoreCase(item.getName()) && isChecked) {
+                item.setChecked(true);
+                for (CategoryFilterRequest otherItem : itemList) {
+                    if ("All".equalsIgnoreCase(otherItem.getName())) {
+                        otherItem.setChecked(false);
+                        break;
+                    }
+                }
+            }
+            if (recyclerView != null) {
+                recyclerView.post(this::notifyDataSetChanged);
+            }
         });
     }
+
 
     @Override
     public int getItemCount() {
@@ -54,10 +80,13 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
         }
     }
 
-    public List<CategoryFilterRequest> getSelectedItems() {
-        List<CategoryFilterRequest> selected = new ArrayList<>();
+    public List<DocumentReference> getIdSelectedItems() {
+        List<DocumentReference> selected = new ArrayList<>();
         for (CategoryFilterRequest item : itemList) {
-            if (item.isChecked()) selected.add(item);
+            if (item.getId() == null && item.isChecked()) {
+                return null;
+            }
+            if (item.isChecked()) selected.add(item.getId());
         }
         return selected;
     }

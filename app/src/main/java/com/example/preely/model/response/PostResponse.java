@@ -3,6 +3,7 @@ package com.example.preely.model.response;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -17,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostResponse extends CommonResponse {
+public class PostResponse extends CommonResponse implements Serializable {
 
     DocumentReference seller_id;
     Double price;
@@ -26,15 +27,16 @@ public class PostResponse extends CommonResponse {
     String currency;
     String description;
     GeoPoint location;
-    Long view_count;
+    Long views_count;
     String ward;
     String province;
     CategoryResponse categoryResponse;
+    List<String> image;
     List<TagResponse> tagResponses;
 
     @Override
     public String toString() {
-        return "PostResponse{" + super.toString() + ", seller_id=" + seller_id + ", price=" + price + ", status=" + status + ", title=" + title + ", currency=" + currency + ", description=" + description + ", location=" + location + ", view_count=" + view_count + '}';
+        return "{ view_count=" + views_count + ", title=" + title + "}";
     }
 
 }

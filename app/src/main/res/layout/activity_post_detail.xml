@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.PostDetailActivity">
+
+    <ImageView
+        android:id="@+id/back_to_post_list"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/ic_arrow_left" />
+
+    <com.denzcoskun.imageslider.ImageSlider
+        android:id="@+id/imageSlider"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:iss_auto_cycle="true"
+        app:iss_corner_radius="20"
+        app:iss_delay="1000"
+        app:iss_period="1000"
+        app:iss_title_background="@color/black" />
+
+    <ScrollView
+        android:id="@+id/postScollView"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_marginBottom="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/postTile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Mini Pottery Teapot"
+                android:textFontWeight="800"
+                android:textSize="30sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:gravity="start"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/postPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/bg_price"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="5dp"
+                    android:text="$12"
+                    android:textFontWeight="800"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/viewCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="(3.8747 viewed)"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginBottom="15dp"
+                android:background="#909090" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:text="Location:"
+                    android:textFontWeight="800"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/wardPost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:text="Xã Thạch Thất"
+                    android:textSize="16sp" />
+
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="1dp"
+                    android:layout_marginRight="5dp"
+                    android:background="#606060" />
+
+                <TextView
+                    android:id="@+id/provincePost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:text="Thành Phố Hà Nội"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Description"
+                android:textFontWeight="800"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/postDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="none"
+                android:text="Hoặc đơn giản hơn, chỉ cần thiết lập layout_width hoặc đủ rộng, Android sẽ tự xuống dòng nếu nội dung dài. "
+                android:textSize="18sp" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="15dp"
+        android:background="#909090"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/favoriteBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="36dp"
+            android:background="@drawable/ic_favorite"
+            android:backgroundTint="@android:color/transparent"
+            app:backgroundTint="#ff4768"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.466" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/booking_btn"
+            android:layout_width="250dp"
+            android:layout_height="65dp"
+            android:layout_marginEnd="36dp"
+            android:backgroundTint="#393939"
+            android:fontFamily="@font/zain_regular"
+            android:text="Booking"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

@@ -1,9 +1,13 @@
 package com.example.preely.adapter;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +18,7 @@ import com.example.preely.R;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.SavedPostRequest;
 import com.example.preely.model.response.PostResponse;
+import com.example.preely.view.PostDetailActivity;
 import com.example.preely.viewmodel.PostService;
 
 import java.util.List;
@@ -46,6 +51,11 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             PostResponse post = postList.get(position);
             PostViewHolder postHolder = (PostViewHolder) holder;
             postHolder.postTitle.setText(post.getTitle());
+            if (post.getImage() != null && !post.getImage().isEmpty()) {
+                postHolder.postImg.setImageURI(Uri.parse(post.getImage().get(0)));
+            } else {
+                postHolder.postImg.setImageResource(R.drawable.img_not_found);
+            }
             postHolder.postWard.setText(post.getWard());
             postHolder.postProvince.setText(post.getProvince());
             if (post.getCategoryResponse() != null) {
@@ -65,6 +75,16 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     throw new RuntimeException(e);
                 }
             });
+            postHolder.postImg.setOnClickListener(v -> {
+                Intent intent = new Intent(holder.itemView.getContext(), PostDetailActivity.class);
+                intent.putExtra("postId", post.getId().getId());
+                holder.itemView.getContext().startActivity(intent);
+            });
+            postHolder.postTitle.setOnClickListener(v -> {
+                Intent intent = new Intent(holder.itemView.getContext(), PostDetailActivity.class);
+                intent.putExtra("postId", post.getId().getId());
+                holder.itemView.getContext().startActivity(intent);
+            });
         }
     }
 
@@ -81,6 +101,7 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView postTitle, postWard, postProvince, postCategory;
         RecyclerView tagRecycleView;
+        ImageView postImg;
         Button favoriteBtn;
 
         public PostViewHolder(@NonNull View itemView) {
@@ -91,6 +112,7 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             postCategory = itemView.findViewById(R.id.post_category);
             tagRecycleView = itemView.findViewById(R.id.tag_recycle_view);
             favoriteBtn = itemView.findViewById(R.id.favoriteBtn);
+            postImg = itemView.findViewById(R.id.post_img);
         }
     }
 

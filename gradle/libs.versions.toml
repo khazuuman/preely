@@ -47,6 +47,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0" }
 circle-image-view = { group = "de.hdodenhof", name = "circleimageview", version = "3.1.0" }
 facebook-android-sdk = { group = "com.facebook.android", name = "facebook-android-sdk", version = "18.0.3" }
+imageslideshow = { group = "com.github.denzcoskun", name = "ImageSlideshow", version = "0.1.0"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -15,8 +15,11 @@ import com.example.preely.model.request.TagFilterRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagFilterAdapter extends RecyclerView.Adapter<TagFilterAdapter.TagFilterViewHolder> {
+import lombok.Setter;
 
+public class TagFilterAdapter extends RecyclerView.Adapter<TagFilterAdapter.TagFilterViewHolder> {
+    @Setter
+    private RecyclerView recyclerView;
     private final List<TagFilterRequest> itemList;
 
     public TagFilterAdapter(List<TagFilterRequest> itemList) {
@@ -33,11 +36,31 @@ public class TagFilterAdapter extends RecyclerView.Adapter<TagFilterAdapter.TagF
     @Override
     public void onBindViewHolder(@NonNull TagFilterAdapter.TagFilterViewHolder holder, int position) {
         TagFilterRequest item = itemList.get(position);
+        holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setText(item.getName());
         holder.checkBox.setChecked(item.isChecked());
 
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             item.setChecked(isChecked);
+            if ("All".equalsIgnoreCase(item.getName()) && isChecked) {
+                item.setChecked(true);
+                for (TagFilterRequest otherItem : itemList) {
+                    if (!"All".equalsIgnoreCase(otherItem.getName())) {
+                        otherItem.setChecked(false);
+                    }
+                }
+            } else if (!"All".equalsIgnoreCase(item.getName()) && isChecked) {
+                item.setChecked(true);
+                for (TagFilterRequest otherItem : itemList) {
+                    if ("All".equalsIgnoreCase(otherItem.getName())) {
+                        otherItem.setChecked(false);
+                        break;
+                    }
+                }
+            }
+            if (recyclerView != null) {
+                recyclerView.post(this::notifyDataSetChanged);
+            }
         });
     }
 
@@ -55,10 +78,13 @@ public class TagFilterAdapter extends RecyclerView.Adapter<TagFilterAdapter.TagF
         }
     }
 
-    public List<TagFilterRequest> getSelectedItems() {
-        List<TagFilterRequest> selected = new ArrayList<>();
+    public List<String> getIdStringSelectedItems() {
+        List<String> selected = new ArrayList<>();
         for (TagFilterRequest item : itemList) {
-            if (item.isChecked()) selected.add(item);
+            if (item.getId() == null && item.isChecked()) {
+                return null;
+            }
+            if (item.isChecked()) selected.add(item.getId().getId());
         }
         return selected;
     }

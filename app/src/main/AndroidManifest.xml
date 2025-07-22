@@ -4,12 +4,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
     <application
@@ -21,8 +21,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Preely"
         tools:targetApi="31">
-        
-        <!-- FileProvider for image picker -->
+        <activity
+            android:name=".view.ForgotPasswordActivity"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.PostDetailActivity"
+            android:exported="false" /> <!-- FileProvider for image picker -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -32,15 +42,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        
+
         <activity
             android:name=".view.PostListActivity"
-            android:exported="true" >
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+            android:exported="true">
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".view.CustomToast"
@@ -61,9 +73,6 @@
             android:name=".view.EditProfile"
             android:exported="false" />
         <activity
-            android:name=".view.FastLogin"
-            android:exported="false" />
-        <activity
             android:name=".view.SignUp"
             android:exported="false" />
         <activity
@@ -77,19 +86,17 @@
             android:exported="false" />
         <activity
             android:name=".view.PaymentResultActivity"
-            android:exported="false" />
-<!--        <activity-->
-<!--            android:name=".view.TestUploadActivity"-->
-<!--            android:exported="false" />-->
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".view.TestUploadActivity" -->
+        <!-- android:exported="false" /> -->
         <activity
             android:name=".view.Splash"
             android:exported="true">
-             <intent-filter>
-             <action android:name="android.intent.action.MAIN" />
 
-
-             <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -114,15 +121,10 @@
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />
+
         <activity
             android:name=".view.SavedPostsActivity"
             android:exported="false" />
-<!--        <activity-->
-<!--            android:name=".view.ProfileActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".view.ProfileActivityV2"-->
-<!--            android:exported="false" />-->
     </application>
 
 </manifest>
