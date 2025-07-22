@@ -58,6 +58,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     private ListenerRegistration postListener;
     private FirebaseFirestore db;
     private boolean isInitialLoad = true;
+    private AddEditPostDialog addEditPostDialog; // Lưu instance dialog
 
     @Nullable
     @Override
@@ -207,19 +208,20 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void showAddPostDialog() {
-        final AddEditPostDialog dialog = new AddEditPostDialog(getContext(), null, null);
-        dialog.setOnPostDialogListener(new AddEditPostDialog.OnPostDialogListener() {
+        addEditPostDialog = new AddEditPostDialog(getContext(), null, null);
+        addEditPostDialog.setOnPostDialogListener(new AddEditPostDialog.OnPostDialogListener() {
             @Override
             public void onPostSaved(Post post, boolean isEdit) {
                 if (isEdit) {
                     updatePost(post);
                 } else {
-                    List<Uri> imageUris = dialog.getSelectedImageUris();
-                    savePostAndUploadImages(post, imageUris);
+                    List<Uri> imageUris = addEditPostDialog.getSelectedImageUris();
+                    List<String> uploadedImageUrls = addEditPostDialog.getUploadedImageUrls();
+                    savePostAndUploadImages(post, imageUris, uploadedImageUrls);
                 }
             }
         });
-        dialog.show();
+        addEditPostDialog.show();
     }
 
     private void showEditPostDialog(Post post) {
@@ -246,15 +248,29 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
         });
     }
 
-    private void savePostAndUploadImages(Post post, List<Uri> imageUris) {
-        postService.addPostAndUploadImages(post, imageUris, getContext(), new com.example.preely.util.ImageUploadUtil.ImageUploadCallback() {
+    private void savePostAndUploadImages(Post post, List<Uri> imageUris, List<String> uploadedImageUrls) {
+        postService.addPost(post, new CallBackUtil.OnInsertCallback() {
             @Override
-            public void onSuccess(com.example.preely.model.entities.Image image) {
-                // Có thể cập nhật UI hoặc log nếu muốn
+            public void onSuccess(DocumentReference documentReference) {
+                String postId = documentReference.getId();
+                if (uploadedImageUrls != null && !uploadedImageUrls.isEmpty()) {
+                    postService.saveImagesForPost(postId, uploadedImageUrls, new CallBackUtil.OnInsertManyCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(getContext(), "Post and images saved successfully", Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(getContext(), "Post saved but failed to save images: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(getContext(), "Post saved successfully (no images)", Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
-            public void onError(String error) {
-                Toast.makeText(getContext(), "Upload image failed: " + error, Toast.LENGTH_SHORT).show();
+            public void onFailure(Exception e) {
+                Toast.makeText(getContext(), "Error saving post: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

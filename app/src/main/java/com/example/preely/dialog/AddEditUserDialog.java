@@ -15,10 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
 
+import com.bumptech.glide.Glide;
 import com.example.preely.R;
 import com.example.preely.model.entities.User;
-import com.example.preely.util.StoreService;
+import com.example.preely.viewmodel.CloudinaryService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -30,6 +32,7 @@ public class AddEditUserDialog extends Dialog {
     private User user;
     private OnUserDialogListener listener;
     private boolean isEditMode;
+    private ActivityResultLauncher<Intent> avatarPickerLauncher;
 
     private TextInputEditText etFullName, etEmail, etPhone, etAddress;
     private MaterialButton btnSave, btnCancel;
@@ -37,18 +40,22 @@ public class AddEditUserDialog extends Dialog {
     private MaterialButton btnChooseAvatar;
     private Uri selectedAvatarUri;
     private String uploadedAvatarUrl;
-    private StoreService storeService;
+    private CloudinaryService cloudinaryService;
+    private String pendingAvatarUrl; // Lưu URL upload xong
+    private boolean isUploadingAvatar = false;
 
     public interface OnUserDialogListener {
         void onUserSaved(User user, boolean isEdit);
     }
 
-    public AddEditUserDialog(@NonNull Context context, User user, OnUserDialogListener listener) {
+    public AddEditUserDialog(@NonNull Context context, User user, OnUserDialogListener listener, ActivityResultLauncher<Intent> avatarPickerLauncher) {
         super(context);
         this.context = context;
         this.user = user;
         this.listener = listener;
         this.isEditMode = user != null;
+        this.avatarPickerLauncher = avatarPickerLauncher;
+        this.cloudinaryService = new CloudinaryService((android.app.Application) ((android.app.Activity) context).getApplication());
     }
 
     @Override
@@ -57,7 +64,6 @@ public class AddEditUserDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_add_edit_user);
 
-        storeService = new StoreService(context);
         initViews();
         setupListeners();
         if (isEditMode) {
@@ -97,12 +103,9 @@ public class AddEditUserDialog extends Dialog {
             etPhone.setText(user.getPhone_number());
             etAddress.setText(user.getAddress());
             if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
-                try {
-                    Uri uri = Uri.parse(user.getAvatar());
-                    imgAvatarPreview.setImageURI(uri);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Glide.with(context).load(user.getAvatar()).placeholder(R.drawable.ic_account).into(imgAvatarPreview);
+            } else {
+                imgAvatarPreview.setImageResource(R.drawable.ic_account);
             }
         }
     }
@@ -110,7 +113,9 @@ public class AddEditUserDialog extends Dialog {
     private void chooseAvatarFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
-        ((android.app.Activity) context).startActivityForResult(intent, 1001);
+        if (avatarPickerLauncher != null) {
+            avatarPickerLauncher.launch(intent);
+        }
     }
 
     // Call this from Activity's onActivityResult
@@ -118,12 +123,29 @@ public class AddEditUserDialog extends Dialog {
         if (requestCode == 1001 && resultCode == android.app.Activity.RESULT_OK && data != null) {
             selectedAvatarUri = data.getData();
             if (selectedAvatarUri != null) {
-                imgAvatarPreview.setImageURI(selectedAvatarUri);
+                Glide.with(context).load(selectedAvatarUri).placeholder(R.drawable.ic_account).into(imgAvatarPreview);
+                // Upload lên Cloudinary
+                pendingAvatarUrl = null;
+                isUploadingAvatar = true;
+                btnSave.setEnabled(false);
+                cloudinaryService.uploadImage(selectedAvatarUri, "avatars");
+                // Lắng nghe kết quả upload
+                cloudinaryService.getUploadedImageUrl().observeForever(url -> {
+                    if (url != null && !url.isEmpty()) {
+                        pendingAvatarUrl = url;
+                        isUploadingAvatar = false;
+                        btnSave.setEnabled(true);
+                    }
+                });
             }
         }
     }
 
     private void saveUser() {
+        if (isUploadingAvatar) {
+            Toast.makeText(context, "Please wait for avatar upload to finish!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String fullName = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
@@ -149,28 +171,12 @@ public class AddEditUserDialog extends Dialog {
         userToSave.setPhone_number(phone);
         userToSave.setAddress(address);
 
-        if (selectedAvatarUri != null) {
-            // Upload avatar trước khi lưu user
-            String fileName = "avatar_" + System.currentTimeMillis();
-            storeService.uploadFileAsync(selectedAvatarUri, "avatars", fileName)
-                .thenAccept(url -> {
-                    userToSave.setAvatar(url);
-                    if (listener != null) {
-                        listener.onUserSaved(userToSave, isEditMode);
-                    }
-                    dismiss();
-                })
-                .exceptionally(throwable -> {
-                    ((android.app.Activity) context).runOnUiThread(() ->
-                        Toast.makeText(context, "Upload avatar failed: " + throwable.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-                    return null;
-                });
-        } else {
-            if (listener != null) {
-                listener.onUserSaved(userToSave, isEditMode);
-            }
-            dismiss();
+        if (pendingAvatarUrl != null && !pendingAvatarUrl.isEmpty()) {
+            userToSave.setAvatar(pendingAvatarUrl);
         }
+        if (listener != null) {
+            listener.onUserSaved(userToSave, isEditMode);
+        }
+        dismiss();
     }
 } 

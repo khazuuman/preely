@@ -13,9 +13,11 @@ import com.google.firebase.firestore.DocumentReference;
 import android.content.Context;
 import android.net.Uri;
 import java.util.List;
+import com.example.preely.model.entities.Image;
 
 public class ManagementPostService {
     private final MainRepository<Post> postRepository = new MainRepository<>(Post.class, "post");
+    private final MainRepository<Image> imageRepository = new MainRepository<>(Image.class, "image");
     private final FirestoreRealtimeUtil realtimeUtil = new FirestoreRealtimeUtil();
     private ListenerRegistration postListener;
 
@@ -60,5 +62,14 @@ public class ManagementPostService {
     public void removeRealtimeListener() {
         if (postListener != null) postListener.remove();
         realtimeUtil.removeAllListeners();
+    }
+
+    // Thêm phương thức lưu ảnh
+    public void saveImagesForPost(String postId, List<String> imageUrls, CallBackUtil.OnInsertManyCallback callback) {
+        List<Image> images = new java.util.ArrayList<>();
+        for (String url : imageUrls) {
+            images.add(new Image(postId, url));
+        }
+        imageRepository.addRange(images, callback);
     }
 } 

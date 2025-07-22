@@ -19,7 +19,7 @@ import android.provider.MediaStore;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
-import com.example.preely.util.ImageUploadUtil;
+import com.example.preely.viewmodel.CloudinaryService;
 import android.widget.Toast;
 import com.example.preely.dialog.ImagePreviewAdapter;
 
@@ -36,7 +36,9 @@ public class AddEditPostDialog extends Dialog {
     private MaterialButton btnChooseImages;
     private List<Uri> selectedImageUris = new ArrayList<>();
     private ImagePreviewAdapter imagePreviewAdapter;
-    private ImageUploadUtil imageUploadUtil;
+    private CloudinaryService cloudinaryService;
+    private List<String> uploadedImageUrls = new ArrayList<>();
+    private boolean isUploadingImages = false;
 
     public interface OnPostDialogListener {
         void onPostSaved(Post post, boolean isEdit);
@@ -48,6 +50,7 @@ public class AddEditPostDialog extends Dialog {
         this.post = post;
         this.listener = listener;
         this.isEditMode = post != null;
+        this.cloudinaryService = new CloudinaryService((android.app.Application) ((android.app.Activity) context).getApplication());
     }
 
     public void setOnPostDialogListener(OnPostDialogListener listener) {
@@ -60,7 +63,6 @@ public class AddEditPostDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_add_edit_post);
 
-        imageUploadUtil = new ImageUploadUtil(context);
         initViews();
         setupListeners();
         if (isEditMode) {
@@ -116,6 +118,7 @@ public class AddEditPostDialog extends Dialog {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 2001 && resultCode == android.app.Activity.RESULT_OK) {
             selectedImageUris.clear();
+            uploadedImageUrls.clear();
             if (data.getClipData() != null) {
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
@@ -126,10 +129,39 @@ public class AddEditPostDialog extends Dialog {
                 selectedImageUris.add(data.getData());
             }
             imagePreviewAdapter.notifyDataSetChanged();
+            // Bắt đầu upload ngay sau khi chọn xong
+            if (!selectedImageUris.isEmpty()) {
+                isUploadingImages = true;
+                btnSave.setEnabled(false);
+                uploadAllImagesToCloudinary();
+            }
+        }
+    }
+
+    private void uploadAllImagesToCloudinary() {
+        uploadedImageUrls.clear();
+        final int total = selectedImageUris.size();
+        final int[] completed = {0};
+        for (Uri imageUri : selectedImageUris) {
+            cloudinaryService.uploadImage(imageUri, "posts");
+            cloudinaryService.getUploadedImageUrl().observeForever(url -> {
+                if (url != null && !url.isEmpty() && !uploadedImageUrls.contains(url)) {
+                    uploadedImageUrls.add(url);
+                    completed[0]++;
+                    if (completed[0] == total) {
+                        isUploadingImages = false;
+                        btnSave.setEnabled(true);
+                    }
+                }
+            });
         }
     }
 
     private void savePost() {
+        if (isUploadingImages) {
+            Toast.makeText(context, "Please wait for images upload to finish!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String title = etTitle.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
         String priceStr = etPrice.getText().toString().trim();
@@ -158,20 +190,18 @@ public class AddEditPostDialog extends Dialog {
         postToSave.setTitle(title);
         postToSave.setDescription(description);
         postToSave.setPrice(price);
+        postToSave.setImages(new ArrayList<>(uploadedImageUrls));
         if (listener != null) {
             listener.onPostSaved(postToSave, isEditMode);
-        }
-        // Nếu là thêm mới, upload ảnh sau khi post đã có id
-        if (!selectedImageUris.isEmpty() && !isEditMode) {
-            // Cần truyền postId sau khi post được lưu thành công
-            // Gợi ý: listener.onPostSaved cần trả về postId mới để upload ảnh
-            // Ở đây chỉ demo upload, bạn cần chỉnh lại luồng thực tế cho đúng postId
-            // imageUploadUtil.uploadMultipleImagesForPost(selectedImageUris.toArray(new Uri[0]), postId, callback);
         }
         dismiss();
     }
 
     public List<Uri> getSelectedImageUris() {
         return selectedImageUris;
+    }
+
+    public List<String> getUploadedImageUrls() {
+        return uploadedImageUrls;
     }
 } 

@@ -33,6 +33,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
 import com.example.preely.viewmodel.ManagementUserService;
 import com.bumptech.glide.Glide;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import android.app.Activity;
+import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,8 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     private ListenerRegistration userListener;
     private FirebaseFirestore db;
     private boolean isInitialLoad = true;
+    private AddEditUserDialog addEditUserDialog; // Lưu instance dialog
+    private ActivityResultLauncher<Intent> avatarPickerLauncher;
 
     @Nullable
     @Override
@@ -72,6 +78,19 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
         });
         
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        avatarPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (addEditUserDialog != null && result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    addEditUserDialog.onActivityResult(1001, result.getResultCode(), result.getData());
+                }
+            }
+        );
     }
 
     private void initViews(View view) {
@@ -202,7 +221,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void showAddUserDialog() {
-        AddEditUserDialog dialog = new AddEditUserDialog(getContext(), null, 
+        addEditUserDialog = new AddEditUserDialog(getContext(), null, 
             new AddEditUserDialog.OnUserDialogListener() {
                 @Override
                 public void onUserSaved(User user, boolean isEdit) {
@@ -212,19 +231,23 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
                         saveUser(user);
                     }
                 }
-            });
-        dialog.show();
+            },
+            avatarPickerLauncher
+        );
+        addEditUserDialog.show();
     }
 
     private void showEditUserDialog(User user) {
-        AddEditUserDialog dialog = new AddEditUserDialog(getContext(), user, 
+        addEditUserDialog = new AddEditUserDialog(getContext(), user, 
             new AddEditUserDialog.OnUserDialogListener() {
                 @Override
                 public void onUserSaved(User user, boolean isEdit) {
                     updateUser(user);
                 }
-            });
-        dialog.show();
+            },
+            avatarPickerLauncher
+        );
+        addEditUserDialog.show();
     }
 
     private void saveUser(User user) {
