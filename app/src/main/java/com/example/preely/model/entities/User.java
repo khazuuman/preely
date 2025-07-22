@@ -29,4 +29,5 @@ public class User extends BaseEntity {
     GeoPoint location;
     Timestamp last_login;
     Timestamp registration_date;
+    String avatar;
 }

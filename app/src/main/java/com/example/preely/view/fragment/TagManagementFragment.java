@@ -32,6 +32,7 @@ import com.example.preely.util.DbUtil;
 import com.example.preely.util.Constraints.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.example.preely.viewmodel.ManagementTagService;
 
 public class TagManagementFragment extends Fragment implements TagAdapter.OnTagClickListener {
 
@@ -40,11 +41,14 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     private EditText etSearch;
     private List<Tag> tagList = new ArrayList<>();
     private List<Tag> originalTagList = new ArrayList<>();
-    private MainRepository<Tag> tagRepository;
+    private List<Tag> allTagList = new ArrayList<>();
+    private List<Tag> pagedTagList = new ArrayList<>();
+    private ManagementTagService tagService;
     private TagAdapter tagAdapter;
     private FirestoreRealtimeUtil realtimeUtil;
     private ListenerRegistration tagListener;
     private FirebaseFirestore db;
+    private boolean isInitialLoad = true;
 
     @Nullable
     @Override
@@ -71,9 +75,7 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
         recyclerView = view.findViewById(R.id.recycler_tags);
         fabAdd = view.findViewById(R.id.fab_add_tag);
         etSearch = view.findViewById(R.id.et_search_tags);
-        tagRepository = new MainRepository<>(Tag.class, CollectionName.TAGS);
-        realtimeUtil = new FirestoreRealtimeUtil();
-        db = FirebaseFirestore.getInstance();
+        tagService = new ManagementTagService();
     }
 
     private void setupRecyclerView() {
@@ -95,25 +97,24 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     }
 
     private void setupRealtimeListener() {
-        tagListener = realtimeUtil.listenToTags(new FirestoreRealtimeUtil.RealtimeListener<Tag>() {
+        tagService.listenRealtime(new FirestoreRealtimeUtil.RealtimeListener<Tag>() {
             @Override
             public void onDataAdded(Tag tag) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        // Check if tag already exists to avoid duplicate notifications
                         boolean tagExists = originalTagList.stream()
                             .anyMatch(existingTag -> existingTag.getId().equals(tag.getId()));
-                        
                         if (!tagExists) {
                             originalTagList.add(tag);
                             tagList.add(tag);
                             tagAdapter.setTagList(tagList);
-                            Toast.makeText(getContext(), "New tag added: " + tag.getName(), Toast.LENGTH_SHORT).show();
+                            if (!isInitialLoad) {
+                                Toast.makeText(getContext(), "New tag added: " + tag.getName(), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
             }
-
             @Override
             public void onDataModified(Tag tag) {
                 if (getActivity() != null) {
@@ -125,7 +126,6 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
                     });
                 }
             }
-
             @Override
             public void onDataRemoved(Tag tag) {
                 if (getActivity() != null) {
@@ -137,7 +137,6 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
                     });
                 }
             }
-
             @Override
             public void onError(String error) {
                 if (getActivity() != null) {
@@ -147,6 +146,7 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
                 }
             }
         });
+        recyclerView.postDelayed(() -> isInitialLoad = false, 1000);
     }
 
     private void updateTagInList(List<Tag> list, Tag updatedTag) {
@@ -163,15 +163,31 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     }
 
     private void loadTags() {
-        Query query = db.collection("tag");
-        tagRepository.getAll(query).observe(getViewLifecycleOwner(), tags -> {
+        tagService.getAllTags(tags -> {
             if (tags != null) {
-                originalTagList.clear();
-                tagList.clear();
-                originalTagList.addAll(tags);
-                tagList.addAll(tags);
-                tagAdapter.setTagList(tagList);
+                allTagList.clear();
+                pagedTagList.clear();
+                allTagList.addAll(tags);
+                pagedTagList.addAll(PaginationUtil.getPageItems(allTagList, 0));
+                tagAdapter.setTagList(pagedTagList);
+                PaginationUtil.resetPagination();
+                setupPagination();
             }
+        });
+    }
+
+    private void setupPagination() {
+        PaginationUtil.setupPagination(recyclerView, allTagList, new PaginationUtil.PaginationCallback<Tag>() {
+            @Override
+            public void onLoadMore(List<Tag> newItems, int page) {
+                int oldSize = pagedTagList.size();
+                pagedTagList.addAll(newItems);
+                recyclerView.post(() -> tagAdapter.notifyItemRangeInserted(oldSize, newItems.size()));
+            }
+            @Override
+            public void onLoadComplete() {}
+            @Override
+            public void onError(String error) {}
         });
     }
 
@@ -208,12 +224,11 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     }
 
     private void saveTag(Tag tag) {
-        tagRepository.add(tag, "tag", new CallBackUtil.OnInsertCallback() {
+        tagService.addTag(tag, new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Tag saved successfully", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error saving tag: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -222,12 +237,11 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     }
 
     private void updateTag(Tag tag) {
-        tagRepository.update(tag, tag.getId().getId(), new CallBackUtil.OnUpdateCallback() {
+        tagService.updateTag(tag, new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Tag updated successfully", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error updating tag: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -240,12 +254,11 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
             .setTitle("Delete Tag")
             .setMessage("Are you sure you want to delete \"" + tag.getName() + "\"?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                tagRepository.delete(tag.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
+                tagService.deleteTag(tag, new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "Tag deleted successfully", Toast.LENGTH_SHORT).show();
                     }
-
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error deleting tag: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -280,9 +293,6 @@ public class TagManagementFragment extends Fragment implements TagAdapter.OnTagC
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (tagListener != null) {
-            tagListener.remove();
-        }
-        realtimeUtil.removeAllListeners();
+        tagService.removeRealtimeListener();
     }
 } 

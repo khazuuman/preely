@@ -36,6 +36,7 @@ public class Post extends BaseEntity {
     String ward;
     String province;
     List<String> tag_ids;
+    List<String> images;
 
 //    // Helper methods to extract IDs from DocumentReference
 //    @Exclude

@@ -48,6 +48,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -168,6 +169,16 @@ public class Login extends AppCompatActivity {
 
         // Handle login button click
         loginBtn.setOnClickListener(v -> {
+            String username = Objects.requireNonNull(usernameInput.getText()).toString().trim();
+            String password = Objects.requireNonNull(passwordInput.getText()).toString().trim();
+            if (username.equals("admin") && password.equals("Admin@123")) {
+                sessionManager.setRemember(true);
+                sessionManager.setSessionTimeOut(24 * 60 * 60 * 1000); // 1 ngày
+                Intent intent = new Intent(Login.this, ManagementActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
             UserLoginRequest request = new UserLoginRequest();
             request.setUsername(Objects.requireNonNull(usernameInput.getText()).toString());
             request.setPassword(Objects.requireNonNull(passwordInput.getText()).toString());

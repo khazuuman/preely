@@ -125,6 +125,7 @@
         <activity
             android:name=".view.SavedPostsActivity"
             android:exported="false" />
+        <activity android:name=".view.ManagementActivity" />
     </application>
 
 </manifest>
