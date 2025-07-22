@@ -30,6 +30,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
 import com.example.preely.util.Constraints.*;
+import com.example.preely.viewmodel.ManagementCategoryService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,14 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     private EditText etSearch;
     private List<Category> categoryList = new ArrayList<>();
     private List<Category> originalCategoryList = new ArrayList<>();
-    private MainRepository<Category> categoryRepository;
+    private List<Category> allCategoryList = new ArrayList<>();
+    private List<Category> pagedCategoryList = new ArrayList<>();
+    private ManagementCategoryService categoryService;
     private CategoryAdapter categoryAdapter;
     private FirestoreRealtimeUtil realtimeUtil;
     private ListenerRegistration categoryListener;
     private FirebaseFirestore db;
+    private boolean isInitialLoad = true;
 
     @Nullable
     @Override
@@ -72,9 +76,7 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
         recyclerView = view.findViewById(R.id.recycler_categories);
         fabAdd = view.findViewById(R.id.fab_add_category);
         etSearch = view.findViewById(R.id.et_search_categories);
-        categoryRepository = new MainRepository<>(Category.class, CollectionName.CATEGORIES);
-        realtimeUtil = new FirestoreRealtimeUtil();
-        db = FirebaseFirestore.getInstance();
+        categoryService = new ManagementCategoryService();
     }
 
     private void setupRecyclerView() {
@@ -96,25 +98,24 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void setupRealtimeListener() {
-        categoryListener = realtimeUtil.listenToCategories(new FirestoreRealtimeUtil.RealtimeListener<Category>() {
+        categoryService.listenRealtime(new FirestoreRealtimeUtil.RealtimeListener<Category>() {
             @Override
             public void onDataAdded(Category category) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        // Check if category already exists to avoid duplicate notifications
                         boolean categoryExists = originalCategoryList.stream()
                                 .anyMatch(existingCategory -> existingCategory.getId().equals(category.getId()));
-
                         if (!categoryExists) {
                             originalCategoryList.add(category);
                             categoryList.add(category);
                             categoryAdapter.setCategoryList(categoryList);
-                            Toast.makeText(getContext(), "New category added: " + category.getName(), Toast.LENGTH_SHORT).show();
+                            if (!isInitialLoad) {
+                                Toast.makeText(getContext(), "New category added: " + category.getName(), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
             }
-
             @Override
             public void onDataModified(Category category) {
                 if (getActivity() != null) {
@@ -126,7 +127,6 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
                     });
                 }
             }
-
             @Override
             public void onDataRemoved(Category category) {
                 if (getActivity() != null) {
@@ -138,7 +138,6 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
                     });
                 }
             }
-
             @Override
             public void onError(String error) {
                 if (getActivity() != null) {
@@ -148,6 +147,7 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
                 }
             }
         });
+        recyclerView.postDelayed(() -> isInitialLoad = false, 1000);
     }
 
     private void updateCategoryInList(List<Category> list, Category updatedCategory) {
@@ -164,15 +164,31 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void loadCategories() {
-        Query query = db.collection("category");
-        categoryRepository.getAll(query).observe(getViewLifecycleOwner(), categories -> {
+        categoryService.getAllCategories(categories -> {
             if (categories != null) {
-                originalCategoryList.clear();
-                categoryList.clear();
-                originalCategoryList.addAll(categories);
-                categoryList.addAll(categories);
-                categoryAdapter.setCategoryList(categoryList);
+                allCategoryList.clear();
+                pagedCategoryList.clear();
+                allCategoryList.addAll(categories);
+                pagedCategoryList.addAll(PaginationUtil.getPageItems(allCategoryList, 0));
+                categoryAdapter.setCategoryList(pagedCategoryList);
+                PaginationUtil.resetPagination();
+                setupPagination();
             }
+        });
+    }
+
+    private void setupPagination() {
+        PaginationUtil.setupPagination(recyclerView, allCategoryList, new PaginationUtil.PaginationCallback<Category>() {
+            @Override
+            public void onLoadMore(List<Category> newItems, int page) {
+                int oldSize = pagedCategoryList.size();
+                pagedCategoryList.addAll(newItems);
+                recyclerView.post(() -> categoryAdapter.notifyItemRangeInserted(oldSize, newItems.size()));
+            }
+            @Override
+            public void onLoadComplete() {}
+            @Override
+            public void onError(String error) {}
         });
     }
 
@@ -209,12 +225,11 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void saveCategory(Category category) {
-        categoryRepository.add(category, "category", new CallBackUtil.OnInsertCallback() {
+        categoryService.addCategory(category, new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Category saved successfully", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error saving category: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -223,12 +238,11 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     }
 
     private void updateCategory(Category category) {
-        categoryRepository.update(category, category.getId().getId(), new CallBackUtil.OnUpdateCallback() {
+        categoryService.updateCategory(category, new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "Category updated successfully", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error updating category: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -241,12 +255,11 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
                 .setTitle("Delete Category")
                 .setMessage("Are you sure you want to delete \"" + category.getName() + "\"?")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    categoryRepository.delete(category.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
+                    categoryService.deleteCategory(category, new CallBackUtil.OnDeleteCallBack() {
                         @Override
                         public void onSuccess() {
                             Toast.makeText(getContext(), "Category deleted successfully", Toast.LENGTH_SHORT).show();
                         }
-
                         @Override
                         public void onFailure(Exception e) {
                             Toast.makeText(getContext(), "Error deleting category: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -289,9 +302,6 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (categoryListener != null) {
-            categoryListener.remove();
-        }
-        realtimeUtil.removeAllListeners();
+        categoryService.removeRealtimeListener();
     }
 } 

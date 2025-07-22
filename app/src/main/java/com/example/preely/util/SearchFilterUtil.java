@@ -7,7 +7,6 @@ import android.widget.EditText;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.adapter.CategoryAdapter;
-import com.example.preely.adapter.ImageAdapter;
 import com.example.preely.adapter.PostAdapter;
 import com.example.preely.adapter.TagAdapter;
 import com.example.preely.adapter.TransactionAdapter;
@@ -164,33 +163,6 @@ public class SearchFilterUtil {
                     .collect(Collectors.toList());
                 
                 adapter.setTagList(filteredList);
-                if (callback != null) {
-                    callback.onFiltered(filteredList);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-    }
-
-    public static void setupImageSearch(EditText searchEditText, List<Image> originalList, 
-                                      ImageAdapter adapter, SearchFilterCallback<Image> callback) {
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String query = s.toString().toLowerCase().trim();
-                List<Image> filteredList = originalList.stream()
-                    .filter(image -> image.getPost_id() != null && 
-                                   image.getPost_id().toLowerCase().contains(query) ||
-                                   image.getLink() != null && 
-                                   image.getLink().toLowerCase().contains(query))
-                    .collect(Collectors.toList());
-                
-                adapter.setImageList(filteredList);
                 if (callback != null) {
                     callback.onFiltered(filteredList);
                 }

@@ -16,7 +16,6 @@ import com.google.android.material.button.MaterialButton;
 
 public class ManagementFragment extends Fragment {
 
-    private MaterialButton btnImageManagement;
     private MaterialButton btnCategoryManagement;
     private MaterialButton btnTagManagement;
     private FragmentManager fragmentManager;
@@ -33,17 +32,12 @@ public class ManagementFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        btnImageManagement = view.findViewById(R.id.btn_image_management);
         btnCategoryManagement = view.findViewById(R.id.btn_category_management);
         btnTagManagement = view.findViewById(R.id.btn_tag_management);
         fragmentManager = getParentFragmentManager();
     }
 
     private void setupListeners() {
-        btnImageManagement.setOnClickListener(v -> {
-            loadFragment(new ImageManagementFragment());
-        });
-
         btnCategoryManagement.setOnClickListener(v -> {
             loadFragment(new CategoryManagementFragment());
         });

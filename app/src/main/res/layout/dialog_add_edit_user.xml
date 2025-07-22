@@ -18,6 +18,33 @@
         android:gravity="center"
         android:layout_marginBottom="24dp"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/img_avatar_preview"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_account"
+            android:scaleType="centerCrop"
+            android:background="@drawable/rounded_edge"
+            android:contentDescription="Avatar preview"
+            android:layout_marginEnd="16dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_choose_avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Avatar"
+            android:icon="@drawable/ic_edit"
+            android:backgroundTint="#EEEEEE"
+            android:textColor="#333333"/>
+    </LinearLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

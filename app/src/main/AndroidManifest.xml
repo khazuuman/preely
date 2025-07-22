@@ -117,6 +117,7 @@
         <activity
             android:name=".view.SavedPostsActivity"
             android:exported="false" />
+        <activity android:name=".view.ManagementActivity" />
 <!--        <activity-->
 <!--            android:name=".view.ProfileActivity"-->
 <!--            android:exported="false" />-->

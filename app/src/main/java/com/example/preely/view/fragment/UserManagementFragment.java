@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +31,8 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.DocumentReference;
 import com.example.preely.util.DbUtil;
+import com.example.preely.viewmodel.ManagementUserService;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +44,14 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     private EditText etSearch;
     private List<User> userList = new ArrayList<>();
     private List<User> originalUserList = new ArrayList<>();
-    private MainRepository<User> userRepository;
+    private List<User> allUserList = new ArrayList<>(); // Lưu toàn bộ user
+    private List<User> pagedUserList = new ArrayList<>(); // Danh sách hiển thị theo trang
+    private ManagementUserService userService;
     private UserAdapter userAdapter;
     private FirestoreRealtimeUtil realtimeUtil;
     private ListenerRegistration userListener;
     private FirebaseFirestore db;
+    private boolean isInitialLoad = true;
 
     @Nullable
     @Override
@@ -72,9 +78,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
         recyclerView = view.findViewById(R.id.recycler_users);
         fabAdd = view.findViewById(R.id.fab_add_user);
         etSearch = view.findViewById(R.id.et_search_users);
-        userRepository = new MainRepository<>(User.class, CollectionName.USERS);
-        realtimeUtil = new FirestoreRealtimeUtil();
-        db = FirebaseFirestore.getInstance();
+        userService = new ManagementUserService();
     }
 
     private void setupRecyclerView() {
@@ -96,30 +100,28 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void setupRealtimeListener() {
-        userListener = realtimeUtil.listenToUsers(new FirestoreRealtimeUtil.RealtimeListener<User>() {
+        userService.listenRealtime(new FirestoreRealtimeUtil.RealtimeListener<User>() {
             @Override
             public void onDataAdded(User user) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        // Check if user already exists to avoid duplicate notifications
                         boolean userExists = originalUserList.stream()
                             .anyMatch(existingUser -> existingUser.getId().equals(user.getId()));
-                        
                         if (!userExists) {
                             originalUserList.add(user);
                             userList.add(user);
                             userAdapter.setUserList(userList);
-                            Toast.makeText(getContext(), "New user added: " + user.getFull_name(), Toast.LENGTH_SHORT).show();
+                            if (!isInitialLoad) {
+                                Toast.makeText(getContext(), "New user added: " + user.getFull_name(), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
             }
-
             @Override
             public void onDataModified(User user) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        // Update in both lists
                         updateUserInList(originalUserList, user);
                         updateUserInList(userList, user);
                         userAdapter.setUserList(userList);
@@ -127,12 +129,10 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
                     });
                 }
             }
-
             @Override
             public void onDataRemoved(User user) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        // Remove from both lists
                         removeUserFromList(originalUserList, user);
                         removeUserFromList(userList, user);
                         userAdapter.setUserList(userList);
@@ -140,7 +140,6 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
                     });
                 }
             }
-
             @Override
             public void onError(String error) {
                 if (getActivity() != null) {
@@ -150,6 +149,7 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
                 }
             }
         });
+        recyclerView.postDelayed(() -> isInitialLoad = false, 1000);
     }
 
     private void updateUserInList(List<User> list, User updatedUser) {
@@ -166,15 +166,32 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void loadUsers() {
-        Query query = db.collection("user");
-        userRepository.getAll(query).observe(getViewLifecycleOwner(), users -> {
+        userService.getAllUsers(users -> {
             if (users != null) {
-                originalUserList.clear();
-                userList.clear();
-                originalUserList.addAll(users);
-                userList.addAll(users);
-                userAdapter.setUserList(userList);
+                allUserList.clear();
+                pagedUserList.clear();
+                allUserList.addAll(users);
+                // Lấy trang đầu tiên
+                pagedUserList.addAll(PaginationUtil.getPageItems(allUserList, 0));
+                userAdapter.setUserList(pagedUserList);
+                PaginationUtil.resetPagination();
+                setupPagination();
             }
+        });
+    }
+
+    private void setupPagination() {
+        PaginationUtil.setupPagination(recyclerView, allUserList, new PaginationUtil.PaginationCallback<User>() {
+            @Override
+            public void onLoadMore(List<User> newItems, int page) {
+                int oldSize = pagedUserList.size();
+                pagedUserList.addAll(newItems);
+                recyclerView.post(() -> userAdapter.notifyItemRangeInserted(oldSize, newItems.size()));
+            }
+            @Override
+            public void onLoadComplete() {}
+            @Override
+            public void onError(String error) {}
         });
     }
 
@@ -211,12 +228,11 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void saveUser(User user) {
-        userRepository.add(user, "user", new CallBackUtil.OnInsertCallback() {
+        userService.addUser(user, new CallBackUtil.OnInsertCallback() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "User saved successfully", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error saving user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -225,12 +241,11 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     }
 
     private void updateUser(User user) {
-        userRepository.update(user, user.getId().getId(),  new CallBackUtil.OnUpdateCallback() {
+        userService.updateUser(user, new CallBackUtil.OnUpdateCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(getContext(), "User updated successfully", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(getContext(), "Error updating user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -243,12 +258,11 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
             .setTitle("Delete User")
             .setMessage("Are you sure you want to delete \"" + user.getFull_name() + "\"?")
             .setPositiveButton("Delete", (dialog, which) -> {
-                userRepository.delete(user.getId().getId(), new CallBackUtil.OnDeleteCallBack() {
+                userService.deleteUser(user, new CallBackUtil.OnDeleteCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getContext(), "User deleted successfully", Toast.LENGTH_SHORT).show();
                     }
-
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(getContext(), "Error deleting user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -261,13 +275,60 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
 
     @Override
     public void onUserClick(User user) {
-        // Show user details dialog
-        new AlertDialog.Builder(getContext())
+        // Custom dialog layout
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(getContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(48, 48, 48, 32);
+        layout.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+
+        // Avatar
+        ImageView avatar = new ImageView(getContext());
+        int avatarSize = (int) (getResources().getDisplayMetrics().density * 120);
+        android.widget.LinearLayout.LayoutParams avatarParams = new android.widget.LinearLayout.LayoutParams(avatarSize, avatarSize);
+        avatarParams.bottomMargin = 32;
+        avatar.setLayoutParams(avatarParams);
+        avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatar.setBackgroundResource(R.drawable.rounded_edge);
+        // Load avatar (nếu có), fallback icon
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+            Glide.with(getContext()).load(user.getAvatar()).placeholder(R.drawable.ic_account).into(avatar);
+        } else {
+            avatar.setImageResource(R.drawable.ic_account);
+        }
+        layout.addView(avatar);
+
+        // Tên
+        android.widget.TextView nameTv = new android.widget.TextView(getContext());
+        nameTv.setText(user.getFull_name() != null ? user.getFull_name() : "N/A");
+        nameTv.setTextSize(22);
+        nameTv.setTypeface(null, android.graphics.Typeface.BOLD);
+        nameTv.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        layout.addView(nameTv);
+
+        // Email
+        android.widget.TextView emailTv = new android.widget.TextView(getContext());
+        emailTv.setText("Email: " + (user.getEmail() != null ? user.getEmail() : "N/A"));
+        emailTv.setTextSize(16);
+        emailTv.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        layout.addView(emailTv);
+
+        // Phone
+        android.widget.TextView phoneTv = new android.widget.TextView(getContext());
+        phoneTv.setText("Phone: " + (user.getPhone_number() != null ? user.getPhone_number() : "N/A"));
+        phoneTv.setTextSize(16);
+        phoneTv.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        layout.addView(phoneTv);
+
+        // Address
+        android.widget.TextView addressTv = new android.widget.TextView(getContext());
+        addressTv.setText("Address: " + (user.getAddress() != null ? user.getAddress() : "N/A"));
+        addressTv.setTextSize(16);
+        addressTv.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        layout.addView(addressTv);
+
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
             .setTitle("User Details")
-            .setMessage("Name: " + user.getFull_name() + "\n" +
-                       "Email: " + user.getEmail() + "\n" +
-                       "Phone: " + user.getPhone_number() + "\n" +
-                       "Address: " + user.getAddress())
+            .setView(layout)
             .setPositiveButton("Edit", (dialog, which) -> showEditUserDialog(user))
             .setNegativeButton("Close", null)
             .show();
@@ -286,9 +347,6 @@ public class UserManagementFragment extends Fragment implements UserAdapter.OnUs
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (userListener != null) {
-            userListener.remove();
-        }
-        realtimeUtil.removeAllListeners();
+        userService.removeRealtimeListener();
     }
 } 

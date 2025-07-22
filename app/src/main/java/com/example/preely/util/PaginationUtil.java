@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class PaginationUtil {
 
-    public static final int PAGE_SIZE = 20;
+    public static final int PAGE_SIZE = 10;
     private static boolean isLoading = false;
     private static boolean isLastPage = false;
     private static int currentPage = 0;
