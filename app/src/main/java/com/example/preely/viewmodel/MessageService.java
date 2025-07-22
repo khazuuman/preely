@@ -13,8 +13,10 @@ import com.example.preely.repository.MainRepository;
 import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.Constraints;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +59,6 @@ public class MessageService extends ViewModel {
 
                     Map<String, ChatRoomResponse> roomMap = new HashMap<>();
 
-                    // ✅ Counter để theo dõi việc fetch tên user
                     final int[] pendingUserFetches = {0};
                     final int totalRooms = (int) allMessages.stream()
                             .map(Message::getRoom)
@@ -73,7 +74,6 @@ public class MessageService extends ViewModel {
 
                             Log.d("DEBUG", "Message: sender=" + senderIdStr + ", receiver=" + receiverIdStr + ", room=" + room);
 
-                            // ✅ Tạo ChatRoomResponse tạm thời với tên placeholder
                             ChatRoomResponse response = new ChatRoomResponse(
                                     room,
                                     receiverId,
@@ -83,7 +83,6 @@ public class MessageService extends ViewModel {
                             );
                             roomMap.put(room, response);
 
-                            // ✅ Fetch tên user thật
                             pendingUserFetches[0]++;
                             userService.getUserName(receiverId, new UserService.UserNameCallback() {
                                 @Override
@@ -118,7 +117,6 @@ public class MessageService extends ViewModel {
                         }
                     }
 
-                    // ✅ Nếu không có room nào cần fetch user name, update ngay
                     if (pendingUserFetches[0] == 0) {
                         chatRoomsLiveData.setValue(new ArrayList<>(roomMap.values()));
                     }
@@ -186,6 +184,55 @@ public class MessageService extends ViewModel {
             public void onFailure(Exception e) {
                 if (callback != null) callback.onFailure(e.getMessage());
             }
+        });
+    }
+
+    public interface MarkAsReadCallback {
+        void onSuccess();
+        void onFailure(String error);
+    }
+
+    public void markMessageAsRead(String messageId, MarkAsReadCallback callback) {
+        DocumentReference messageRef = FirebaseFirestore.getInstance()
+                .collection(Constraints.CollectionName.MESSAGES)
+                .document(messageId);
+
+        messageRef.update("is_read", true)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("MessageService", "Message marked as read: " + messageId);
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("MessageService", "Failed to mark message as read", e);
+                    if (callback != null) callback.onFailure(e.getMessage());
+                });
+    }
+
+    public void markRoomMessagesAsRead(String roomId, String currentUserId, MarkAsReadCallback callback) {
+        DocumentReference currentUserRef = FirebaseFirestore.getInstance()
+                .collection("user").document(currentUserId);
+
+        Query unreadInRoomQuery = FirebaseFirestore.getInstance()
+                .collection(Constraints.CollectionName.MESSAGES)
+                .whereEqualTo("room", roomId)
+                .whereEqualTo("receiver_id", currentUserRef)
+                .whereEqualTo("is_read", false);
+
+        unreadInRoomQuery.get().addOnSuccessListener(querySnapshot -> {
+            WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
+            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                batch.update(doc.getReference(), "is_read", true);
+            }
+
+            batch.commit()
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("MessageService", "Marked " + querySnapshot.size() + " messages as read");
+                        if (callback != null) callback.onSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null) callback.onFailure(e.getMessage());
+                    });
         });
     }
 

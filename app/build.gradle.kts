@@ -21,12 +21,20 @@ android {
         buildConfig = true
     }
     buildTypes {
+        debug {
+            val MAPS_API_KEY = "AIzaSyDv7k0i13euDi8VBhsBSXy2TT-A7g0xBRg"
+            buildConfigField("String", "MAPS_API_KEY", "\"${MAPS_API_KEY}\"")
+            resValue("string", "google_maps_key", "${MAPS_API_KEY}")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val MAPS_API_KEY = "AIzaSyDv7k0i13euDi8VBhsBSXy2TT-A7g0xBRg"
+            buildConfigField("String", "MAPS_API_KEY", "\"${MAPS_API_KEY}\"")
+            resValue("string", "google_maps_key", "${MAPS_API_KEY}")
         }
     }
 
@@ -70,5 +78,8 @@ dependencies {
     implementation(libs.circle.image.view)
     implementation(libs.facebook.android.sdk)
     implementation(platform(libs.firebase.bom))
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.places)
 
 }

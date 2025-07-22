@@ -98,6 +98,12 @@
                     android:backgroundTint="@android:color/transparent"
                     app:backgroundTint="#666666" />
 
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
                 <!-- Thêm Icon Chat Mới Ở Đây (ImageButton) -->
                 <ImageButton
                     android:id="@+id/button_open_chat"
@@ -110,6 +116,22 @@
                 android:scaleType="fitCenter"
                 app:tint="#666666" />
 
+                    <TextView
+                        android:id="@+id/unread_badge"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-2dp"
+                        android:background="@drawable/badge_background"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                </FrameLayout>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

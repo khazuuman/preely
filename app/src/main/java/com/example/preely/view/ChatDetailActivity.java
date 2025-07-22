@@ -54,7 +54,6 @@ public class ChatDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_detail);
 
-        // Get data from intent
         roomId = getIntent().getStringExtra("ROOM_ID");
         receiverId = getIntent().getStringExtra("RECEIVER_ID");
         receiverName = getIntent().getStringExtra("RECEIVER_NAME");
@@ -63,7 +62,6 @@ public class ChatDetailActivity extends AppCompatActivity {
         realtimeUtil = new FirestoreRealtimeUtil(this);
         userService = new UserService();
 
-        // Null check cho session
         if (sessionManager.getUserSession() == null || sessionManager.getUserSession().getId() == null) {
             Log.e("ChatDetailActivity", "Session or user ID null");
             finish();
@@ -100,7 +98,6 @@ public class ChatDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(String error) {
                 Log.e("DEBUG", "Failed to fetch receiver name: " + error);
-                // Giữ tên default nếu fetch failed
                 if (receiverNameText != null && (receiverName == null || receiverName.equals("Unknown"))) {
                     receiverNameText.setText("Chat");
                 }
@@ -115,12 +112,10 @@ public class ChatDetailActivity extends AppCompatActivity {
         receiverNameText = findViewById(R.id.receiver_name_text);
         backButton = findViewById(R.id.back_button);
 
-        // Set receiver name
         if (receiverNameText != null) {
             receiverNameText.setText(receiverName != null ? receiverName : "Unknown");
         }
 
-        // Setup back button
         if (backButton != null) {
             backButton.setOnClickListener(v -> finish());
         }
@@ -138,7 +133,6 @@ public class ChatDetailActivity extends AppCompatActivity {
     private void setupMessageService() {
         messageService = new ViewModelProvider(this).get(MessageService.class);
 
-        // Observe messages cho room này
         messageService.getMessagesForRoom(roomId).observe(this, messages -> {
             if (messages != null) {
                 messageList.clear();
@@ -160,7 +154,6 @@ public class ChatDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Tạo message request
         CreateMessageRequest request = new CreateMessageRequest();
         request.setSenderId(currentUserId);
         request.setReceiverId(receiverId);
@@ -169,7 +162,6 @@ public class ChatDetailActivity extends AppCompatActivity {
         request.setSendAt(Timestamp.now());
         request.setRead(false);
 
-        // Gửi message
         messageService.sendMessage(request, new MessageService.SendMessageCallback() {
             @Override
             public void onSuccess() {
@@ -200,7 +192,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         realtimeUtil.listenToCustomQuery(query, Message.class, new FirestoreRealtimeUtil.RealtimeListener<Message>() {
             @Override
             public void onDataAdded(Message data) {
-                loadMessages(); // Reload messages khi có tin nhắn mới
+                loadMessages();
             }
 
             @Override
@@ -223,6 +215,24 @@ public class ChatDetailActivity extends AppCompatActivity {
     private void scrollToBottom() {
         if (adapter.getItemCount() > 0) {
             recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (roomId != null && currentUserId != null) {
+            messageService.markRoomMessagesAsRead(roomId, currentUserId, new MessageService.MarkAsReadCallback() {
+                @Override
+                public void onSuccess() {
+                    Log.d("DEBUG", "Messages marked as read for room: " + roomId);
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Log.e("DEBUG", "Failed to mark messages as read: " + error);
+                }
+            });
         }
     }
 
