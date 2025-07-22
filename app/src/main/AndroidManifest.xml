@@ -58,6 +58,14 @@
 <!--            </intent-filter>-->
         </activity>
         <activity
+            android:name=".view.ChatListActivity"
+            android:exported="false">
+        </activity>
+        <activity
+            android:name=".view.ChatDetailActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".view.EditProfile"
             android:exported="false" />
         <activity

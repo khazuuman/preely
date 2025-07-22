@@ -1,7 +1,9 @@
 package com.example.preely.view;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
@@ -40,12 +42,13 @@ public class HomeActivity extends AppCompatActivity {
     TextView nameTv;
     ImageButton scrollToTopBtn;
     ScrollView homeScrollView;
+    ImageButton openChatButton;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isScrollListenerAttached = false;
     private PostFilterRequest currentRequest;
     private static final int LIMIT_PER_PAGE = 6;
-
+    private SessionManager sessionManager;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -54,18 +57,30 @@ public class HomeActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        SessionManager sessionManager = new SessionManager(this);
+        sessionManager = new SessionManager(this);
+        Log.d("HomeActivity", "getLogin onCreate: " + sessionManager.getLogin());
 
+        openChatButton = findViewById(R.id.button_open_chat);
         nameTv = findViewById(R.id.nameTv);
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
-        nameTv.setText(sessionManager.getUserSession().getFull_name());
+        //nameTv.setText(sessionManager.getUserSession().getFull_name());
+        nameTv.setText(sessionManager.getUserSession().getFull_name() == null ? sessionManager.getUserSession().getUsername() : sessionManager.getUserSession().getFull_name());
         scrollToTopBtn.setOnClickListener(v -> {
             homeScrollView.smoothScrollTo(0, 0);
         });
         homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             int scrollY = homeScrollView.getScrollY();
             scrollToTopBtn.setVisibility(scrollY > 500 ? View.VISIBLE : View.GONE);
+        });
+
+        openChatButton.setOnClickListener(v -> {
+            Log.d("HomeActivity", "Button clicked, getLogin: " + sessionManager.getLogin());
+            if (sessionManager != null && sessionManager.getLogin()) {
+                startActivity(new Intent(HomeActivity.this, ChatListActivity.class));
+            } else {
+                CustomToast.makeText(this, "Vui lòng đăng nhập để chat", CustomToast.LENGTH_SHORT, Constraints.NotificationType.ERROR).show();
+            }
         });
 
         String toastMess = getIntent().getStringExtra("toast_mess");
@@ -156,5 +171,15 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (sessionManager != null && !sessionManager.getLogin()) {
+            // Redirect về login nếu session hết hạn
+            startActivity(new Intent(this, Login.class));
+            finish();
+        }
     }
 }

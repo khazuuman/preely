@@ -97,6 +97,19 @@
                     android:background="@drawable/ic_favorite"
                     android:backgroundTint="@android:color/transparent"
                     app:backgroundTint="#666666" />
+
+                <!-- Thêm Icon Chat Mới Ở Đây (ImageButton) -->
+                <ImageButton
+                    android:id="@+id/button_open_chat"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_chat"
+                android:contentDescription="Open Chat"
+                android:scaleType="fitCenter"
+                app:tint="#666666" />
+
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

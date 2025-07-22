@@ -7,7 +7,7 @@ public class Constraints {
         String CATEGORIES = "category";
         String POSTS = "post";
         String TAGS = "tag";
-        String MESSAGES = "message";
+        String MESSAGES = "messages";
         String NOTIFICATIONS = "notification";
         String SAVED_POST = "savedposts";
         String IMAGE = "image";
@@ -17,7 +17,7 @@ public class Constraints {
     public interface NotificationType {
         int SUCCESS = 1;
         int ERROR = 2;
-
+        int INFO = 3;
     }
 
 }
