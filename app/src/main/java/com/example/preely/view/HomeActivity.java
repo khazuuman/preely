@@ -61,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
     private CategoryMarketAdapter categoryAdapter;
     private PostMarketAdapter postAdapter;
     private CategoryService categoryService;
-    TextView nameTv, seeAllPost;
+    TextView seeAllPost;
     EditText searchInput;
     private PostService postService;
     private SessionManager sessionManager;
@@ -368,20 +368,6 @@ public class HomeActivity extends AppCompatActivity {
                 Log.d(TAG, "Posts loaded: " + postResponses.size() + ", Total: " + postList.size());
             }
         });
-    }
-
-    private void attachScrollListener() {
-        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            View view = homeScrollView.getChildAt(homeScrollView.getChildCount() - 1);
-            int diff = view.getBottom() - (homeScrollView.getHeight() + homeScrollView.getScrollY());
-
-            if (diff <= 0 && !isLoading && !isLastPage) {
-                isLoading = true;
-                getMoreData();
-            }
-        });
-
-        Log.d(TAG, "Scroll listener attached");
     }
 
     public void getMoreData() {
