@@ -9,8 +9,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,19 +22,33 @@ import com.example.preely.R;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.SavedPostRequest;
 import com.example.preely.model.response.PostResponse;
+import com.example.preely.util.Constraints;
+import com.example.preely.view.CustomToast;
 import com.example.preely.view.PostDetailActivity;
 import com.example.preely.viewmodel.PostService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import lombok.Setter;
 
 public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<PostResponse> postList;
     private final int VIEW_TYPE_LOADING = 0;
     private final int VIEW_TYPE_ITEM = 1;
+    private PostService postService;
+    private LifecycleOwner lifecycleOwner;
 
     public PostMarketAdapter(List<PostResponse> postList) {
         this.postList = postList;
+    }
+
+    public PostMarketAdapter(List<PostResponse> postList, LifecycleOwner lifecycleOwner, PostService postService) {
+        this.postList = postList;
+        this.lifecycleOwner = lifecycleOwner;
+        this.postService = postService;
     }
 
     @NonNull
@@ -45,6 +62,9 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return new LoadingHolder(view);
         }
     }
+    @Setter
+    private Map<String, Boolean> savedPostsStatusMap = new HashMap<>();
+
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -68,18 +88,38 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
             postHolder.tagRecycleView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
             postHolder.tagRecycleView.setAdapter(new TagPostAdapter(post.getTagResponses()));
+
+            SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
+
             postHolder.favoriteBtn.setOnClickListener(v -> {
                 SavedPostRequest request = new SavedPostRequest();
-                SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
                 request.setPost_id(post.getId());
                 request.setUser_id(sessionManager.getUserSession().getId());
-                PostService postService = new PostService();
                 try {
                     postService.insertSavedPost(request);
+                    postService.getPostExisted().observe(lifecycleOwner, isExisted -> {
+                        if (isExisted) {
+                            CustomToast.makeText(holder.itemView.getContext(), "Bài đăng đã được lưu", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+                        } else {
+                            CustomToast.makeText(holder.itemView.getContext(), "Đã lưu bài đăng", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+
+                        }
+                    });
                 } catch (IllegalAccessException | InstantiationException e) {
                     throw new RuntimeException(e);
                 }
             });
+
+            String key = sessionManager.getUserSession().getId() + "_" + post.getId();
+            Boolean isSaved = savedPostsStatusMap.get(key);
+
+            if (isSaved != null && isSaved) {
+                postHolder.favoriteBtn.setImageResource(R.drawable.ic_favorite_full_color);
+            } else {
+                postHolder.favoriteBtn.setImageResource(R.drawable.ic_favorite);
+            }
+
+
             postHolder.postImg.setOnClickListener(v -> {
                 Intent intent = new Intent(holder.itemView.getContext(), PostDetailActivity.class);
                 intent.putExtra("postId", post.getId().getId());
@@ -107,7 +147,7 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView postTitle, postWard, postProvince, postCategory;
         RecyclerView tagRecycleView;
         ImageView postImg;
-        Button favoriteBtn;
+        ImageView favoriteBtn;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
