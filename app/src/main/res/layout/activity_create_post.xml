@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.CreatePostActivity">
+
+    <ImageView
+        android:id="@+id/back_to_post_list"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/ic_arrow_left" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="Create Your Post"
+        android:textFontWeight="800"
+        android:textSize="30dp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:id="@+id/scrollView">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="Title"
+                android:textFontWeight="800"
+                android:textSize="20dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/title_til"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginBottom="20dp"
+                android:gravity="center_vertical"
+                android:textColorHint="#9F9F9F"
+                app:boxBackgroundMode="outline">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/title_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Title"
+                    android:inputType="text"
+                    android:paddingStart="30dp"
+                    android:textSize="20sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/title_error_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="50dp"
+                android:text="Title is required"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:gravity="start"
+                android:text="Category"
+                android:textFontWeight="800"
+                android:textSize="20dp" />
+
+            <Spinner
+                android:id="@+id/spinner_category"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:spinnerMode="dropdown" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="190dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:orientation="vertical"
+                    tools:ignore="UselessParent">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="Tag"
+                        android:textFontWeight="800"
+                        android:textSize="20dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/price_til"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="20dp"
+                        android:gravity="center_vertical"
+                        android:textColorHint="#9F9F9F"
+                        app:boxBackgroundMode="outline">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tag_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="#Tag"
+                            android:inputType="text"
+                            android:paddingStart="30dp"
+                            android:textSize="20sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/price_error_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="50dp"
+                        android:text="Title is required"
+                        android:textColor="@android:color/holo_red_dark"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="190dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    tools:ignore="UselessParent">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="Price"
+                        android:textFontWeight="800"
+                        android:textSize="20dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tag_til"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="20dp"
+                        android:gravity="center_vertical"
+                        android:textColorHint="#9F9F9F"
+                        app:boxBackgroundMode="outline">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/price_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="Price"
+                            android:inputType="text"
+                            android:paddingStart="30dp"
+                            android:textSize="20sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tag_error_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="50dp"
+                        android:text="Title is required"
+                        android:textColor="@android:color/holo_red_dark"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:gravity="start"
+                android:text="Image"
+                android:textFontWeight="800"
+                android:textSize="20dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="Add Image" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:gravity="start"
+                android:text="Location"
+                android:textFontWeight="800"
+                android:textSize="20dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/location_til"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginBottom="20dp"
+                android:gravity="center_vertical"
+                android:textColorHint="#9F9F9F"
+                app:boxBackgroundMode="outline">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/location_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Location"
+                    android:inputType="text"
+                    android:paddingStart="30dp"
+                    android:textSize="20sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Create"
+        android:textSize="18sp"
+        android:backgroundTint="@color/black"
+        android:layout_marginHorizontal="40dp"
+        android:id="@+id/createPost"/>
+</LinearLayout>
