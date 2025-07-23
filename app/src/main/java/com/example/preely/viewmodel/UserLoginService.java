@@ -247,11 +247,10 @@ public class UserLoginService extends ViewModel {
                 .whereEqualTo("email", email)
                 .limit(1);
         userRepository.getOne(query).observeForever(user -> {
-           UserResponse userResponse;
            if (user != null) {
                try {
-                   userResponse = DataUtil.mapObj(user, UserResponse.class);
-                   userInfo.setValue(userResponse);
+                   userInfo.setValue(DataUtil.mapObj(user, UserResponse.class));
+                   Log.i("GET USER", user.toString());
                } catch (IllegalAccessException | InstantiationException e) {
                    throw new RuntimeException(e);
                }

@@ -13,43 +13,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.preely.R;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.UserLoginRequest;
-import com.example.preely.model.response.UserResponse;
 import com.example.preely.util.Constraints.NotificationType;
 import com.example.preely.util.ViewUtil;
 import com.example.preely.viewmodel.UserLoginService;
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -130,8 +117,6 @@ public class Login extends AppCompatActivity {
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra("toast_mess", "Đăng nhập thành công");
                 startActivity(intent);
-                startActivity(intent);
-
                 finishAffinity();
             } else {
                 CustomToast.makeText(this, "Invalid username or password", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();
@@ -140,8 +125,14 @@ public class Login extends AppCompatActivity {
 
         userLoginService.getUserInfo().observe(this, userResponse -> {
             if (userResponse != null) {
+                Log.i("USER INFO", userResponse.toString());
                 sessionManager.setUserSession(userResponse);
-//                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+                sessionManager.setRemember(true);
+
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.putExtra("toast_mess", "Đăng nhập thành công");
+                startActivity(intent);
             }
         });
 
@@ -202,9 +193,6 @@ public class Login extends AppCompatActivity {
                         if (user != null) {
                             userLoginService.handleGoogleLoginDetail(user);
                             sessionManager.setLogin(true);
-                            Intent intent = new Intent(this, HomeActivity.class);
-                            intent.putExtra("toast_mess", "Đăng nhập thành công");
-                            startActivity(intent);
                         }
                     } else {
                         Toast.makeText(this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();

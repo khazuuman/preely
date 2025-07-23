@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">preely</string>
     <string name="username">Username</string>
     <string name="client_id">1080272614668-2id7ppmb6konpbps55epd6qf9158p1b5.apps.googleusercontent.com</string>
@@ -111,4 +111,14 @@
     <string name="saveBtn">Save</string>
     <string name="menu_settings">Setting</string>
     <string name="BackBtn">Back</string>
+
+    <string name="app_name" tools:ignore="DuplicateDefinition">DropdownDemo</string>
+
+    <string-array name="items_array">
+        <item>Apple</item>
+        <item>Banana</item>
+        <item>Cherry</item>
+        <item>Date</item>
+        <item>Elderberry</item>
+    </string-array>
 </resources>

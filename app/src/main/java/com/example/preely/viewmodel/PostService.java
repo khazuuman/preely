@@ -74,6 +74,8 @@ public class PostService extends ViewModel {
                     query = query.orderBy("create_at", Query.Direction.DESCENDING);
                     break;
             }
+        } else {
+            query = query.orderBy("create_at", Query.Direction.DESCENDING);
         }
         if (request.getTitle() != null && !request.getTitle().isEmpty()) {
             query = query.whereGreaterThanOrEqualTo("title", request.getTitle())
@@ -93,6 +95,7 @@ public class PostService extends ViewModel {
         PostResponse postResponse;
         try {
             postResponse = DataUtil.mapObj(post, PostResponse.class);
+            Log.i("POST", postResponse.toString());
         } catch (Exception e) {
             return Tasks.forException(e);
         }
@@ -135,20 +138,6 @@ public class PostService extends ViewModel {
             });
         }
 
-        // images
-        Task<QuerySnapshot> imagesTask = FirebaseFirestore.getInstance()
-                .collection(CollectionName.IMAGE)
-                .whereEqualTo("post_id", post.getId())
-                .get();
-        subTasks.add(imagesTask);
-        imagesTask.addOnSuccessListener(snapshot -> {
-            List<String> images = new ArrayList<>();
-            for (DocumentSnapshot imageDoc : snapshot.getDocuments()) {
-                images.add(imageDoc.getString("link"));
-            }
-            postResponse.setImage(images);
-        });
-
         return Tasks.whenAll(subTasks)
                 .continueWith(task -> postResponse);
     }
@@ -162,13 +151,17 @@ public class PostService extends ViewModel {
         }
 
         query.get().addOnSuccessListener(querySnapshot -> {
+            Log.i("QUERY SNAPSHOT", querySnapshot.toString());
             if (!querySnapshot.isEmpty()) {
                 List<DocumentSnapshot> documents = querySnapshot.getDocuments();
                 lastVisible = documents.get(documents.size() - 1);
+                Log.i("LAST VISIBLE", lastVisible.toString());
 
                 List<Task<PostResponse>> postTasks = new ArrayList<>();
                 for (DocumentSnapshot postDoc : documents) {
                     Post post = postDoc.toObject(Post.class);
+                    assert post != null;
+                    Log.i("POST", post.toString());
                     Task<PostResponse> combinedTask = buildPostResponseTask(post);
                     postTasks.add(combinedTask);
                 }
@@ -180,11 +173,16 @@ public class PostService extends ViewModel {
                     }
                     Log.i("FINAL LIST", finalList.toString());
                     if (finalList.size() < PAGE_SIZE) {
+                        Log.i("IS LAST PAGE","last page true");
                         isLastPageResult.setValue(true);
+                    } else {
+                        Log.i("IS LAST PAGE","last page false");
+                        isLastPageResult.setValue(false);
                     }
                     postResponseListResult.setValue(finalList);
                 });
             } else {
+                Log.i("IS LAST PAGE","last page true");
                 isLastPageResult.setValue(true);
             }
         });
@@ -288,17 +286,6 @@ public class PostService extends ViewModel {
                         postResponse.get().setTagResponses(tagResponses);
                     });
                 }
-                Task<QuerySnapshot> imagesTask = FirebaseFirestore.getInstance()
-                        .collection(CollectionName.IMAGE)
-                        .whereEqualTo("post_id", post.getId())
-                        .get();
-                imagesTask.addOnSuccessListener(snapshot -> {
-                    List<String> images = new ArrayList<>();
-                    for (DocumentSnapshot imageDoc : snapshot.getDocuments()) {
-                        images.add(imageDoc.getString("link"));
-                    }
-                    postResponse.get().setImage(images);
-                });
                 postResponseResult.setValue(postResponse.get());
             } else {
                 postResponseResult.setValue(null);

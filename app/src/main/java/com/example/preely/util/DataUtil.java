@@ -96,7 +96,7 @@ public class DataUtil {
                     if (json == null || !json.isJsonPrimitive()) return null;
                     String id = json.getAsString();
                     return FirebaseFirestore.getInstance()
-                            .collection("users")
+                            .collection("user")
                             .document(id);
                 })
                 .create();

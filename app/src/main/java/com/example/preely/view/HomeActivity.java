@@ -11,6 +11,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -28,6 +30,7 @@ import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.PostFilterRequest;
 import com.example.preely.model.response.CategoryResponse;
 import com.example.preely.model.response.PostResponse;
+import com.example.preely.model.response.UserResponse;
 import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CategoryService;
 import com.example.preely.viewmodel.PostService;
@@ -50,12 +53,16 @@ public class HomeActivity extends AppCompatActivity {
     ImageButton scrollToTopBtn;
     ScrollView homeScrollView;
     ImageButton openChatButton;
+    LinearLayout mainLayout;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isScrollListenerAttached = false;
     private PostFilterRequest currentRequest;
     private static final int LIMIT_PER_PAGE = 6;
     private SessionManager sessionManager;
+    private ProgressBar progressBar;
+    private boolean categoryLoaded = false;
+    private boolean postLoaded = false;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -71,11 +78,18 @@ public class HomeActivity extends AppCompatActivity {
         nameTv = findViewById(R.id.nameTv);
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
+        mainLayout = findViewById(R.id.mainLayout);
+        progressBar = findViewById(R.id.progressBar);
+        mainLayout.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         nameTv = findViewById(R.id.nameTv);
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
         seeAllPost = findViewById(R.id.seeAllPost);
-        nameTv.setText(sessionManager.getUserSession().getFull_name() == null ? sessionManager.getUserSession().getUsername() : sessionManager.getUserSession().getFull_name());
+        UserResponse user = sessionManager.getUserSession();
+        if (user != null) {
+            nameTv.setText(user.getFull_name() == null ? user.getUsername() : user.getFull_name());
+        }
         scrollToTopBtn.setOnClickListener(v -> {
             homeScrollView.smoothScrollTo(0, 0);
         });
@@ -173,6 +187,8 @@ public class HomeActivity extends AppCompatActivity {
                 categoryList.clear();
                 categoryList.addAll(categoryResponses);
                 categoryAdapter.notifyDataSetChanged();
+                categoryLoaded = true;
+                checkAllDataLoaded();
             }
         });
     }
@@ -214,6 +230,8 @@ public class HomeActivity extends AppCompatActivity {
                 if (postResponses.size() < LIMIT_PER_PAGE) {
                     isLastPage = true;
                 }
+                postLoaded = true;
+                checkAllDataLoaded();
             }
         });
     }
@@ -227,4 +245,12 @@ public class HomeActivity extends AppCompatActivity {
             finish();
         }
     }
+
+    private void checkAllDataLoaded() {
+        if (categoryLoaded && postLoaded) {
+            progressBar.setVisibility(View.GONE);
+            mainLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
 }
