@@ -1,5 +1,6 @@
 package com.example.preely.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -40,7 +41,7 @@ public class ChatDetailActivity extends AppCompatActivity {
     private EditText messageInput;
     private ImageButton sendButton;
     private TextView receiverNameText;
-    private ImageView backButton;
+    private ImageView backButton, paymentButton;
     private SessionManager sessionManager;
     private FirestoreRealtimeUtil realtimeUtil;
     private UserService userService;
@@ -74,6 +75,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         setupRecyclerView();
         setupMessageService();
         setupSendButton();
+        setupPaymentButton();
 
         if (receiverId != null && !receiverId.isEmpty()) {
             fetchReceiverName();
@@ -111,6 +113,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         sendButton = findViewById(R.id.send_button);
         receiverNameText = findViewById(R.id.receiver_name_text);
         backButton = findViewById(R.id.back_button);
+        paymentButton = findViewById(R.id.payment_button);
 
         if (receiverNameText != null) {
             receiverNameText.setText(receiverName != null ? receiverName : "Unknown");
@@ -234,6 +237,90 @@ public class ChatDetailActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void setupPaymentButton() {
+        // Payment button in toolbar
+        if (paymentButton != null) {
+            paymentButton.setOnClickListener(v -> openTransactionActivity());
+        }
+    }
+
+    private void openTransactionActivity() {
+        if (receiverId == null || receiverId.isEmpty()) {
+            CustomToast.makeText(this, "Không thể xác định người nhận thanh toán",
+                    CustomToast.LENGTH_SHORT, Constraints.NotificationType.ERROR).show();
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(ChatDetailActivity.this, TransactionActivity.class);
+
+            intent.putExtra("RECEIVER_ID", receiverId);
+            intent.putExtra("RECEIVER_NAME", receiverName);
+            intent.putExtra("FROM_CHAT", true);
+
+            intent.putExtra("ROOM_ID", roomId);
+
+            Log.d("ChatDetailActivity", "Opening transaction with receiver: " + receiverName + " (ID: " + receiverId + ")");
+
+            startActivityForResult(intent, 100); // Request code 100 cho transaction
+
+        } catch (Exception e) {
+            Log.e("ChatDetailActivity", "Error opening transaction activity", e);
+            CustomToast.makeText(this, "Lỗi mở trang thanh toán: " + e.getMessage(),
+                    CustomToast.LENGTH_SHORT, Constraints.NotificationType.ERROR).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 100) { // Transaction request code
+            if (resultCode == RESULT_OK && data != null) {
+                // Nhận kết quả từ TransactionActivity
+                String transactionStatus = data.getStringExtra("transaction_status");
+                String transactionAmount = data.getStringExtra("transaction_amount");
+
+                if ("Paid".equals(transactionStatus)) {
+                    // Transaction thành công - có thể gửi tin nhắn thông báo
+                    sendTransactionSuccessMessage(transactionAmount);
+
+                    CustomToast.makeText(this, "Thanh toán thành công!",
+                            CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+                } else if ("Failed".equals(transactionStatus)) {
+                    CustomToast.makeText(this, "Thanh toán thất bại",
+                            CustomToast.LENGTH_SHORT, Constraints.NotificationType.ERROR).show();
+                }
+            }
+        }
+    }
+
+    private void sendTransactionSuccessMessage(String amount) {
+        if (TextUtils.isEmpty(amount)) return;
+
+        String transactionMessage = "💰 Đã thanh toán " + amount + " VND thành công!";
+
+        CreateMessageRequest request = new CreateMessageRequest();
+        request.setSenderId(currentUserId);
+        request.setReceiverId(receiverId);
+        request.setContent(transactionMessage);
+        request.setRoom(roomId);
+        request.setSendAt(Timestamp.now());
+        request.setRead(false);
+
+        messageService.sendMessage(request, new MessageService.SendMessageCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("ChatDetailActivity", "Transaction success message sent");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Log.e("ChatDetailActivity", "Failed to send transaction message: " + error);
+            }
+        });
     }
 
     @Override
