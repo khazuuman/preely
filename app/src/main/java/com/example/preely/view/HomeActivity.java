@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -105,15 +106,21 @@ public class HomeActivity extends AppCompatActivity {
         cateRecycleView.setAdapter(categoryAdapter);
 
         // post list
+        LifecycleOwner lifecycleOwner = this;
         postService = new ViewModelProvider(this).get(PostService.class);
         postRecycleView = findViewById(R.id.post_recycle_view);
         postRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostMarketAdapter(postList);
+        postAdapter = new PostMarketAdapter(postList, lifecycleOwner, postService);
         postRecycleView.setAdapter(postAdapter);
         observePostList();
         currentRequest = new PostFilterRequest();
         postService.getPostList(currentRequest);
-
+        postService.getSavedPostsStatus().observe(this, map -> {
+            if (map != null) {
+                postAdapter.setSavedPostsStatusMap(map);
+                postAdapter.notifyDataSetChanged();
+            }
+        });
         postService.getIsLastPageResult().observe(this, value -> {
             if (value != null) {
                 isLastPage = value;
