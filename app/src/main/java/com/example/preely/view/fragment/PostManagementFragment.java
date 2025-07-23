@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.adapter.PostAdapter;
-import com.example.preely.dialog.AddEditPostDialog;
+import com.example.preely.dialog.AddEditPostDialogFragment;
 import com.example.preely.model.entities.Post;
 import com.example.preely.repository.MainRepository;
 import com.example.preely.util.CallBackUtil;
@@ -61,7 +61,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     private ListenerRegistration postListener;
     private FirebaseFirestore db;
     private boolean isInitialLoad = true;
-    private AddEditPostDialog addEditPostDialog; // Lưu instance dialog
+    // Không cần giữ instance dialog nữa
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     @Nullable
@@ -75,15 +75,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
         loadPosts(); // Load data first
         setupListeners();
 
-        // Khởi tạo imagePickerLauncher
-        imagePickerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (addEditPostDialog != null && result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
-                    addEditPostDialog.onActivityResult(2001, result.getResultCode(), result.getData());
-                }
-            }
-        );
+        // Không cần launcher nữa, DialogFragment sẽ tự xử lý chọn ảnh
         
         // Setup real-time listener after a short delay to ensure data is loaded
         view.post(() -> {
@@ -222,31 +214,30 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void showAddPostDialog() {
-        addEditPostDialog = new AddEditPostDialog(getContext(), this, null, null, imagePickerLauncher);
-        addEditPostDialog.setOnPostDialogListener(new AddEditPostDialog.OnPostDialogListener() {
-            @Override
-            public void onPostSaved(Post post, boolean isEdit) {
-                if (isEdit) {
-                    updatePost(post);
-                } else {
-                    List<Uri> imageUris = addEditPostDialog.getSelectedImageUris();
-                    List<String> uploadedImageUrls = addEditPostDialog.getUploadedImageUrls();
-                    savePostAndUploadImages(post, imageUris, uploadedImageUrls);
-                }
+        AddEditPostDialogFragment dialog = AddEditPostDialogFragment.newInstance(null, null, null, null, null);
+        dialog.setOnPostDialogListener((post, isEdit) -> {
+            if (isEdit) {
+                updatePost(post);
+            } else {
+                savePostAndUploadImages(post, new ArrayList<>(), post.getImages());
             }
         });
-        addEditPostDialog.show();
+        dialog.show(getChildFragmentManager(), "AddEditPostDialogFragment");
     }
 
     private void showEditPostDialog(Post post) {
-        AddEditPostDialog dialog = new AddEditPostDialog(getContext(), this, post, 
-            new AddEditPostDialog.OnPostDialogListener() {
-                @Override
-                public void onPostSaved(Post post, boolean isEdit) {
-                    updatePost(post);
-                }
-            }, imagePickerLauncher);
-        dialog.show();
+        AddEditPostDialogFragment dialog = AddEditPostDialogFragment.newInstance(
+            post.getId() != null ? post.getId().getId() : null,
+            post.getTitle(),
+            post.getDescription(),
+            post.getPrice(),
+            post.getImages() != null ? new ArrayList<>(post.getImages()) : null
+        );
+        dialog.setOnPostDialogListener((updatedPost, isEdit) -> {
+            updatedPost.setId(post.getId()); // Gán lại DocumentReference gốc
+            updatePost(updatedPost);
+        });
+        dialog.show(getChildFragmentManager(), "AddEditPostDialogFragment");
     }
 
     private void savePost(Post post) {
