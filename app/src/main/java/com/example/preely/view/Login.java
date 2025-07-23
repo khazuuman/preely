@@ -77,8 +77,6 @@ public class Login extends AppCompatActivity {
             return;
         }
 
-        Log.d("LoginActivity", "getLogin: " + sessionManager.getLogin());
-
         mAuth = FirebaseAuth.getInstance();
 
         // google setting

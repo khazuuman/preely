@@ -3,23 +3,38 @@ package com.example.preely.view;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.preely.R;
+import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.UserRegisterRequest;
 import com.example.preely.util.Constraints;
 import com.example.preely.util.ViewUtil;
 import com.example.preely.viewmodel.UserLoginService;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class SignUp extends AppCompatActivity {
 
@@ -27,6 +42,11 @@ public class SignUp extends AppCompatActivity {
     TextView usernameError, passwordError, passwordConfirmError;
     MaterialButton signupBtn, loginRedirectBtn;
     UserLoginService userLoginService;
+    ImageView ggIcon;
+    SessionManager sessionManager;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_SIGN_IN = 1001;
+    private FirebaseAuth mAuth;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -43,6 +63,10 @@ public class SignUp extends AppCompatActivity {
         usernameError = findViewById(R.id.username_error_tv);
         passwordError = findViewById(R.id.password_error_tv);
         passwordConfirmError = findViewById(R.id.password_confirm_error_tv);
+        ggIcon = findViewById(R.id.gg_icon);
+
+        setupGoogle();
+        sessionManager = new SessionManager(getApplicationContext());
 
         userLoginService = new ViewModelProvider(this).get(UserLoginService.class);
 
@@ -83,6 +107,19 @@ public class SignUp extends AppCompatActivity {
             }
         });
 
+        userLoginService.getUserInfo().observe(this, userResponse -> {
+            if (userResponse != null) {
+                Log.i("USER INFO", userResponse.toString());
+                sessionManager.setUserSession(userResponse);
+                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+                sessionManager.setRemember(true);
+
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.putExtra("toast_mess", "Đăng nhập thành công");
+                startActivity(intent);
+            }
+        });
+
         signupBtn.setOnClickListener(v -> {
             UserRegisterRequest request = new UserRegisterRequest();
             request.setUsername(Objects.requireNonNull(usernameInput.getText()).toString());
@@ -95,6 +132,55 @@ public class SignUp extends AppCompatActivity {
         ViewUtil.clearErrorOnTextChanged(passwordInput, passwordError);
         ViewUtil.clearErrorOnTextChanged(passwordConfirmInput, passwordConfirmError);
 
+        ggIcon.setOnClickListener(v -> signInWithGoogle());
+    }
+
+    public void setupGoogle() {
+        mAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+    }
+
+    //    google login
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            userLoginService.handleGoogleLoginDetail(user);
+                        }
+                    } else {
+                        Toast.makeText(this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void signInWithGoogle() {
+        mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account.getIdToken());
+            } catch (ApiException e) {
+                Toast.makeText(this, "Đăng nhập thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
