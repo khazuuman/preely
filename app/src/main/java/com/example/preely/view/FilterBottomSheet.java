@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,25 +17,58 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.adapter.CategoryFilterAdapter;
+import com.example.preely.adapter.SortFilterAdapter;
+import com.example.preely.adapter.TagFilterAdapter;
 import com.example.preely.model.request.CategoryFilterRequest;
+import com.example.preely.model.request.PostFilterRequest;
+import com.example.preely.model.request.SortFilterRequest;
+import com.example.preely.model.request.TagFilterRequest;
 import com.example.preely.model.response.CategoryResponse;
+import com.example.preely.model.response.TagResponse;
 import com.example.preely.viewmodel.CategoryService;
+import com.example.preely.viewmodel.TagService;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FilterBottomSheet extends BottomSheetDialogFragment {
 
     Button applyBtn, resetBtn;
     RecyclerView cateRecycleView, tagRecycleView, sortRecycleView;
     private final List<CategoryFilterRequest> categoryList = new ArrayList<>();
-    private List<String> tagList;
-    private List<String> sortList;
+    private final List<TagFilterRequest> tagList = new ArrayList<>();
+    private final List<SortFilterRequest> sortList = new ArrayList<>(
+            Arrays.asList(
+                    new SortFilterRequest(0, "Most View", false),
+                    new SortFilterRequest(2, "Newest", false),
+                    new SortFilterRequest(1, "Oldest", false)
+            )
+    );
     private CategoryFilterAdapter categoryFilterAdapter;
     private CategoryService categoryService;
+    private TagFilterAdapter tagFilterAdapter;
+    private TagService tagService;
+    private SortFilterAdapter sortFilterAdapter;
+    List<DocumentReference> category_id;
+    List<String> tag_id;
+    Integer sortType;
+    PostFilterRequest postFilterRequest;
+    private OnFilterApplyListener filterApplyListener;
 
-    @SuppressLint("MissingInflatedId")
+    public interface OnFilterApplyListener {
+        void onFilterApplied(PostFilterRequest filterRequest);
+    }
+
+    public void setOnFilterApplyListener(OnFilterApplyListener listener) {
+        this.filterApplyListener = listener;
+    }
+
+    @SuppressLint({"MissingInflatedId", "NotifyDataSetChanged"})
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -51,16 +85,57 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
         // category list
         categoryService = new ViewModelProvider(this).get(CategoryService.class);
         observeCategoryList();
-        categoryService.getCateList();
+        if (categoryList.isEmpty()) {
+            categoryService.getCateList();
+        }
         cateRecycleView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         categoryFilterAdapter = new CategoryFilterAdapter(categoryList);
+        categoryFilterAdapter.setRecyclerView(cateRecycleView);
         cateRecycleView.setAdapter(categoryFilterAdapter);
 
+        // tag list
+        tagService = new ViewModelProvider(this).get(TagService.class);
+        observeTagList();
+        tagService.getAllTag();
+        tagRecycleView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        tagFilterAdapter = new TagFilterAdapter(tagList);
+        tagFilterAdapter.setRecyclerView(tagRecycleView);
+        tagRecycleView.setAdapter(tagFilterAdapter);
+
+        // sort list
+        sortRecycleView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        sortFilterAdapter = new SortFilterAdapter(sortList);
+        sortRecycleView.setAdapter(sortFilterAdapter);
+
         applyBtn.setOnClickListener(v -> {
-
-
-            // Gửi kết quả về Activity nếu muốn
+            category_id = categoryFilterAdapter.getIdSelectedItems();
+            tag_id = tagFilterAdapter.getIdStringSelectedItems();
+            sortType = sortFilterAdapter.getSelectedItem();
+            postFilterRequest = new PostFilterRequest(null, category_id, tag_id, sortType);
+            if (filterApplyListener != null) {
+                filterApplyListener.onFilterApplied(postFilterRequest);
+            }
             dismiss();
+        });
+
+        resetBtn.setOnClickListener(v -> {
+            for (CategoryFilterRequest category : categoryList) {
+                category.setChecked(false);
+            }
+            categoryFilterAdapter.notifyDataSetChanged();
+
+            for (TagFilterRequest tag : tagList) {
+                tag.setChecked(false);
+            }
+            tagFilterAdapter.notifyDataSetChanged();
+
+            for (SortFilterRequest sort : sortList) {
+                sort.setChecked(false);
+            }
+            sortFilterAdapter.notifyDataSetChanged();
+            category_id = null;
+            tag_id = null;
+            sortType = null;
         });
 
         return view;
@@ -82,11 +157,46 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
     private void observeCategoryList() {
         categoryService.getCateListResult().observe(this, categoryResponses -> {
             if (categoryResponses != null) {
+                Map<String, Boolean> previousCheckedMap = new HashMap<>();
+                for (CategoryFilterRequest item : categoryList) {
+                    if (item.getId() != null) {
+                        previousCheckedMap.put(item.getId().getId(), item.isChecked());
+                    } else {
+                        previousCheckedMap.put("ALL", item.isChecked());
+                    }
+                }
                 categoryList.clear();
+                categoryList.add(new CategoryFilterRequest(null, "All", previousCheckedMap.getOrDefault("ALL", false)));
+
                 for (CategoryResponse categoryResponse : categoryResponses) {
-                    categoryList.add(new CategoryFilterRequest(categoryResponse.getId(), categoryResponse.getName(), false));
+                    boolean isChecked = previousCheckedMap.getOrDefault(categoryResponse.getId().getId(), false);
+                    categoryList.add(new CategoryFilterRequest(categoryResponse.getId(), categoryResponse.getName(), isChecked));
                 }
                 categoryFilterAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void observeTagList() {
+        tagService.getTagListResult().observe(this, tagResponses -> {
+            if (tagResponses != null) {
+                Map<String, Boolean> previousCheckedMap = new HashMap<>();
+                for (TagFilterRequest item : tagList) {
+                    if (item.getId() != null) {
+                        previousCheckedMap.put(item.getId().getId(), item.isChecked());
+                    } else {
+                        previousCheckedMap.put("ALL", item.isChecked());
+                    }
+                }
+                tagList.clear();
+                tagList.add(new TagFilterRequest(null, "All", previousCheckedMap.getOrDefault("ALL", false)));
+
+                for (TagResponse tagResponse : tagResponses) {
+                    boolean isChecked = previousCheckedMap.getOrDefault(tagResponse.getId().getId(), false);
+                    tagList.add(new TagFilterRequest(tagResponse.getId(), tagResponse.getName(), isChecked));
+                }
+                tagFilterAdapter.notifyDataSetChanged();
             }
         });
     }

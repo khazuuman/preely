@@ -1,17 +1,21 @@
 package com.example.preely.util;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.preely.model.entities.BaseEntity;
 import com.example.preely.model.entities.Category;
 import com.example.preely.model.entities.Image;
 import com.example.preely.model.entities.Post;
 import com.example.preely.model.entities.Tag;
 import com.example.preely.model.entities.Transaction;
 import com.example.preely.model.entities.User;
+import com.example.preely.view.CustomToast;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -24,6 +28,15 @@ public class FirestoreRealtimeUtil {
     private static final String TAG = "FirestoreRealtimeUtil";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private List<ListenerRegistration> listeners = new ArrayList<>();
+    private Context context;
+
+    public FirestoreRealtimeUtil(Context context) {
+        this.context = context;
+    }
+
+    public FirestoreRealtimeUtil() {
+        this.context = null;
+    }
 
     public interface RealtimeListener<T> {
         void onDataAdded(T item);
@@ -265,6 +278,17 @@ public class FirestoreRealtimeUtil {
         ListenerRegistration registration = query.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e(TAG, "Error listening to custom query", error);
+                if (error.getCode() == FirebaseFirestoreException.Code.FAILED_PRECONDITION && error.getMessage().contains("index")) {
+                    String indexUrl = extractUrlFromError(error.getMessage());
+
+                    if (context != null) {
+                        CustomToast.makeText(context, "Query cần index. Tạo tại: " + indexUrl,
+                                CustomToast.LENGTH_LONG, Constraints.NotificationType.ERROR).show();
+                    } else {
+                        Log.e(TAG, "Query cần index: " + indexUrl);
+                    }
+                }
+
                 if (listener != null) {
                     listener.onError(error.getMessage());
                 }
@@ -275,14 +299,14 @@ public class FirestoreRealtimeUtil {
                 for (DocumentChange dc : value.getDocumentChanges()) {
                     T item = dc.getDocument().toObject(clazz);
                     if (item != null) {
-                        // Set ID if the class has setId method
                         try {
-                            item.getClass().getMethod("setId", String.class)
-                                .invoke(item, dc.getDocument().getReference());
+                            if (item instanceof BaseEntity) {
+                                ((BaseEntity) item).setId(dc.getDocument().getReference());
+                            }
                         } catch (Exception e) {
                             Log.w(TAG, "Could not set ID for " + clazz.getSimpleName());
                         }
-                        
+
                         switch (dc.getType()) {
                             case ADDED:
                                 if (listener != null) listener.onDataAdded(item);
@@ -298,7 +322,7 @@ public class FirestoreRealtimeUtil {
                 }
             }
         });
-        
+
         listeners.add(registration);
         return registration;
     }
@@ -324,5 +348,14 @@ public class FirestoreRealtimeUtil {
     // Get active listeners count
     public int getActiveListenersCount() {
         return listeners.size();
+    }
+
+    private String extractUrlFromError(String errorMessage) {
+        // Giả sử message có "You can create it here: [url]"
+        int start = errorMessage.indexOf("https://");
+        if (start != -1) {
+            return errorMessage.substring(start);
+        }
+        return "Firebase Console Indexes";
     }
 } 

@@ -17,10 +17,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class PostFilterRequest {
 
-    List<String> category_id;
-    List<String> status;
-    String ward;
-    String province;
+    String title;
+    List<DocumentReference> category_id;
     List<String> tag_id;
+    Integer sortType;
 
 }

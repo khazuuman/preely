@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:text="Login to Your Account"
             android:fontFamily="@font/zain_regular"
-            android:textSize="40sp"
+            android:textSize="38sp"
             android:textFontWeight="800"/>
     </LinearLayout>
 
@@ -142,34 +142,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="or continue with"
-            android:textSize="20sp"
-            android:textColor="#454545"
+            android:textSize="18sp"
+            android:textColor="#9b9b9b"
             android:fontFamily="@font/zain_bold"/>
 
         <LinearLayout
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
-            <ImageView
-                android:id="@+id/face_icon"
-                android:layout_weight="1"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_facebook"/>
+
             <ImageView
                 android:id="@+id/google_icon"
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_google"/>
-            <ImageView
-                android:id="@+id/ggLogout_btn"
-                android:layout_weight="1"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_apple"/>
         </LinearLayout>
 
         <LinearLayout

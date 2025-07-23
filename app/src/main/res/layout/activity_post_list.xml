@@ -11,8 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginTop="30dp"
+        android:layout_marginRight="20dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -53,10 +53,18 @@
                 app:tint="@color/black" />
         </LinearLayout>
 
-        <com.example.preely.util.WrapContentGridRecyclerView
-            android:id="@+id/post_recycle_view"
+        <ScrollView
+            android:id="@+id/homeScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <com.example.preely.util.WrapContentGridRecyclerView
+                android:id="@+id/post_recycle_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </ScrollView>
+
     </LinearLayout>
 
     <ImageButton
@@ -70,5 +78,6 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_back_to_top"
         android:visibility="gone" />
+
 
 </FrameLayout>

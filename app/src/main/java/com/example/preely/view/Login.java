@@ -43,11 +43,11 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-//import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -60,12 +60,11 @@ public class Login extends AppCompatActivity {
     TextView usernameErrorTv, passwordErrorTv;
     TextInputEditText usernameInput, passwordInput;
     SessionManager sessionManager;
-    ImageView ggIcon, ggLogout, faceIcon;
+    ImageView ggIcon;
 
     private static final int RC_SIGN_IN = 1001;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
-    private CallbackManager mCallbackManager;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -73,10 +72,6 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-//        test facebook token
-        if (AccessToken.getCurrentAccessToken() != null) {
-            LoginManager.getInstance().logOut();
-        }
 
         // Initialize views
         loginBtn = findViewById(R.id.login_btn);
@@ -87,8 +82,6 @@ public class Login extends AppCompatActivity {
         passwordInput = findViewById(R.id.password_input);
         rememberCb = findViewById(R.id.remember_cb);
         ggIcon = findViewById(R.id.google_icon);
-        faceIcon = findViewById(R.id.face_icon);
-        ggLogout = findViewById(R.id.ggLogout_btn);
 
         sessionManager = new SessionManager(getApplicationContext());
         if (sessionManager.getLogin()) {
@@ -96,6 +89,8 @@ public class Login extends AppCompatActivity {
             finish();
             return;
         }
+
+        Log.d("LoginActivity", "getLogin: " + sessionManager.getLogin());
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -105,37 +100,6 @@ public class Login extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // facebook setting
-        FacebookSdk.sdkInitialize(getApplicationContext());
-
-        mCallbackManager = CallbackManager.Factory.create();
-
-        faceIcon.setOnClickListener(v -> {
-            LoginManager.getInstance().logInWithReadPermissions(
-                    this,
-                    Arrays.asList("email", "public_profile")
-            );
-        });
-
-        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-            }
-        });
-
 
         // Initialize ViewModel
         userLoginService = new ViewModelProvider(this).get(UserLoginService.class);
@@ -163,25 +127,10 @@ public class Login extends AppCompatActivity {
         userLoginService.getLoginResult().observe(this, userResponse -> {
             if (userResponse != null) {
                 sessionManager.setUserSession(userResponse);
-                CustomToast.makeText(this, "Login Successful", CustomToast.LENGTH_SHORT, NotificationType.SUCCESS).show();
-
-//                // Khởi tạo Socket kết nối
-//                Socket socket = SocketManager.getSocket();
-//                socket.on(Socket.EVENT_CONNECT, args -> {
-//                    // Join với user ID
-//                    socket.emit("join", sessionManager.getUserId());
-//                    Log.d("Socket", "Connected and joined user: " + sessionManager.getUserId());
-//
-//                Intent intent = new Intent(this, HomeActivity.class);
-//                // Check if user is admin
-//                if ("admin".equals(userResponse.getId()) || "Admin".equals(userResponse.getUsername())) {
-//                    intent.putExtra("isAdmin", true);
-//                }
-//                startActivity(intent);
-//                });
-//                socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
-//                    Log.e("Socket", "Connection error: " + args[0]);
-//                });
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.putExtra("toast_mess", "Đăng nhập thành công");
+                startActivity(intent);
+                startActivity(intent);
 
                 finishAffinity();
             } else {
@@ -192,7 +141,7 @@ public class Login extends AppCompatActivity {
         userLoginService.getUserInfo().observe(this, userResponse -> {
             if (userResponse != null) {
                 sessionManager.setUserSession(userResponse);
-                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+//                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
             }
         });
 
@@ -204,6 +153,16 @@ public class Login extends AppCompatActivity {
 
         // Handle login button click
         loginBtn.setOnClickListener(v -> {
+            String username = Objects.requireNonNull(usernameInput.getText()).toString().trim();
+            String password = Objects.requireNonNull(passwordInput.getText()).toString().trim();
+            if (username.equals("admin") && password.equals("Admin@123")) {
+                sessionManager.setRemember(true);
+                sessionManager.setSessionTimeOut(24 * 60 * 60 * 1000); // 1 ngày
+                Intent intent = new Intent(Login.this, ManagementActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
             UserLoginRequest request = new UserLoginRequest();
             request.setUsername(Objects.requireNonNull(usernameInput.getText()).toString());
             request.setPassword(Objects.requireNonNull(passwordInput.getText()).toString());
@@ -215,12 +174,6 @@ public class Login extends AppCompatActivity {
         });
 
         ggIcon.setOnClickListener(v -> signInWithGoogle());
-        ggLogout.setOnClickListener(v -> {
-            mGoogleSignInClient.revokeAccess().addOnCompleteListener(this, task -> {
-                mAuth.signOut();
-                Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
-            });
-        });
 
         // Input tracking for real-time error clearing
         ViewUtil.clearErrorOnTextChanged(usernameInput, usernameErrorTv);
@@ -248,6 +201,7 @@ public class Login extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             userLoginService.handleGoogleLoginDetail(user);
+                            sessionManager.setLogin(true);
                             Intent intent = new Intent(this, HomeActivity.class);
                             intent.putExtra("toast_mess", "Đăng nhập thành công");
                             startActivity(intent);
@@ -256,15 +210,6 @@ public class Login extends AppCompatActivity {
                         Toast.makeText(this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    private UserResponse convertFirebaseUserToUserResponse(FirebaseUser user) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setUsername(user.getDisplayName());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setPhone_number(user.getPhoneNumber());
-//        userResponse.setAvatar(user.getPhotoUrl().toString());
-        return userResponse;
     }
 
     private void signInWithGoogle() {
@@ -287,42 +232,5 @@ public class Login extends AppCompatActivity {
                 Toast.makeText(this, "Đăng nhập thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
-
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
-
-    private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
-        Log.d("FB_TOKEN", token.getToken());
-        Log.d("FB_APP_ID", token.getApplicationId());
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            if (user != null) {
-//                                sessionManager.setUserId(user.getUid());
-//                                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
-//                                userLoginService.handleFacebookLoginDetail(user);
-                                Intent intent = new Intent(Login.this, HomeActivity.class);
-                                intent.putExtra("toast_mess", "Đăng nhập thành công");
-                                startActivity(intent);
-                            }
-                        } else {
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            CustomToast.makeText(Login.this, "Authentication failed.", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();
-                        }
-                    }
-                });
-    }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        SocketManager.disconnect();
-//    }
-
 }

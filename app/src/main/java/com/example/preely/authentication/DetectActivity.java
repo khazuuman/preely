@@ -3,6 +3,7 @@ package com.example.preely.authentication;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,8 +28,10 @@ public class DetectActivity extends Application implements Application.ActivityL
         activityReferences--;
         if (activityReferences == 0 && !isActivityChangingConfigurations) {
             SessionManager sessionManager = new SessionManager(getApplicationContext());
+            Log.d("DetectActivity", "App backgrounded, getRemember: " + sessionManager.getRemember());
             if (!sessionManager.getRemember()) {
                 sessionManager.clearSession();
+                Log.d("DetectActivity", "Session cleared because !remember");
             }
         }
     }

@@ -32,11 +32,11 @@ public class Post extends BaseEntity {
     String currency;
     String description;
     GeoPoint location;
-    Long view_count;
-    
+    Long views_count;
     String ward;
     String province;
     List<String> tag_ids;
+    List<String> images;
 
 //    // Helper methods to extract IDs from DocumentReference
 //    @Exclude

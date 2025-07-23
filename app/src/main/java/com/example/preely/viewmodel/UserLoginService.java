@@ -212,7 +212,7 @@ public class UserLoginService extends ViewModel {
                 userRepository.add(newUser, CollectionName.USERS, new CallBackUtil.OnInsertCallback() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        setSessionOfGoogleAccount(newUser.getEmail());
+                        getGoogleAccountInfo(newUser.getEmail());
                         Log.i("INSERT USER", "User insert successfully");
                     }
 
@@ -227,7 +227,7 @@ public class UserLoginService extends ViewModel {
                 userRepository.update(user, user.getId().getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
-                        setSessionOfGoogleAccount(user.getEmail());
+                        getGoogleAccountInfo(user.getEmail());
                         Log.i("UPDATE USER", "User update successfully");
                     }
 
@@ -241,7 +241,7 @@ public class UserLoginService extends ViewModel {
         });
     }
 
-    public void setSessionOfGoogleAccount(String email) {
+    public void getGoogleAccountInfo(String email) {
         Query query = FirebaseFirestore.getInstance()
                 .collection(CollectionName.USERS)
                 .whereEqualTo("email", email)
@@ -261,7 +261,4 @@ public class UserLoginService extends ViewModel {
         });
     }
 
-    public void handleFacebookLoginDetail(FirebaseUser userFb) {
-
-    }
 }

@@ -1,5 +1,6 @@
 package com.example.preely.adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.model.response.CategoryResponse;
+import com.example.preely.view.PostListActivity;
 
 import java.util.List;
 
@@ -33,6 +35,11 @@ public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAd
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         CategoryResponse category = categoryList.get(position);
         holder.cateName.setText(category.getName());
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(holder.itemView.getContext(), PostListActivity.class);
+            intent.putExtra("category_id", category.getId().getId());
+            holder.itemView.getContext().startActivity(intent);
+        });
     }
 
     @Override
