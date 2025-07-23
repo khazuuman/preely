@@ -48,6 +48,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
 
             String userId = (user.getId() != null) ? user.getId().getId() : null;
+            android.util.Log.d("ChangePassword", "userId: " + userId);
             if (userId != null) {
                 FirebaseFirestore.getInstance()
                     .collection("user")
@@ -56,37 +57,49 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String encodePassword = documentSnapshot.getString("encode_password");
-                            if (!DataUtil.checkPassword(currentPassword, encodePassword)) {
+                            android.util.Log.d("ChangePassword", "encodePassword from Firestore: " + encodePassword);
+                            boolean isCurrentPasswordCorrect = DataUtil.checkPassword(currentPassword, encodePassword);
+                            android.util.Log.d("ChangePassword", "isCurrentPasswordCorrect: " + isCurrentPasswordCorrect);
+                            if (!isCurrentPasswordCorrect) {
                                 Toast.makeText(this, "Mật khẩu hiện tại không đúng", Toast.LENGTH_SHORT).show();
                                 return;
                             }
+                            android.util.Log.d("ChangePassword", "newPassword: " + newPassword);
+                            android.util.Log.d("ChangePassword", "confirmPassword: " + confirmPassword);
                             if (!newPassword.equals(confirmPassword)) {
                                 Toast.makeText(this, "Mật khẩu mới không khớp", Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            if (!DataUtil.isValidPassword(newPassword)) {
+                            boolean isValid = DataUtil.isValidPassword(newPassword);
+                            android.util.Log.d("ChangePassword", "isValidPassword: " + isValid);
+                            if (!isValid) {
                                 Toast.makeText(this, "Mật khẩu mới phải có ít nhất 8 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt", Toast.LENGTH_LONG).show();
                                 return;
                             }
                             // Hash mật khẩu mới
                             String newHashedPassword = DataUtil.hashPassword(newPassword);
+                            android.util.Log.d("ChangePassword", "newHashedPassword: " + newHashedPassword);
                             // Update Firestore
                             FirebaseFirestore.getInstance()
                                 .collection("user")
                                 .document(userId)
                                 .update("encode_password", newHashedPassword)
                                 .addOnSuccessListener(aVoid -> {
+                                    android.util.Log.d("ChangePassword", "Password updated successfully for userId: " + userId);
                                     Toast.makeText(this, "Đổi mật khẩu thành công!", Toast.LENGTH_SHORT).show();
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
+                                    android.util.Log.e("ChangePassword", "Failed to update password: " + e.getMessage());
                                     Toast.makeText(this, "Đổi mật khẩu thất bại!", Toast.LENGTH_SHORT).show();
                                 });
                         } else {
+                            android.util.Log.e("ChangePassword", "User not found in Firestore for userId: " + userId);
                             Toast.makeText(this, "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show();
                         }
                     });
             } else {
+                android.util.Log.e("ChangePassword", "userId is null!");
                 Toast.makeText(this, "Không tìm thấy ID người dùng!", Toast.LENGTH_SHORT).show();
             }
         });
