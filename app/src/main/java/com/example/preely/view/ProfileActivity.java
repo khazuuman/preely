@@ -28,7 +28,7 @@ import com.google.firebase.firestore.Query;
 public class ProfileActivity extends AppCompatActivity {
 
     private ImageView imgAvatar, btnEditAvatar, btnMenu, btnMore;
-    private TextView tvPhone;
+    private TextView tvPhone, tvName;
     private LinearLayout btnEditProfile, btnNotification,
                         btnPrivacyPolicy, btnHelpCenter,
                         btnHome, btnCart, btnOrders, btnWallet, btnProfile, btnLogout, btnChangePassword, btnSavedPosts;
@@ -93,7 +93,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Profile section
         imgAvatar = findViewById(R.id.imgAvatar);
         btnEditAvatar = findViewById(R.id.btnEditAvatar);
-        TextView tvName = findViewById(R.id.tvName);
+        tvName = findViewById(R.id.tvName);
         tvPhone = findViewById(R.id.tvPhone);
 
         // Header buttons
@@ -120,7 +120,18 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void loadUserData(User user) {
         Log.d("ProfileActivity", "User loaded: " + user);
-        tvPhone.setText("N/A");
+        Log.d("ProfileActivity", "user.getFull_name(): " + user.getFull_name());
+        Log.d("ProfileActivity", "user.getPhone_number(): " + user.getPhone_number());
+        Log.d("ProfileActivity", "user.getAvatar(): " + user.getAvatar());
+        if (user.getFull_name() != null) {
+            tvName.setText(user.getFull_name());
+            Log.d("ProfileActivity", "Set tvName: " + user.getFull_name());
+        } else {
+            tvName.setText("N/A");
+            Log.d("ProfileActivity", "Set tvName: N/A");
+        }
+        tvPhone.setText(user.getPhone_number());
+        Log.d("ProfileActivity", "Set tvPhone: " + user.getPhone_number());
         String avatarUrl = user.getAvatar();
         Log.d("ProfileActivity", "Avatar URL: " + avatarUrl);
         if (avatarUrl != null && !avatarUrl.isEmpty()) {

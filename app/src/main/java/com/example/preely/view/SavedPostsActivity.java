@@ -172,7 +172,12 @@ public class SavedPostsActivity extends AppCompatActivity {
             SavedPostDTO dto = new SavedPostDTO();
             dto.setId(post.getId().getId());
             dto.setTitle(post.getTitle());
-//            try { dto.setImageUrl(post.getImageUrl()); } catch (Exception ignored) {}
+            // Lấy ảnh đầu tiên nếu có
+            if (post.getImages() != null && !post.getImages().isEmpty()) {
+                dto.setImageUrl(post.getImages().get(0));
+            } else {
+                dto.setImageUrl(null); // hoặc set ảnh mặc định nếu muốn
+            }
             try { dto.setPrice(post.getPrice()); } catch (Exception ignored) {}
             dto.setSaved(true); // Since these are saved posts
             dtoList.add(dto);
@@ -202,15 +207,23 @@ public class SavedPostsActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             SavedPostDTO post = posts.get(position);
-            
+            // Log giá trị imageUrl để debug
+            Log.d("DEBUG", "[SavedPostsAdapter] onBindViewHolder imageUrl: " + post.getImageUrl());
             // Load image
-//            if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
-//                Picasso.get()
-//                        .load(post.getImageUrl())
-//                        .placeholder(R.drawable.img)
-//                        .error(R.drawable.img)
-//                        .into(holder.binding.imageView);
-//            }
+            if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
+                try {
+                    Picasso.get()
+                        .load(post.getImageUrl())
+                        .placeholder(R.drawable.ic_image)
+                        .error(R.drawable.ic_image)
+                        .into(holder.binding.imageView);
+                } catch (Exception e) {
+                    Log.e("DEBUG", "[SavedPostsAdapter] Picasso load error: " + e.getMessage());
+                }
+            } else {
+                Log.w("DEBUG", "[SavedPostsAdapter] imageUrl is null or empty for post: " + post.getId());
+                holder.binding.imageView.setImageResource(R.drawable.ic_image);
+            }
 
             // Set text
             holder.binding.txtTitle.setText(post.getTitle());

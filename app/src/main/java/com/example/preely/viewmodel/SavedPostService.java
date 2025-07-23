@@ -44,8 +44,8 @@ public class SavedPostService extends AndroidViewModel {
     private DocumentSnapshot lastVisible = null;
     private boolean isLastPage = false;
 
-    private MainRepository<SavedPost> SavedPostRepository;
-    private MainRepository<Post> postRepository;
+    private final MainRepository<SavedPost> SavedPostRepository;
+    private final MainRepository<Post> postRepository;
 
     public SavedPostService(@NonNull Application application) {
         super(application);
@@ -67,12 +67,10 @@ public class SavedPostService extends AndroidViewModel {
             error.setValue("User ID and Post ID cannot be null");
             return;
         }
-
         DocumentReference userRef = db.collection("user").document(userId);
         DocumentReference postRef = db.collection("post").document(postId);
-
         // Check if post is already saved
-        db.collection("SavedPosts")
+        db.collection("savedposts")
                 .whereEqualTo("user_id", userRef)
                 .whereEqualTo("post_id", postRef)
                 .get()
@@ -84,8 +82,7 @@ public class SavedPostService extends AndroidViewModel {
                             SavedPost.put("user_id", userRef);
                             SavedPost.put("post_id", postRef);
                             SavedPost.put("save_date", new Date());
-
-                            db.collection("SavedPosts")
+                            db.collection("savedposts")
                                     .add(SavedPost)
                                     .addOnSuccessListener(documentReference -> {
                                         status.setValue("Post saved successfully");
@@ -121,7 +118,7 @@ public class SavedPostService extends AndroidViewModel {
         }
         DocumentReference userRef = db.collection("user").document(userId);
         DocumentReference postRef = db.collection("post").document(postId);
-        db.collection("SavedPosts")
+        db.collection("savedposts")
                 .whereEqualTo("user_id", userRef)
                 .whereEqualTo("post_id", postRef)
                 .get()
@@ -165,8 +162,19 @@ public class SavedPostService extends AndroidViewModel {
             return;
         }
         DocumentReference userRef = db.collection("user").document(userId);
-        Log.d("DEBUG", "[SavedPostService] Querying SavedPosts for userRef: " + userRef.getPath());
-        db.collection("SavedPosts")
+        Log.d("DEBUG", "[SavedPostService] Querying savedposts for userRef: " + userRef.getPath());
+        Log.d("DEBUG", "[SavedPostService] userId: " + userId);
+        // Log toàn bộ document trong collection để debug
+        db.collection("savedposts").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Log.d("DEBUG", "[SavedPostService] savedposts docId: " + doc.getId() + ", user_id: " + doc.get("user_id") + ", post_id: " + doc.get("post_id"));
+                }
+            } else {
+                Log.e("DEBUG", "[SavedPostService] Error reading all savedposts", task.getException());
+            }
+        });
+        db.collection("savedposts")
                 .whereEqualTo("user_id", userRef)
                 .orderBy("save_date", Query.Direction.DESCENDING)
                 .get()
@@ -182,7 +190,7 @@ public class SavedPostService extends AndroidViewModel {
                                 String raw = (String) postIdObj;
                                 postId = raw.contains("/") ? raw.substring(raw.lastIndexOf("/") + 1) : raw;
                             }
-                            Log.d("DEBUG", "[SavedPostService] Fetched postId: " + postId);
+                            Log.d("DEBUG", "[SavedPostService] Fetched postId: " + postId + ", raw post_id: " + postIdObj);
                             if (postId != null) {
                                 postIds.add(postId);
                             }
@@ -215,7 +223,7 @@ public class SavedPostService extends AndroidViewModel {
         }
         DocumentReference userRef = db.collection("user").document(userId);
         DocumentReference postRef = db.collection("post").document(postId);
-        db.collection("SavedPosts")
+        db.collection("savedposts")
                 .whereEqualTo("user_id", userRef)
                 .whereEqualTo("post_id", postRef)
                 .get()
@@ -310,7 +318,17 @@ public class SavedPostService extends AndroidViewModel {
 
         DocumentReference userRef = db.collection("user").document(userId);
         Log.d("DEBUG", "[SavedPostService] Querying SavedPosts for userRef: " + userRef.getPath() + " (pagination)");
-        Query query = db.collection("SavedPosts")
+        // Log toàn bộ document trong collection để debug
+        db.collection("savedposts").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Log.d("DEBUG", "[SavedPostService] savedposts docId: " + doc.getId() + ", user_id: " + doc.get("user_id") + ", post_id: " + doc.get("post_id"));
+                }
+            } else {
+                Log.e("DEBUG", "[SavedPostService] Error reading all savedposts", task.getException());
+            }
+        });
+        Query query = db.collection("savedposts")
                 .whereEqualTo("user_id", userRef)
                 .orderBy("save_date", Query.Direction.DESCENDING)
                 .limit(POSTS_PER_PAGE);
@@ -339,7 +357,7 @@ public class SavedPostService extends AndroidViewModel {
                             String raw = (String) postIdObj;
                             postId = raw.contains("/") ? raw.substring(raw.lastIndexOf("/") + 1) : raw;
                         }
-                        Log.d("DEBUG", "[SavedPostService] (pagination) Fetched postId: " + postId);
+                        Log.d("DEBUG", "[SavedPostService] (pagination) Fetched postId: " + postId + ", raw post_id: " + postIdObj);
                         if (postId != null) {
                             postIds.add(postId);
                         }
@@ -421,7 +439,7 @@ public class SavedPostService extends AndroidViewModel {
      */
     public LiveData<List<SavedPost>> getSavedPostsByUser(String userId) {
         DocumentReference userRef = db.collection("user").document(userId);
-        Query query = db.collection("SavedPosts").whereEqualTo("user_id", userRef);
+        Query query = db.collection("savedposts").whereEqualTo("user_id", userRef);
         return SavedPostRepository.getAll(query);
     }
 
@@ -438,7 +456,8 @@ public class SavedPostService extends AndroidViewModel {
             List<Post> posts = new ArrayList<>();
             final int[] completed = {0};
             for (SavedPost sp : SavedPosts) {
-                Query postQuery = db.collection("posts").whereEqualTo("id", sp.getPost_id());
+                String postRef = sp.getPost_id().getId();
+                Query postQuery = db.collection("post").whereEqualTo("id", postRef);
                 postRepository.getAll(postQuery).observeForever(postList -> {
                     if (postList != null && !postList.isEmpty()) {
                         posts.add(postList.get(0));
