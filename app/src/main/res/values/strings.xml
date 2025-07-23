@@ -59,4 +59,5 @@
     <string name="title_transaction_management">Transaction Management</string>
     <string name="title_category_management">Category Management</string>
     <string name="title_tag_management">Tag Management</string>
+    <string name="google_maps_key" translatable="false">AIzaSyDv7k0i13euDi8VBhsBSXy2TT-A7g0xBRg</string>
 </resources>

@@ -36,9 +36,9 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-<!--        <meta-data-->
-<!--            android:name="com.google.android.geo.API_KEY"-->
-<!--            android:value="${MAPS_API_KEY}" />-->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
 
         <activity
             android:name=".view.PostListActivity"
@@ -138,6 +138,9 @@
 <!--        <activity-->
 <!--            android:name=".view.ProfileActivityV2"-->
 <!--            android:exported="false" />-->
+        <activity
+            android:name=".view.MapTestActivity"
+            android:exported="false" />
 
         <service
             android:name=".viewmodel.UnreadMessageService"

@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -45,7 +46,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final int SCROLL_THRESHOLD = 500;
     private RecyclerView cateRecycleView, postRecycleView;
     private TextView nameTv, unreadBadge;
-    private ImageButton scrollToTopBtn, openChatButton;
+    private ImageButton scrollToTopBtn, openChatButton, testMapButton;
     private ScrollView homeScrollView;
     private final List<CategoryResponse> categoryList = new ArrayList<>();
     private final List<PostResponse> postList = new ArrayList<>();
@@ -81,6 +82,7 @@ public class HomeActivity extends AppCompatActivity {
         findViews();
         setupUserInfo();
         setupChatButton();
+        setupMapButton();
         setupScrollFunctionality();
     }
 
@@ -91,6 +93,7 @@ public class HomeActivity extends AppCompatActivity {
         unreadBadge = findViewById(R.id.unread_badge);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
         openChatButton = findViewById(R.id.button_open_chat);
+        testMapButton = findViewById(R.id.test_map_button);
         homeScrollView = findViewById(R.id.homeScrollView);
     }
 
@@ -115,6 +118,12 @@ public class HomeActivity extends AppCompatActivity {
                 CustomToast.makeText(this, "Vui lòng đăng nhập để chat",
                         CustomToast.LENGTH_SHORT, Constraints.NotificationType.ERROR).show();
             }
+        });
+    }
+
+    private void setupMapButton(){
+        testMapButton.setOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, MapTestActivity.class));
         });
     }
 
