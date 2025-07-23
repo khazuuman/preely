@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.shortcutbadger.leolin)
     implementation(libs.glide)
+    implementation(libs.glide.okhttp3.integration)
+    implementation(libs.okhttp)
     implementation(libs.cloudinary.android)
     implementation(libs.picasso)
     implementation(libs.google.play.services.auth)

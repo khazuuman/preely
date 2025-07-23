@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.example.preely.util.NetworkUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ import java.util.regex.Pattern;
  */
 public class CloudinaryService extends AndroidViewModel {
     private static final String TAG = "CloudinaryService";
-    private static final String CLOUDINARY_URL_PATTERN = "cloudinary://([^:]+):([^@]+)@(.+)";
     
     // LiveData objects to track upload states and results
     private final MutableLiveData<String> uploadStatus = new MutableLiveData<>();
@@ -35,7 +35,6 @@ public class CloudinaryService extends AndroidViewModel {
     private final MutableLiveData<List<String>> uploadedUrls = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<String> uploadedImageUrl = new MutableLiveData<>();
-    private boolean isInitialized = false;
 
     // Default Cloudinary configuration
     private static final String CLOUD_NAME = "dpsgcdrlx";
@@ -44,54 +43,7 @@ public class CloudinaryService extends AndroidViewModel {
 
     public CloudinaryService(@NonNull Application application) {
         super(application);
-        // Auto initialize with default config
-        initCloudinary(CLOUD_NAME, API_KEY, API_SECRET);
-    }
-
-    /**
-     * Initialize Cloudinary from URL string
-     * URL format: cloudinary://{api_key}:{api_secret}@{cloud_name}
-     * @param cloudinaryUrl The complete Cloudinary URL containing credentials
-     */
-    public void initFromUrl(String cloudinaryUrl) {
-        Pattern pattern = Pattern.compile(CLOUDINARY_URL_PATTERN);
-        Matcher matcher = pattern.matcher(cloudinaryUrl);
-        
-        if (matcher.find()) {
-            String apiKey = matcher.group(1);
-            String apiSecret = matcher.group(2);
-            String cloudName = matcher.group(3);
-            
-            initCloudinary(cloudName, apiKey, apiSecret);
-        } else {
-            errorMessage.setValue("Invalid Cloudinary URL format");
-            Log.e(TAG, "Invalid Cloudinary URL format");
-        }
-    }
-
-    /**
-     * Initialize Cloudinary with separate credentials
-     * @param cloudName The cloud name from Cloudinary dashboard
-     * @param apiKey The API key from Cloudinary dashboard
-     * @param apiSecret The API secret from Cloudinary dashboard
-     */
-    public void initCloudinary(String cloudName, String apiKey, String apiSecret) {
-        if (!isInitialized) {
-            try {
-                Map<String, String> config = new HashMap<>();
-                config.put("cloud_name", cloudName);
-                config.put("api_key", apiKey);
-                config.put("api_secret", apiSecret);
-                
-                MediaManager.init(getApplication(), config);
-                isInitialized = true;
-                uploadStatus.setValue("Initialized");
-                Log.d(TAG, "Cloudinary initialized successfully");
-            } catch (Exception e) {
-                errorMessage.setValue("Error initializing Cloudinary: " + e.getMessage());
-                Log.e(TAG, "Error initializing Cloudinary: " + e.getMessage());
-            }
-        }
+        // Không khởi tạo MediaManager ở đây nữa
     }
 
     /**
@@ -100,8 +52,18 @@ public class CloudinaryService extends AndroidViewModel {
      * @param folder The destination folder in Cloudinary
      */
     public void uploadImage(Uri imageUri, String folder) {
-        if (!isInitialized) {
+        try {
+            // Kiểm tra MediaManager có sẵn sàng không bằng cách thử lấy instance
+            MediaManager.get();
+        } catch (Exception e) {
             errorMessage.setValue("Cloudinary not initialized");
+            return;
+        }
+
+        // Kiểm tra kết nối mạng trước khi upload
+        if (!NetworkUtil.isNetworkAvailable(getApplication())) {
+            errorMessage.setValue("No internet connection. Please check your network and try again.");
+            uploadStatus.setValue("Upload failed - No network");
             return;
         }
 
@@ -143,8 +105,19 @@ public class CloudinaryService extends AndroidViewModel {
 
                         @Override
                         public void onError(String requestId, ErrorInfo error) {
-                            errorMessage.postValue(error.getDescription());
+                            String errorMsg = "Upload failed";
+                            if (error.getDescription() != null) {
+                                if (error.getDescription().contains("502")) {
+                                    errorMsg = "Server temporarily unavailable. Please try again later.";
+                                } else if (error.getDescription().contains("timeout") || error.getDescription().contains("connection")) {
+                                    errorMsg = "Network connection issue. Please check your internet and try again.";
+                                } else {
+                                    errorMsg = error.getDescription();
+                                }
+                            }
+                            errorMessage.postValue(errorMsg);
                             uploadStatus.postValue("Upload failed");
+                            Log.e(TAG, "Upload error: " + error.getDescription());
                         }
 
                         @Override
@@ -167,8 +140,18 @@ public class CloudinaryService extends AndroidViewModel {
      * @param folder The destination folder in Cloudinary
      */
     public void uploadMultipleImages(List<Uri> imageUris, String folder) {
-        if (!isInitialized) {
+        try {
+            // Kiểm tra MediaManager có sẵn sàng không bằng cách thử lấy instance
+            MediaManager.get();
+        } catch (Exception e) {
             errorMessage.setValue("Cloudinary not initialized");
+            return;
+        }
+
+        // Kiểm tra kết nối mạng trước khi upload
+        if (!NetworkUtil.isNetworkAvailable(getApplication())) {
+            errorMessage.setValue("No internet connection. Please check your network and try again.");
+            uploadStatus.setValue("Upload failed - No network");
             return;
         }
 
@@ -214,8 +197,19 @@ public class CloudinaryService extends AndroidViewModel {
 
                             @Override
                             public void onError(String requestId, ErrorInfo error) {
-                                errorMessage.postValue("Error uploading image: " + error.getDescription());
+                                String errorMsg = "Upload failed";
+                                if (error.getDescription() != null) {
+                                    if (error.getDescription().contains("502")) {
+                                        errorMsg = "Server temporarily unavailable. Please try again later.";
+                                    } else if (error.getDescription().contains("timeout") || error.getDescription().contains("connection")) {
+                                        errorMsg = "Network connection issue. Please check your internet and try again.";
+                                    } else {
+                                        errorMsg = "Error uploading image: " + error.getDescription();
+                                    }
+                                }
+                                errorMessage.postValue(errorMsg);
                                 completedUploads[0]++;
+                                Log.e(TAG, "Multiple upload error: " + error.getDescription());
                                 
                                 if (completedUploads[0] == totalImages[0]) {
                                     uploadStatus.postValue("Uploads completed with errors");

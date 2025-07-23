@@ -21,7 +21,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @IgnoreExtraProperties
-public class Post extends BaseEntity {
+public class Post extends BaseEntity implements java.io.Serializable {
 
     DocumentReference category_id;
     DocumentReference seller_id;

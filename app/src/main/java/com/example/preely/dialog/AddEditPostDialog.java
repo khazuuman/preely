@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 
 import com.example.preely.R;
 import com.example.preely.model.entities.Post;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.example.preely.dialog.ImagePreviewAdapter;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import android.util.Log;
 
 public class AddEditPostDialog extends Dialog {
 
@@ -44,6 +46,8 @@ public class AddEditPostDialog extends Dialog {
     private List<String> uploadedImageUrls = new ArrayList<>();
     private boolean isUploadingImages = false;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private Observer<List<String>> uploadUrlsObserver;
+    private Observer<String> uploadErrorObserver;
 
     public interface OnPostDialogListener {
         void onPostSaved(Post post, boolean isEdit);
@@ -119,27 +123,27 @@ public class AddEditPostDialog extends Dialog {
         }
     }
 
-    // Call this from Activity's onActivityResult
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == android.app.Activity.RESULT_OK && data != null) {
-            selectedImageUris.clear();
-            uploadedImageUrls.clear();
-            if (data.getClipData() != null) {
-                int count = data.getClipData().getItemCount();
-                for (int i = 0; i < count; i++) {
-                    Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                    selectedImageUris.add(imageUri);
-                }
-            } else if (data.getData() != null) {
-                selectedImageUris.add(data.getData());
+    // Gọi từ Fragment khi chọn ảnh xong
+    public void onImagesSelected(List<Uri> uris) {
+        Log.d("AddEditPostDialog", "onImagesSelected called, uris size: " + (uris == null ? 0 : uris.size()));
+        selectedImageUris.clear();
+        uploadedImageUrls.clear();
+        if (uris != null) {
+            selectedImageUris.addAll(uris);
+        }
+        imagePreviewAdapter.notifyDataSetChanged();
+        if (!selectedImageUris.isEmpty()) {
+            isUploadingImages = true;
+            btnSave.setEnabled(false);
+            // Remove observer cũ nếu có
+            if (uploadUrlsObserver != null) {
+                cloudinaryService.getUploadedUrls().removeObserver(uploadUrlsObserver);
             }
-            imagePreviewAdapter.notifyDataSetChanged();
-            // Bắt đầu upload ngay sau khi chọn xong
-            if (!selectedImageUris.isEmpty()) {
-                isUploadingImages = true;
-                btnSave.setEnabled(false);
-                uploadAllImagesToCloudinary();
+            if (uploadErrorObserver != null) {
+                cloudinaryService.getErrorMessage().removeObserver(uploadErrorObserver);
             }
+            Log.d("AddEditPostDialog", "Trigger uploadAllImagesToCloudinary, selectedImageUris size: " + selectedImageUris.size());
+            uploadAllImagesToCloudinary();
         }
     }
 
@@ -147,14 +151,24 @@ public class AddEditPostDialog extends Dialog {
         uploadedImageUrls.clear();
         cloudinaryService.clearUploadedUrls();
         cloudinaryService.uploadMultipleImages(selectedImageUris, "posts");
-        cloudinaryService.getUploadedUrls().observe(lifecycleOwner, urls -> {
+        // Đăng ký observer mới
+        uploadUrlsObserver = urls -> {
             if (urls != null && urls.size() == selectedImageUris.size()) {
                 uploadedImageUrls.clear();
                 uploadedImageUrls.addAll(urls);
                 isUploadingImages = false;
                 btnSave.setEnabled(true);
             }
-        });
+        };
+        cloudinaryService.getUploadedUrls().observe(lifecycleOwner, uploadUrlsObserver);
+        uploadErrorObserver = errorMsg -> {
+            if (errorMsg != null && !errorMsg.isEmpty()) {
+                isUploadingImages = false;
+                btnSave.setEnabled(false);
+                Toast.makeText(context, "Lỗi upload ảnh: " + errorMsg, Toast.LENGTH_LONG).show();
+            }
+        };
+        cloudinaryService.getErrorMessage().observe(lifecycleOwner, uploadErrorObserver);
     }
 
     private void savePost() {

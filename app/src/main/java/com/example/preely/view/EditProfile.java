@@ -70,7 +70,7 @@ public class EditProfile extends AppCompatActivity {
         edtWard.setText(TextUtils.isEmpty(user.getWard()) ? getString(R.string.hint_ward) : user.getWard());
         tvRating.setText("Đánh giá: " + user.getRating());
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
-            Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_image).error(R.drawable.ic_image).into(imgAvatar);
+            loadAvatarWithRetry(avatarUrl);
         }
 
         cloudinaryService = new ViewModelProvider(this).get(CloudinaryService.class);
@@ -85,7 +85,7 @@ public class EditProfile extends AppCompatActivity {
         cloudinaryService.getUploadedImageUrl().observe(this, url -> {
             if (url != null) {
                 avatarUrl = url;
-                Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_image).error(R.drawable.ic_image).into(imgAvatar);
+                loadAvatarWithRetry(avatarUrl);
             }
         });
 
@@ -150,6 +150,15 @@ public class EditProfile extends AppCompatActivity {
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
+    }
+
+    private void loadAvatarWithRetry(String url) {
+        Glide.with(this)
+                .load(url)
+                .placeholder(R.drawable.ic_image)
+                .error(R.drawable.ic_image)
+                .timeout(3000) // 3 seconds timeout
+                .into(imgAvatar);
     }
 
     @Override
