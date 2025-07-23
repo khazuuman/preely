@@ -34,14 +34,17 @@ public class SessionManager {
     public void setUserSession(UserResponse user) {
         if (user != null) {
             String userJson = gson.toJson(user);
-            editor.putString("user", userJson);
+            editor.putString("USER_INFO", userJson);
+            Log.i("USER SESSION", userJson);
             editor.apply();
         }
     }
 
     public UserResponse getUserSession() {
-        String userJson = sharedPreferences.getString("user", null);
+        String userJson = sharedPreferences.getString("USER_INFO", null);
+        Log.i("USER SESSION", userJson == null ? "null" : userJson);
         if (userJson != null) {
+            Log.i("USER RESPONSE SESSION", gson.fromJson(userJson, UserResponse.class).toString());
             return gson.fromJson(userJson, UserResponse.class);
         }
         return null;
@@ -63,7 +66,7 @@ public class SessionManager {
 
     //    clear session
     public void clearSession() {
-        editor.remove("KEY_USER_ID");
+        editor.remove("USER_INFO");
         editor.remove("KEY_SESSION_TIME_OUT");
         editor.remove("KEY_REMEMBER");
         editor.apply();

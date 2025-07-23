@@ -31,7 +31,7 @@ public class PostResponse extends CommonResponse implements Serializable {
     String ward;
     String province;
     CategoryResponse categoryResponse;
-    List<String> image;
+    List<String> images;
     List<TagResponse> tagResponses;
 
     @Override

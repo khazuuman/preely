@@ -28,6 +28,8 @@
                 android:id="@+id/post_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
                 android:src="@drawable/img_not_found" />
         </androidx.cardview.widget.CardView>
 

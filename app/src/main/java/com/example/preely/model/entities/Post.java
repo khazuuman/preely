@@ -33,6 +33,7 @@ public class Post extends BaseEntity {
     String description;
     GeoPoint location;
     Long views_count;
+    List<String> images;
     String ward;
     String province;
     List<String> tag_ids;

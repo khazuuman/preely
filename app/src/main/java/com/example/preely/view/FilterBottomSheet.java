@@ -3,11 +3,14 @@ package com.example.preely.view;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +43,8 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
 
     Button applyBtn, resetBtn;
     RecyclerView cateRecycleView, tagRecycleView, sortRecycleView;
+    ProgressBar progressBar;
+    LinearLayout mainLayout;
     private final List<CategoryFilterRequest> categoryList = new ArrayList<>();
     private final List<TagFilterRequest> tagList = new ArrayList<>();
     private final List<SortFilterRequest> sortList = new ArrayList<>(
@@ -59,6 +64,7 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
     Integer sortType;
     PostFilterRequest postFilterRequest;
     private OnFilterApplyListener filterApplyListener;
+    private boolean categoryLoaded = false, tagLoaded = false;
 
     public interface OnFilterApplyListener {
         void onFilterApplied(PostFilterRequest filterRequest);
@@ -76,6 +82,10 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.bottom_filter, container, false);
 
+        progressBar = view.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        mainLayout = view.findViewById(R.id.mainLayout);
+        mainLayout.setVisibility(View.GONE);
         applyBtn = view.findViewById(R.id.apply_btn);
         resetBtn = view.findViewById(R.id.reset_btn);
         cateRecycleView = view.findViewById(R.id.cate_recycle_view);
@@ -110,7 +120,14 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
         applyBtn.setOnClickListener(v -> {
             category_id = categoryFilterAdapter.getIdSelectedItems();
             tag_id = tagFilterAdapter.getIdStringSelectedItems();
+            if (tag_id == null || tag_id.isEmpty()) {
+                tag_id = new ArrayList<>();
+            }
+
             sortType = sortFilterAdapter.getSelectedItem();
+            Log.i("CATE_ID", category_id == null ? "null" : category_id.toString());
+            Log.i("TAG_ID", tag_id == null ? "null" : tag_id.toString());
+            Log.i("SORT_TYPE", sortType == null ? "null" : sortType.toString());
             postFilterRequest = new PostFilterRequest(null, category_id, tag_id, sortType);
             if (filterApplyListener != null) {
                 filterApplyListener.onFilterApplied(postFilterRequest);
@@ -174,6 +191,8 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
                 }
                 categoryFilterAdapter.notifyDataSetChanged();
             }
+            categoryLoaded = true;
+            checkAllDataLoaded();
         });
     }
 
@@ -198,7 +217,16 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
                 }
                 tagFilterAdapter.notifyDataSetChanged();
             }
+            tagLoaded = true;
+            checkAllDataLoaded();
         });
+    }
+
+    private void checkAllDataLoaded() {
+        if (categoryLoaded && tagLoaded) {
+            progressBar.setVisibility(View.GONE);
+            mainLayout.setVisibility(View.VISIBLE);
+        }
     }
 
 }

@@ -62,15 +62,15 @@ public class PostDetailActivity extends AppCompatActivity {
             postResponse = result;
             if (result != null) {
                 ArrayList<SlideModel> imageList = new ArrayList<>();
-                if (result.getImage() != null) {
-                    for (String image : result.getImage()) {
+                if (result.getImages() != null) {
+                    for (String image : result.getImages()) {
                         imageList.add(new SlideModel(image, ScaleTypes.FIT));
                     }
                 }
                 imageSlider.setImageList(imageList);
                 postTile.setText(result.getTitle());
                 postPrice.setText("$" + result.getPrice().toString());
-                viewCount.setText("(" + result.getViews_count() + " viewed)");
+                viewCount.setText("(" + (result.getViews_count() == null ? "0" : result.getViews_count()) + " viewed)");
                 wardPost.setText(result.getWard());
                 provincePost.setText(result.getProvince());
                 postDescription.setText(result.getDescription());

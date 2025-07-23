@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.preely.R;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.SavedPostRequest;
@@ -51,8 +52,12 @@ public class PostMarketAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             PostResponse post = postList.get(position);
             PostViewHolder postHolder = (PostViewHolder) holder;
             postHolder.postTitle.setText(post.getTitle());
-            if (post.getImage() != null && !post.getImage().isEmpty()) {
-                postHolder.postImg.setImageURI(Uri.parse(post.getImage().get(0)));
+            if (post.getImages() != null && !post.getImages().isEmpty()) {
+                Glide.with(postHolder.postImg.getContext())
+                        .load(post.getImages().get(0))
+                        .placeholder(R.drawable.img_not_found)
+                        .centerCrop()
+                        .into(postHolder.postImg);
             } else {
                 postHolder.postImg.setImageResource(R.drawable.img_not_found);
             }
