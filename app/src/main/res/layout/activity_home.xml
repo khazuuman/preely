@@ -64,7 +64,7 @@
 
                 <TextView
                     android:id="@+id/nameTv"
-                    android:layout_width="200dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
                     android:ellipsize="none"
@@ -87,7 +87,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="8dp"
                     android:background="@drawable/ic_notification"
                     android:backgroundTint="@android:color/transparent"
                     app:backgroundTint="#666666" />
@@ -95,21 +95,53 @@
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="30dp"
                     android:layout_height="30dp"
+                    android:layout_marginEnd="8dp"
                     android:background="@drawable/ic_favorite"
                     android:backgroundTint="@android:color/transparent"
                     app:backgroundTint="#666666" />
 
-                <!-- Thêm Icon Chat Mới Ở Đây (ImageButton) -->
+                <!-- Chat Button với Badge -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp">
+
+                    <ImageButton
+                        android:id="@+id/button_open_chat"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Open Chat"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_chat"
+                        app:tint="#666666" />
+
+                    <TextView
+                        android:id="@+id/unread_badge"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-2dp"
+                        android:background="@drawable/badge_background"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                </FrameLayout>
+
                 <ImageButton
-                    android:id="@+id/button_open_chat"
+                    android:id="@+id/test_map_button"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_marginStart="10dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_chat"
-                android:contentDescription="Open Chat"
-                android:scaleType="fitCenter"
-                app:tint="#666666" />
+                    android:contentDescription="Open Map"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_map"
+                    app:tint="#666666" />
 
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

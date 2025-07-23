@@ -96,6 +96,7 @@
     <string name="title_category_management">Category Management</string>
     <string name="title_tag_management">Tag Management</string>
     <string name="editPhone">Số điện thoại</string>
+    <string name="google_maps_key" translatable="false">AIzaSyDv7k0i13euDi8VBhsBSXy2TT-A7g0xBRg</string>
     <string name="Address">Địa chỉ</string>
     <string name="hint_full_name">Họ và tên</string>
     <!-- TODO: Remove or change this placeholder text -->

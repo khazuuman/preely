@@ -21,6 +21,9 @@ credentialsPlayServicesAuth = "1.5.0"
 googleid = "1.1.1"
 glide = "4.16.0"
 okhttp = "4.12.0"
+play-services-maps = "18.2.0"
+play-services-location = "21.0.1"
+places = "3.3.0"
 
 [libraries]
 cloudinary-android = { module = "com.cloudinary:cloudinary-android", version.ref = "cloudinaryAndroid" }
@@ -53,6 +56,9 @@ google-play-services-auth = { group = "com.google.android.gms", name = "play-ser
 circle-image-view = { group = "de.hdodenhof", name = "circleimageview", version = "3.1.0" }
 facebook-android-sdk = { group = "com.facebook.android", name = "facebook-android-sdk", version = "18.0.3" }
 imageslideshow = { group = "com.github.denzcoskun", name = "ImageSlideshow", version = "0.1.0"}
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "play-services-maps" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
+places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

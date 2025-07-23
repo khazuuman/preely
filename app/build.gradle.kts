@@ -75,5 +75,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.imageslideshow)
     implementation(libs.circle.image.view)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.places)
 
 }
