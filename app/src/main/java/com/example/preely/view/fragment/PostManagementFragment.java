@@ -213,9 +213,9 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     private void showAddPostDialog() {
         AddEditPostDialogFragment dialog = AddEditPostDialogFragment.newInstance(null, null, null, null, null, null, null, null, null);
         dialog.setOnPostDialogListener((post, isEdit) -> {
-            if (isEdit) {
-                updatePost(post);
-            } else {
+                if (isEdit) {
+                    updatePost(post);
+                } else {
                 savePostAndUploadImages(post, new ArrayList<>(), post.getImages());
             }
         });

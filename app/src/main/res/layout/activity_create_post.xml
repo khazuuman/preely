@@ -80,122 +80,48 @@
                 android:textFontWeight="800"
                 android:textSize="20dp" />
 
-            <Spinner
-                android:id="@+id/spinner_category"
+            <AutoCompleteTextView
+                android:id="@+id/actv_category"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:spinnerMode="dropdown" />
+                android:hint="Chọn danh mục" />
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:gravity="start"
+                android:text="Tags"
+                android:textFontWeight="800"
+                android:textSize="20dp" />
 
-                <LinearLayout
-                    android:layout_width="190dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:orientation="vertical"
-                    tools:ignore="UselessParent">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:text="Tag"
-                        android:textFontWeight="800"
-                        android:textSize="20dp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/price_til"
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
-                        android:layout_marginBottom="20dp"
-                        android:gravity="center_vertical"
-                        android:textColorHint="#9F9F9F"
-                        app:boxBackgroundMode="outline">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/tag_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:hint="#Tag"
-                            android:inputType="text"
-                            android:paddingStart="30dp"
-                            android:textSize="20sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        android:id="@+id/price_error_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="50dp"
-                        android:text="Title is required"
-                        android:textColor="@android:color/holo_red_dark"
-                        android:textSize="14sp"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="190dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    tools:ignore="UselessParent">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:text="Price"
-                        android:textFontWeight="800"
-                        android:textSize="20dp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tag_til"
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
-                        android:layout_marginBottom="20dp"
-                        android:gravity="center_vertical"
-                        android:textColorHint="#9F9F9F"
-                        app:boxBackgroundMode="outline">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/price_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:hint="Price"
-                            android:inputType="text"
-                            android:paddingStart="30dp"
-                            android:textSize="20sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        android:id="@+id/tag_error_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="50dp"
-                        android:text="Title is required"
-                        android:textColor="@android:color/holo_red_dark"
-                        android:textSize="14sp"
-                        android:visibility="gone" />
-                </LinearLayout>
-            </LinearLayout>
+            <MultiAutoCompleteTextView
+                android:id="@+id/mactv_tags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Chọn tags (cách nhau bằng dấu phẩy)" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:gravity="start"
-                android:text="Image"
+                android:text="Images"
                 android:textFontWeight="800"
                 android:textSize="20dp" />
 
             <Button
+                android:id="@+id/btn_choose_images"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Add Image" />
+                android:text="Chọn ảnh" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_image_preview"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
 
             <TextView
                 android:layout_width="match_parent"

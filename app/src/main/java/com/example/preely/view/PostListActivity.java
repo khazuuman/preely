@@ -168,7 +168,12 @@ public class PostListActivity extends AppCompatActivity {
                 }
             }
         });
-
+        postService.getSavedPostsStatus().observe(this, map -> {
+            if (map != null) {
+                postAdapter.setSavedPostsStatusMap(map);
+                postAdapter.notifyDataSetChanged();
+            }
+        });
         searchIcon.setOnClickListener(v -> {
             performSearch();
         });

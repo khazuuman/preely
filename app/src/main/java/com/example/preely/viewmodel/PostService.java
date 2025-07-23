@@ -39,14 +39,15 @@ public class PostService extends ViewModel {
     private static final MainRepository<SavedPost> savedPostRepository = new MainRepository<>(SavedPost.class, CollectionName.SAVED_POST);
     private final MutableLiveData<List<PostResponse>> postResponseListResult = new MutableLiveData<>();
     private final MutableLiveData<PostResponse> postResponseResult = new MutableLiveData<>();
-    private final MutableLiveData<String> insertSavedPostResult = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLastPageResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> postExisted = new MutableLiveData<>();
     private DocumentSnapshot lastVisible = null;
     private static final int PAGE_SIZE = 6;
 
     public LiveData<Boolean> getIsLastPageResult() {
         return isLastPageResult;
     }
+    public LiveData<Boolean> getPostExisted() { return postExisted; }
 
     public LiveData<List<PostResponse>> getPostListResult() {
         return postResponseListResult;
@@ -207,14 +208,35 @@ public class PostService extends ViewModel {
                 } catch (IllegalAccessException | InstantiationException e) {
                     throw new RuntimeException(e);
                 }
-                insertSavedPostResult.setValue("Saved post insert successfully");
+                postExisted.setValue(false);
                 Log.i("GET SAVED POST", "Saved post insert successfully");
             } else {
-                insertSavedPostResult.setValue("Saved post already exists");
+                postExisted.setValue(true);
                 Log.i("GET SAVED POST", "Saved post already exists");
             }
         });
     }
+
+    private final MutableLiveData<Map<String, Boolean>> savedPostsStatus = new MutableLiveData<>(new HashMap<>());
+    public LiveData<Map<String, Boolean>> getSavedPostsStatus() { return savedPostsStatus; }
+
+    public void checkSavedPost(SavedPostRequest request) {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(CollectionName.SAVED_POST)
+                .whereEqualTo("user_id", request.getUser_id())
+                .whereEqualTo("post_id", request.getPost_id())
+                .limit(1);
+        savedPostRepository.getOne(query).observeForever(result -> {
+            Map<String, Boolean> currentMap = savedPostsStatus.getValue();
+            if (currentMap == null) currentMap = new HashMap<>();
+
+            String key = request.getUser_id() + "_" + request.getPost_id();
+            currentMap.put(key, result != null);
+
+            savedPostsStatus.postValue(currentMap);
+        });
+    }
+
 
     public void insertSavedPostDetail(SavedPostRequest request) throws IllegalAccessException, InstantiationException {
         SavedPost savedPost = DataUtil.mapObj(request, SavedPost.class);
@@ -293,4 +315,31 @@ public class PostService extends ViewModel {
         });
     }
 
+    // Lấy danh sách post của user hiện tại
+    public void getPostsByUser(DocumentReference userRef, final PostListCallback callback) {
+        FirebaseFirestore.getInstance().collection(CollectionName.POSTS)
+                .whereEqualTo("seller_id", userRef)
+                .get()
+                .addOnCompleteListener(task -> {
+                    List<PostResponse> result = new ArrayList<>();
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()) {
+                            Post post = doc.toObject(Post.class);
+                            if (post != null) {
+                                try {
+                                    PostResponse postResponse = DataUtil.mapObj(post, PostResponse.class);
+                                    result.add(postResponse);
+                                } catch (Exception e) {
+                                    Log.e("MyPosts", "Mapping error", e);
+                                }
+                            }
+                        }
+                    }
+                    callback.onResult(result);
+                });
+    }
+
+    public interface PostListCallback {
+        void onResult(List<PostResponse> posts);
+    }
 }
