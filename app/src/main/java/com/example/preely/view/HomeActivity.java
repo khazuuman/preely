@@ -261,7 +261,7 @@ public class HomeActivity extends AppCompatActivity {
         postService = new ViewModelProvider(this).get(PostService.class);
 
         postRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostMarketAdapter(postList, lifecycleOwner, postService);
+        postAdapter = new PostMarketAdapter(postList, this, postService);
         postRecycleView.setAdapter(postAdapter);
 
         observePostList();
