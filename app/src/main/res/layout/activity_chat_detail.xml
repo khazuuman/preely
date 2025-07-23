@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -30,9 +29,19 @@
             android:textColor="#212121"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/payment_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_payment"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:contentDescription="Thanh toán" />
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Messages RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messages_recycler_view"
         android:layout_width="match_parent"
@@ -42,7 +51,6 @@
         app:layout_constraintBottom_toTopOf="@id/input_container"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- Input Container -->
     <LinearLayout
         android:id="@+id/input_container"
         android:layout_width="match_parent"

@@ -31,17 +31,9 @@ public class MapTestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_test);
-
-        // Initialize components
         initializeComponents();
-
-        // Load user location from session
         loadUserLocationFromSession();
-
-        // Setup map fragment
         setupMapFragment();
-
-        // Setup buttons
         setupButtons();
     }
 
@@ -59,7 +51,6 @@ public class MapTestActivity extends AppCompatActivity {
         if (user != null) {
             Log.d(TAG, "User found: " + user.getUsername());
 
-            // Lấy location từ UserResponse
             currentUserLocation = user.getLocation();
 
             if (currentUserLocation != null) {
@@ -68,13 +59,11 @@ public class MapTestActivity extends AppCompatActivity {
                         currentUserLocation.getLongitude());
             } else {
                 Log.d(TAG, "User has no location, using default");
-                // Vị trí mặc định (Hồ Chí Minh City)
-                currentUserLocation = new GeoPoint(10.8231, 106.6297);
+                currentUserLocation = new GeoPoint(21.037083, 105.835222);
             }
         } else {
             Log.e(TAG, "No user session found");
-            // Vị trí mặc định nếu không có session
-            currentUserLocation = new GeoPoint(10.8231, 106.6297);
+            currentUserLocation = new GeoPoint(21.037083, 105.835222);
 
             Toast.makeText(this, "Không tìm thấy thông tin người dùng",
                     Toast.LENGTH_SHORT).show();
@@ -82,10 +71,8 @@ public class MapTestActivity extends AppCompatActivity {
     }
 
     private void setupMapFragment() {
-        // Tạo MapFragment với location của user, pick disabled initially
         mapFragment = MapFragment.newInstance(currentUserLocation, false);
 
-        // Set listener để nhận location được pick
         mapFragment.setOnLocationPickedListener(newLocation -> {
             Log.d(TAG, "Location picked: " +
                     newLocation.getLatitude() + ", " + newLocation.getLongitude());
@@ -106,11 +93,9 @@ public class MapTestActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        // Toggle pick mode button
         btnTogglePick.setOnClickListener(v -> {
             isPickEnabled = !isPickEnabled;
 
-            // Recreate fragment with new pick mode
             mapFragment = MapFragment.newInstance(
                     pickedLocation != null ? pickedLocation : currentUserLocation,
                     isPickEnabled
@@ -129,7 +114,6 @@ public class MapTestActivity extends AppCompatActivity {
                     .replace(R.id.map_container, mapFragment)
                     .commit();
 
-            // Update button text
             btnTogglePick.setText(isPickEnabled ? "Disable Pick" : "Enable Pick");
 
             Toast.makeText(this,
@@ -137,7 +121,6 @@ public class MapTestActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         });
 
-        // Save location button
         btnSaveLocation.setOnClickListener(v -> saveLocationToFirestore());
     }
 
@@ -173,7 +156,6 @@ public class MapTestActivity extends AppCompatActivity {
                                     "Đã lưu vị trí thành công!",
                                     Toast.LENGTH_SHORT).show();
 
-                            // Update session with new location
                             user.setLocation(locationToSave);
                             sessionManager.setUserSession(user);
                         });
