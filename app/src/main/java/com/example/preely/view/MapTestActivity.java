@@ -60,10 +60,12 @@ public class MapTestActivity extends AppCompatActivity {
             } else {
                 Log.d(TAG, "User has no location, using default");
                 currentUserLocation = new GeoPoint(21.037083, 105.835222);
+                currentUserLocation = new GeoPoint(21, 106.6297);
             }
         } else {
             Log.e(TAG, "No user session found");
             currentUserLocation = new GeoPoint(21.037083, 105.835222);
+            currentUserLocation = new GeoPoint(21, 106.6297);
 
             Toast.makeText(this, "Không tìm thấy thông tin người dùng",
                     Toast.LENGTH_SHORT).show();

@@ -41,6 +41,7 @@ import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CategoryService;
 import com.example.preely.viewmodel.PostService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -75,6 +76,7 @@ public class HomeActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private boolean categoryLoaded = false;
     private boolean postLoaded = false;
+    private MaterialButton favouriteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,7 @@ public class HomeActivity extends AppCompatActivity {
         setupChatButton();
         setupMapButton();
         setupScrollFunctionality();
+        setupFavouriteButton();
     }
 
     private void findViews() {
@@ -122,6 +125,7 @@ public class HomeActivity extends AppCompatActivity {
         openChatButton = findViewById(R.id.button_open_chat);
         testMapButton = findViewById(R.id.test_map_button);
         homeScrollView = findViewById(R.id.homeScrollView);
+        favouriteButton = findViewById(R.id.button_favourite);
     }
 
     private void setupUserInfo() {
@@ -333,17 +337,17 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void attachScrollListener() {
-        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            View view = homeScrollView.getChildAt(homeScrollView.getChildCount() - 1);
-            int diff = view.getBottom() - (homeScrollView.getHeight() + homeScrollView.getScrollY());
-
-            if (diff <= 0 && !isLoading && !isLastPage) {
-                isLoading = true;
-                getMoreData();
-            }
-        });
-    }
+//    private void attachScrollListener() {
+//        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+//            View view = homeScrollView.getChildAt(homeScrollView.getChildCount() - 1);
+//            int diff = view.getBottom() - (homeScrollView.getHeight() + homeScrollView.getScrollY());
+//
+//            if (diff <= 0 && !isLoading && !isLastPage) {
+//                isLoading = true;
+//                getMoreData();
+//            }
+//        });
+//    }
 
     @SuppressLint("NotifyDataSetChanged")
     private void observePostList() {
@@ -400,6 +404,12 @@ public class HomeActivity extends AppCompatActivity {
             CustomToast.makeText(this, toastMess, CustomToast.LENGTH_SHORT,
                     Constraints.NotificationType.SUCCESS).show();
         }
+    }
+
+    private void setupFavouriteButton() {
+        favouriteButton.setOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, SavedPostsActivity.class));
+        });
     }
 
     @Override

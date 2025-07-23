@@ -54,7 +54,8 @@
                         android:text="Good Morning"
                         android:textColor="#8c8c8c"
                         android:textFontWeight="500"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
 
                     <ImageView
                         android:layout_width="25dp"
@@ -85,6 +86,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_notification"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginEnd="8dp"
@@ -93,6 +95,7 @@
                     app:backgroundTint="#666666" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_favourite"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginEnd="8dp"
