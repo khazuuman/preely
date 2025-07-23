@@ -113,8 +113,6 @@
     <string name="menu_settings">Setting</string>
     <string name="BackBtn">Back</string>
 
-    <string name="app_name" tools:ignore="DuplicateDefinition">DropdownDemo</string>
-
     <string-array name="items_array">
         <item>Apple</item>
         <item>Banana</item>

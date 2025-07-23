@@ -26,6 +26,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import com.example.preely.authentication.SessionManager;
 import android.util.Log;
+import android.content.Intent;
+import com.example.preely.view.PostDetailActivity;
 
 public class SavedPostsActivity extends AppCompatActivity {
     private ActivitySavedPostsBinding binding;
@@ -54,7 +56,7 @@ public class SavedPostsActivity extends AppCompatActivity {
         });
 
         // Setup RecyclerView
-        adapter = new SavedPostsAdapter(new ArrayList<>(), this::onSaveClick);
+        adapter = new SavedPostsAdapter(new ArrayList<>(), this::onSaveClick, this::onPostClick);
         binding.recyclerView.setAdapter(adapter);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         binding.recyclerView.setLayoutManager(layoutManager);
@@ -147,6 +149,12 @@ public class SavedPostsActivity extends AppCompatActivity {
         }
     }
 
+    private void onPostClick(SavedPostDTO post) {
+        Intent intent = new Intent(this, PostDetailActivity.class);
+        intent.putExtra("postId", post.getId());
+        startActivity(intent);
+    }
+
     private void showContent() {
         binding.recyclerView.setVisibility(View.VISIBLE);
         binding.emptyState.setVisibility(View.GONE);
@@ -190,11 +198,13 @@ public class SavedPostsActivity extends AppCompatActivity {
     private static class SavedPostsAdapter extends RecyclerView.Adapter<SavedPostsAdapter.ViewHolder> {
         private List<SavedPostDTO> posts;
         private final OnSaveClickListener saveClickListener;
+        private final OnPostClickListener postClickListener;
         private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
 
-        public SavedPostsAdapter(List<SavedPostDTO> posts, OnSaveClickListener listener) {
+        public SavedPostsAdapter(List<SavedPostDTO> posts, OnSaveClickListener saveClickListener, OnPostClickListener postClickListener) {
             this.posts = posts;
-            this.saveClickListener = listener;
+            this.saveClickListener = saveClickListener;
+            this.postClickListener = postClickListener;
         }
 
         @NonNull
@@ -243,6 +253,8 @@ public class SavedPostsActivity extends AppCompatActivity {
                 notifyItemChanged(position);
                 saveClickListener.onSaveClick(post);
             });
+            holder.binding.imageView.setOnClickListener(v -> postClickListener.onPostClick(post));
+            holder.binding.txtTitle.setOnClickListener(v -> postClickListener.onPostClick(post));
         }
 
         @Override
@@ -266,6 +278,9 @@ public class SavedPostsActivity extends AppCompatActivity {
 
         interface OnSaveClickListener {
             void onSaveClick(SavedPostDTO post);
+        }
+        interface OnPostClickListener {
+            void onPostClick(SavedPostDTO post);
         }
     }
 } 

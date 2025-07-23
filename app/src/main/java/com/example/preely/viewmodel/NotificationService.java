@@ -54,6 +54,11 @@ public class NotificationService {
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public void showMessageNotification(Message message, String senderName, int unreadCount) {
+        // Kiểm tra trạng thái bật/tắt thông báo
+        android.content.SharedPreferences prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        boolean enabled = prefs.getBoolean("notification_enabled", true);
+        if (!enabled) return;
+
         Intent chatIntent = new Intent(context, ChatDetailActivity.class);
         chatIntent.putExtra("ROOM_ID", message.getRoom());
         chatIntent.putExtra("RECEIVER_ID", message.getSender_id().getId());
