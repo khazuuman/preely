@@ -8,6 +8,7 @@ public class Constraints {
         String MESSAGES = "messages";
         String NOTIFICATIONS = "notification";
         String TRANSACTION = "transactions";
+        String SKILL = "skill";
     }
 
     public interface NotificationType {

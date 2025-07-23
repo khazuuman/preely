@@ -69,7 +69,7 @@ public class ChatDetailActivity extends AppCompatActivity {
             return;
         }
 
-        currentUserId = sessionManager.getUserSession().getId().getId();
+        currentUserId = sessionManager.getUserSession().getId();
 
         initViews();
         setupRecyclerView();

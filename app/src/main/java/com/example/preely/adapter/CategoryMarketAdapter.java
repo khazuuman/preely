@@ -37,7 +37,7 @@ public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAd
         holder.cateName.setText(category.getName());
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), ServiceListActivity.class);
-            intent.putExtra("category_id", category.getId().getId());
+            intent.putExtra("category_id", category.getId());
             holder.itemView.getContext().startActivity(intent);
         });
     }

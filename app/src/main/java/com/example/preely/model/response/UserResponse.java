@@ -5,6 +5,8 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,11 +26,14 @@ public class UserResponse extends CommonResponse {
     String phone_number;
     String address;
     String email;
+    String university;
     String province;
     String ward;
     boolean is_active;
     float rating;
     GeoPoint location;
     String avatar;
+    String role;
+    List<SkillResponse> skills;
 
 }

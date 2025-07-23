@@ -52,7 +52,7 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
     private CategoryFilterAdapter categoryFilterAdapter;
     private CategoryService categoryService;
     private SortFilterAdapter sortFilterAdapter;
-    List<DocumentReference> category_id;
+    List<String> category_id;
     Integer sortType;
     ServiceFilterRequest serviceFilterRequest;
     private OnFilterApplyListener filterApplyListener;
@@ -148,7 +148,7 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
                 Map<String, Boolean> previousCheckedMap = new HashMap<>();
                 for (CategoryFilterRequest item : categoryList) {
                     if (item.getId() != null) {
-                        previousCheckedMap.put(item.getId().getId(), item.isChecked());
+                        previousCheckedMap.put(item.getId(), item.isChecked());
                     } else {
                         previousCheckedMap.put("ALL", item.isChecked());
                     }
@@ -157,7 +157,7 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
                 categoryList.add(new CategoryFilterRequest(null, "All", previousCheckedMap.getOrDefault("ALL", false)));
 
                 for (CategoryResponse categoryResponse : categoryResponses) {
-                    boolean isChecked = previousCheckedMap.getOrDefault(categoryResponse.getId().getId(), false);
+                    boolean isChecked = previousCheckedMap.getOrDefault(categoryResponse.getId(), false);
                     categoryList.add(new CategoryFilterRequest(categoryResponse.getId(), categoryResponse.getName(), isChecked));
                 }
                 categoryFilterAdapter.notifyDataSetChanged();

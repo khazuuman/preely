@@ -124,7 +124,7 @@ public class EditProfile extends AppCompatActivity {
             user.setAvatar(avatarUrl);
             // Tạo object User (entities) để update Firestore
             User userEntity = new User();
-            userEntity.setId(user.getId().getId());
+            userEntity.setId(user.getId());
             userEntity.setUsername(user.getUsername());
             userEntity.setFull_name(name);
             userEntity.setPhone_number(phone);
@@ -134,7 +134,7 @@ public class EditProfile extends AppCompatActivity {
             userEntity.set_active(true);
             userEntity.setRating(user.getRating());
             // ... map các trường khác nếu cần
-            String userId = user.getId() != null ? user.getId().getId() : null;
+            String userId = user.getId() != null ? user.getId() : null;
             if (userId != null) {
                 FirebaseFirestore.getInstance()
                     .collection("user")

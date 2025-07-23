@@ -25,9 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Preely"
         tools:targetApi="31">
-        <activity
-            android:name=".view.CreatePostActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".view.CreatePostActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".view.ForgotPasswordActivity"
             android:exported="true">
@@ -43,9 +43,9 @@
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             <!-- </intent-filter> -->
         </activity>
-        <activity
-            android:name=".view.PostDetailActivity"
-            android:exported="false" /> <!-- FileProvider for image picker -->
+<!--        <activity-->
+<!--            android:name=".view.PostDetailActivity"-->
+<!--            android:exported="false" /> -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -60,17 +60,17 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".view.PostListActivity"
-            android:exported="true">
+<!--        <activity-->
+<!--            android:name=".view.PostListActivity"-->
+<!--            android:exported="true">-->
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
+<!--            &lt;!&ndash; <intent-filter> &ndash;&gt;-->
+<!--            &lt;!&ndash; <action android:name="android.intent.action.MAIN" /> &ndash;&gt;-->
 
 
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
+<!--            &lt;!&ndash; <category android:name="android.intent.category.LAUNCHER" /> &ndash;&gt;-->
+<!--            &lt;!&ndash; </intent-filter> &ndash;&gt;-->
+<!--        </activity>-->
         <activity
             android:name=".view.CustomToast"
             android:exported="false"
@@ -78,10 +78,6 @@
         <activity
             android:name=".view.HomeActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
 
@@ -124,47 +120,21 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-             <intent-filter>
-             <action android:name="android.intent.action.MAIN" />
-             <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.facebook.FacebookActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name" />
-        <activity
-            android:name="com.facebook.CustomTabActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="fb1274291724291780" />
-            </intent-filter>
         </activity>
 
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
-        <meta-data
-            android:name="com.facebook.sdk.ClientToken"
-            android:value="@string/facebook_client_token" />
-
-        <activity
-            android:name=".view.SavedPostsActivity"
-            android:exported="false" />
-        <activity android:name=".view.ManagementActivity" />
-        <activity android:name=".view.ProfileActivity" />
-        <activity android:name=".view.PrivacyPolicyActivity" />
-        <activity android:name=".view.ChangePasswordActivity" />
-        <activity
-            android:name=".view.MapTestActivity"
-            android:exported="false" />
-        <activity android:name=".view.MyPostsActivity" />
-        <activity android:name=".view.ActivityCreatePost" />
+<!--        <activity-->
+<!--            android:name=".view.SavedPostsActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity android:name=".view.ManagementActivity" />-->
+<!--        <activity android:name=".view.ProfileActivity" />-->
+<!--        <activity android:name=".view.PrivacyPolicyActivity" />-->
+<!--        <activity android:name=".view.ChangePasswordActivity" />-->
+<!--        <activity-->
+<!--            android:name=".view.MapTestActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity android:name=".view.MyPostsActivity" />-->
+<!--        <activity android:name=".view.ActivityCreatePost" />-->
 
         <service
             android:name=".viewmodel.UnreadMessageService"

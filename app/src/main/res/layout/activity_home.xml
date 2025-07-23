@@ -24,6 +24,7 @@
                 android:id="@+id/circleImageView"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/img_avatar"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

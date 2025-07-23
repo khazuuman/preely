@@ -86,10 +86,5 @@ public class SessionManager {
         return sharedPreferences.getBoolean("KEY_REMEMBER", false);
     }
 
-    public void setLogin(boolean isLoggedIn) {
-        editor.putBoolean("is_logged_in", isLoggedIn);
-        editor.apply();
-        Log.d("SessionManager", "setLogin: " + isLoggedIn);
-    }
 
 }

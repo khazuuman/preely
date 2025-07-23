@@ -80,8 +80,8 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
         }
     }
 
-    public List<DocumentReference> getIdSelectedItems() {
-        List<DocumentReference> selected = new ArrayList<>();
+    public List<String> getIdSelectedItems() {
+        List<String> selected = new ArrayList<>();
         for (CategoryFilterRequest item : itemList) {
             if (item.getId() == null && item.isChecked()) {
                 return null;

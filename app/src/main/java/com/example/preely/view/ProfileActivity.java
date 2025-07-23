@@ -62,7 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
         UserResponse sessionUser = sessionManager.getUserSession();
         String userId = null;
         if (sessionUser != null && sessionUser.getId() != null) {
-            userId = sessionUser.getId().getId();
+            userId = sessionUser.getId();
         }
         if (userId != null) {
             FirebaseFirestore.getInstance()
@@ -287,7 +287,7 @@ public class ProfileActivity extends AppCompatActivity {
         UserResponse sessionUser = sessionManager.getUserSession();
         String userId = null;
         if (sessionUser != null && sessionUser.getId() != null) {
-            userId = sessionUser.getId().getId();
+            userId = sessionUser.getId();
         }
         if (userId != null) {
             FirebaseFirestore.getInstance()
