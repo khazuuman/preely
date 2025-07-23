@@ -293,4 +293,31 @@ public class PostService extends ViewModel {
         });
     }
 
+    // Lấy danh sách post của user hiện tại
+    public void getPostsByUser(DocumentReference userRef, final PostListCallback callback) {
+        FirebaseFirestore.getInstance().collection(CollectionName.POSTS)
+                .whereEqualTo("seller_id", userRef)
+                .get()
+                .addOnCompleteListener(task -> {
+                    List<PostResponse> result = new ArrayList<>();
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()) {
+                            Post post = doc.toObject(Post.class);
+                            if (post != null) {
+                                try {
+                                    PostResponse postResponse = DataUtil.mapObj(post, PostResponse.class);
+                                    result.add(postResponse);
+                                } catch (Exception e) {
+                                    Log.e("MyPosts", "Mapping error", e);
+                                }
+                            }
+                        }
+                    }
+                    callback.onResult(result);
+                });
+    }
+
+    public interface PostListCallback {
+        void onResult(List<PostResponse> posts);
+    }
 }

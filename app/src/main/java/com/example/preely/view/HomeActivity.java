@@ -276,6 +276,10 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ProfileActivity.class));
                 return true;
             }
+            if (item.getItemId() == R.id.navigation_posts) {
+                startActivity(new Intent(this, MyPostsActivity.class));
+                return true;
+            }
             // TODO: Xử lý các mục khác nếu cần
             return false;
         });

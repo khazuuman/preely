@@ -163,6 +163,8 @@
         <activity
             android:name=".view.MapTestActivity"
             android:exported="false" />
+        <activity android:name=".view.MyPostsActivity" />
+        <activity android:name=".view.ActivityCreatePost" />
 
         <service
             android:name=".viewmodel.UnreadMessageService"
