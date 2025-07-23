@@ -1,8 +1,11 @@
 package com.example.preely.model.entities;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,12 +27,14 @@ public class User extends BaseEntity {
     String encode_password;
     String address;
     String email;
-    String province;
-    String ward;
+    String university;
     boolean is_active;
     float rating;
+    String avatar;
+    String role;
     GeoPoint location;
     Timestamp last_login;
     Timestamp registration_date;
-    String avatar;
+
+    List<DocumentReference> skill_ids;
 }

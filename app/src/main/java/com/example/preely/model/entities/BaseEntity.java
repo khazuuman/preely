@@ -16,9 +16,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class BaseEntity {
-
     @DocumentId
-    DocumentReference id;
-    Timestamp update_at;
+    String id;
+
     Timestamp create_at;
+    Timestamp update_at;
 }

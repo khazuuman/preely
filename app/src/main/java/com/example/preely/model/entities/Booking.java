@@ -1,5 +1,6 @@
 package com.example.preely.model.entities;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 
 import lombok.Data;
@@ -12,9 +13,13 @@ import lombok.AccessLevel;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification extends BaseEntity {
-    DocumentReference user_id;
-    String content;
-    boolean is_read;
-    String url;
+public class Booking extends BaseEntity {
+    DocumentReference service_id;
+    DocumentReference seeker_id;
+    DocumentReference provider_id;
+
+    Timestamp booking_time;
+    String time_slot;
+    String status;
+    String notes;
 }

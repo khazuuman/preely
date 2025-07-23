@@ -10,6 +10,6 @@ import lombok.AccessLevel;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category extends BaseEntity {
+public class Skill extends BaseEntity {
     String name;
 }
