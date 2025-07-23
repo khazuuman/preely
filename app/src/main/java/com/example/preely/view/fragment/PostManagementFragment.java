@@ -75,11 +75,8 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
         loadPosts(); // Load data first
         setupListeners();
 
-        // Không cần launcher nữa, DialogFragment sẽ tự xử lý chọn ảnh
-        
-        // Setup real-time listener after a short delay to ensure data is loaded
         view.post(() -> {
-            if (isAdded()) { // Check if fragment is still attached
+            if (isAdded()) {
                 setupRealtimeListener();
             }
         });
@@ -214,7 +211,7 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
     }
 
     private void showAddPostDialog() {
-        AddEditPostDialogFragment dialog = AddEditPostDialogFragment.newInstance(null, null, null, null, null);
+        AddEditPostDialogFragment dialog = AddEditPostDialogFragment.newInstance(null, null, null, null, null, null, null, null, null);
         dialog.setOnPostDialogListener((post, isEdit) -> {
             if (isEdit) {
                 updatePost(post);
@@ -231,7 +228,11 @@ public class PostManagementFragment extends Fragment implements PostAdapter.OnPo
             post.getTitle(),
             post.getDescription(),
             post.getPrice(),
-            post.getImages() != null ? new ArrayList<>(post.getImages()) : null
+            post.getImages() != null ? new ArrayList<>(post.getImages()) : null,
+            post.getStatus(),
+            post.getSeller_id() != null ? post.getSeller_id().getId() : null,
+            post.getCategory_id() != null ? post.getCategory_id().getPath() : null,
+            post.getTag_ids() != null ? new ArrayList<>(post.getTag_ids()) : null
         );
         dialog.setOnPostDialogListener((updatedPost, isEdit) -> {
             updatedPost.setId(post.getId()); // Gán lại DocumentReference gốc

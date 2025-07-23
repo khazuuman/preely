@@ -26,4 +26,10 @@ public class Constraints {
         int DATE_DESC = 2;
     }
 
+    public interface PostStatus {
+        String CLAIMED = "Claimed";
+        String COMPLETED = "Completed";
+        String CANCELLED = "Cancelled";
+        String HIDDEN = "Hidden";
+    }
 }
