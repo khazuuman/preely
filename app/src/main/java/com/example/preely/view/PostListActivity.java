@@ -172,6 +172,12 @@ public class PostListActivity extends AppCompatActivity {
         searchIcon.setOnClickListener(v -> {
             performSearch();
         });
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            startActivity(new Intent(PostListActivity.this, HomeActivity.class));
+            finish();
+        });
     }
 
     private void performSearch() {

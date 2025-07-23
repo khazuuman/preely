@@ -78,5 +78,6 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.places)
+    implementation(libs.imageslideshow.v012)
 
 }

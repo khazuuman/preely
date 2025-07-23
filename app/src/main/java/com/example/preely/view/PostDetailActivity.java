@@ -91,7 +91,7 @@ public class PostDetailActivity extends AppCompatActivity {
         });
 
         backToHomeBtn.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+            startActivity(new Intent(getApplicationContext(), PostListActivity.class));
         });
 
         bookingBtn.setOnClickListener(v -> {
