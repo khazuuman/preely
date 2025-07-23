@@ -7,7 +7,6 @@
     android:background="?attr/selectableItemBackground"
     android:padding="12dp">
 
-    <!-- Profile Image with card style -->
     <androidx.cardview.widget.CardView
         android:id="@+id/profile_image_container"
         android:layout_width="50dp"
@@ -26,7 +25,6 @@
             android:src="@drawable/default_profile" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Online status indicator -->
     <View
         android:id="@+id/online_status"
         android:layout_width="12dp"

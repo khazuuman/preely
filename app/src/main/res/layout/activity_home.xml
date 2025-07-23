@@ -99,7 +99,6 @@
                     android:backgroundTint="@android:color/transparent"
                     app:backgroundTint="#666666" />
 
-                <!-- Chat Button với Badge -->
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

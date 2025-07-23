@@ -1,8 +1,11 @@
 package com.example.preely.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +21,14 @@ import com.example.preely.model.response.ChatRoomResponse;
 import com.example.preely.util.Constraints;
 import com.example.preely.util.FirestoreRealtimeUtil;
 import com.example.preely.viewmodel.MessageService;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChatListActivity extends AppCompatActivity {
 
@@ -34,6 +39,9 @@ public class ChatListActivity extends AppCompatActivity {
     private TextView emptyTextView;
     private SessionManager sessionManager;
     private FirestoreRealtimeUtil realtimeUtil;
+    private SearchView searchView;
+    private List<ChatRoomResponse> originalChatRoomList = new ArrayList<>();
+    private ImageView searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +53,22 @@ public class ChatListActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.chat_room_recycler_view);
         emptyTextView = findViewById(R.id.empty_chat_text);
+        searchButton = findViewById(R.id.search_button);
+        searchView = findViewById(R.id.search_view);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ChatRoomAdapter(chatRoomList, this);
         recyclerView.setAdapter(adapter);
 
+        FloatingActionButton fabNewMessage = findViewById(R.id.fab_new_message);
+        fabNewMessage.setOnClickListener(v -> {
+            Intent intent = new Intent(ChatListActivity.this, UserSearchActivity.class);
+            startActivity(intent);
+        });
+
         messageService = new ViewModelProvider(this).get(MessageService.class);
         observeChatRooms();
-
+        setupSearchFunctionality();
         if (sessionManager.getUserSession() == null || sessionManager.getUserSession().getId() == null) {
             Log.e("ChatListActivity", "Session or user ID null");
             emptyTextView.setVisibility(View.VISIBLE);
@@ -68,11 +85,11 @@ public class ChatListActivity extends AppCompatActivity {
         attachRealtimeListener(currentUserRef);
     }
 
-    // Trong observeChatRooms method
     private void observeChatRooms() {
         messageService.getChatRoomsLiveData().observe(this, rooms -> {
             if (rooms != null && !rooms.isEmpty()) {
                 Log.d("DEBUG", "=== Chat Rooms Debug ===");
+                originalChatRoomList.clear();
                 for (ChatRoomResponse room : rooms) {
                     Log.d("DEBUG", "Room ID: " + room.getRoomId());
                     Log.d("DEBUG", "Receiver ID: " + room.getReceiverId());
@@ -158,6 +175,66 @@ public class ChatListActivity extends AppCompatActivity {
         });
     }
 
+    private void setupSearchFunctionality() {
+        searchButton.setOnClickListener(v -> {
+            if (searchView.getVisibility() == View.VISIBLE) {
+                searchView.setVisibility(View.GONE);
+                searchView.setQuery("", false);
+            } else {
+                searchView.setVisibility(View.VISIBLE);
+                searchView.requestFocus();
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterChatRooms(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterChatRooms(newText);
+                return true;
+            }
+        });
+
+        searchView.setOnCloseListener(() -> {
+            searchView.setVisibility(View.GONE);
+            return false;
+        });
+    }
+
+    private void filterChatRooms(String query) {
+        if (originalChatRoomList.isEmpty() && !chatRoomList.isEmpty()) {
+            originalChatRoomList.addAll(chatRoomList);
+        }
+
+        if (query.isEmpty()) {
+            chatRoomList.clear();
+            chatRoomList.addAll(originalChatRoomList);
+        } else {
+            List<ChatRoomResponse> filteredList = originalChatRoomList.stream()
+                    .filter(room -> room.getReceiverName().toLowerCase()
+                            .contains(query.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            chatRoomList.clear();
+            chatRoomList.addAll(filteredList);
+        }
+
+        adapter.notifyDataSetChanged();
+
+        if (chatRoomList.isEmpty()) {
+            emptyTextView.setText("Không tìm thấy cuộc trò chuyện nào");
+            emptyTextView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyTextView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     protected void onDestroy() {

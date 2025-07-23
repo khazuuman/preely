@@ -141,6 +141,10 @@
         <activity
             android:name=".view.MapTestActivity"
             android:exported="false" />
+        <activity
+            android:name=".view.UserSearchActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateVisible" />
 
         <service
             android:name=".viewmodel.UnreadMessageService"

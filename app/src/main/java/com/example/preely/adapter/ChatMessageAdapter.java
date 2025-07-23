@@ -72,7 +72,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return messages != null ? messages.size() : 0;
     }
 
-    // ViewHolder cho tin nhắn đã gửi
     class SentMessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText;
 
@@ -91,7 +90,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    // ViewHolder cho tin nhắn nhận được
     class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText;
 

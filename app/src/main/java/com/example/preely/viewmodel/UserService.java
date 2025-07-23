@@ -7,13 +7,16 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.preely.model.entities.User;
+import com.example.preely.model.response.UserResponse;
 import com.example.preely.repository.MainRepository;
 import com.example.preely.util.Constraints;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserService extends ViewModel {
@@ -25,7 +28,6 @@ public class UserService extends ViewModel {
         void onFailure(String error);
     }
 
-    // Method để lấy tên user theo ID
     public void getUserName(String userId, UserNameCallback callback) {
         if (userId == null || userId.isEmpty()) {
             if (callback != null) callback.onFailure("User ID is null or empty");
@@ -68,7 +70,6 @@ public class UserService extends ViewModel {
         });
     }
 
-    // Method để lấy user theo DocumentReference
     public void getUserByRef(DocumentReference userRef, UserNameCallback callback) {
         if (userRef == null) {
             if (callback != null) callback.onFailure("User reference is null");
@@ -76,5 +77,82 @@ public class UserService extends ViewModel {
         }
 
         getUserName(userRef.getId(), callback);
+    }
+
+    // Interface for user search callback
+    public interface UserSearchCallback {
+        void onSuccess(List<UserResponse> users);
+        void onFailure(String error);
+    }
+
+    public void searchUsers(String searchTerm, UserSearchCallback callback) {
+        Query usernameQuery = FirebaseFirestore.getInstance()
+                .collection(Constraints.CollectionName.USERS)
+                .orderBy("username")
+                .startAt(searchTerm)
+                .endAt(searchTerm + "\uf8ff")
+                .limit(10);
+
+        Query fullNameQuery = FirebaseFirestore.getInstance()
+                .collection(Constraints.CollectionName.USERS)
+                .orderBy("full_name")
+                .startAt(searchTerm)
+                .endAt(searchTerm + "\uf8ff")
+                .limit(10);
+
+        repository.getList(usernameQuery, null, null).observeForever(usernameResults -> {
+            repository.getList(fullNameQuery, null, null).observeForever(fullNameResults -> {
+                try {
+                    List<UserResponse> combinedResults = new ArrayList<>();
+
+                    // Process username results
+                    if (usernameResults != null) {
+                        for (User user : usernameResults) {
+                            UserResponse response = mapUserToResponse(user);
+                            if (!containsUser(combinedResults, response)) {
+                                combinedResults.add(response);
+                            }
+                        }
+                    }
+
+                    // Process full name results
+                    if (fullNameResults != null) {
+                        for (User user : fullNameResults) {
+                            UserResponse response = mapUserToResponse(user);
+                            if (!containsUser(combinedResults, response)) {
+                                combinedResults.add(response);
+                            }
+                        }
+                    }
+
+                    if (callback != null) {
+                        callback.onSuccess(combinedResults);
+                    }
+                } catch (Exception e) {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                }
+            });
+        });
+    }
+
+    private boolean containsUser(List<UserResponse> users, UserResponse user) {
+        String userId = user.getId().getId();
+        for (UserResponse existingUser : users) {
+            if (existingUser.getId().getId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private UserResponse mapUserToResponse(User user) throws Exception {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setFull_name(user.getFull_name());
+        response.setEmail(user.getEmail());
+        return response;
     }
 }

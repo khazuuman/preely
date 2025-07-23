@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -32,7 +31,6 @@
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Messages RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messages_recycler_view"
         android:layout_width="match_parent"
@@ -42,7 +40,6 @@
         app:layout_constraintBottom_toTopOf="@id/input_container"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- Input Container -->
     <LinearLayout
         android:id="@+id/input_container"
         android:layout_width="match_parent"
