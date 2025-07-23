@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(force = true)
 public class UserLoginService extends ViewModel {
-    SessionManager sessionManager;
     public final MainRepository<User> userRepository = new MainRepository<>(User.class, CollectionName.USERS);
     private final MutableLiveData<String> usernameError = new MutableLiveData<>();
     private final MutableLiveData<String> passwordError = new MutableLiveData<>();

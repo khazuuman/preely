@@ -127,11 +127,10 @@ public class Login extends AppCompatActivity {
         userLoginService.getLoginResult().observe(this, userResponse -> {
             if (userResponse != null) {
                 sessionManager.setUserSession(userResponse);
+                sessionManager.setLogin(true); // Đảm bảo set trạng thái đăng nhập
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra("toast_mess", "Đăng nhập thành công");
                 startActivity(intent);
-                startActivity(intent);
-
                 finishAffinity();
             } else {
                 CustomToast.makeText(this, "Invalid username or password", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();
@@ -201,10 +200,11 @@ public class Login extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             userLoginService.handleGoogleLoginDetail(user);
-                            sessionManager.setLogin(true);
+                            sessionManager.setLogin(true); // Đảm bảo set trạng thái đăng nhập
                             Intent intent = new Intent(this, HomeActivity.class);
                             intent.putExtra("toast_mess", "Đăng nhập thành công");
                             startActivity(intent);
+                            finishAffinity();
                         }
                     } else {
                         Toast.makeText(this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
