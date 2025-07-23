@@ -228,7 +228,7 @@ public class TransactionManagementFragment extends Fragment implements Transacti
         details.append("Status: ").append(transaction.getStatus()).append("\n");
         details.append("Giver ID: ").append(transaction.getGiver_id()).append("\n");
         details.append("Requester ID: ").append(transaction.getRequester_id()).append("\n");
-        details.append("Post ID: ").append(transaction.getPost_id()).append("\n");
+        details.append("Service ID: ").append(transaction.getService_id()).append("\n");
         if (transaction.getTransaction_date() != null) {
             details.append("Transaction Date: ").append(transaction.getTransaction_date());
         }

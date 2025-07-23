@@ -31,7 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvPhone, tvName;
     private LinearLayout btnEditProfile, btnNotification,
                         btnPrivacyPolicy, btnHelpCenter,
-                        btnHome, btnCart, btnOrders, btnWallet, btnProfile, btnLogout, btnChangePassword, btnSavedPosts;
+                        btnHome, btnCart, btnOrders, btnWallet, btnProfile, btnLogout, btnChangePassword, btnSavedServices;
 
     private Switch switchNotification;
     private SessionManager sessionManager;
@@ -108,7 +108,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btnLogout);
         switchNotification = findViewById(R.id.switchNotification);
         btnChangePassword = findViewById(R.id.btnChangePassword);
-        btnSavedPosts = findViewById(R.id.btnSavedPosts);
+        btnSavedServices = findViewById(R.id.btnSavedServices);
 
         // Bottom navigation
         btnHome = findViewById(R.id.btnHome);
@@ -183,8 +183,8 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnSavedPosts.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SavedPostsActivity.class);
+        btnSavedServices.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SavedServicesActivity.class);
             startActivity(intent);
         });
 

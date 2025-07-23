@@ -128,10 +128,11 @@ public class AddEditUserDialog extends Dialog {
                 pendingAvatarUrl = null;
                 isUploadingAvatar = true;
                 btnSave.setEnabled(false);
-                cloudinaryService.uploadImage(selectedAvatarUri, "avatars");
+                cloudinaryService.uploadFile(selectedAvatarUri, "avatars");
                 // Lắng nghe kết quả upload
-                cloudinaryService.getUploadedImageUrl().observeForever(url -> {
-                    if (url != null && !url.isEmpty()) {
+                cloudinaryService.getUploadedUrls().observeForever(urls -> {
+                    if (urls != null && !urls.isEmpty()) {
+                        String url = urls.get(urls.size() - 1);
                         pendingAvatarUrl = url;
                         isUploadingAvatar = false;
                         btnSave.setEnabled(true);

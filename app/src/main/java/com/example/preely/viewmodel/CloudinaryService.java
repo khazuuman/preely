@@ -34,7 +34,6 @@ public class CloudinaryService extends AndroidViewModel {
     private final MutableLiveData<Integer> uploadProgress = new MutableLiveData<>();
     private final MutableLiveData<List<String>> uploadedUrls = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<String> uploadedImageUrl = new MutableLiveData<>();
 
     // Default Cloudinary configuration
     private static final String CLOUD_NAME = "dpsgcdrlx";
@@ -46,12 +45,7 @@ public class CloudinaryService extends AndroidViewModel {
         // Không khởi tạo MediaManager ở đây nữa
     }
 
-    /**
-     * Upload a single image to Cloudinary
-     * @param imageUri The URI of the image to upload
-     * @param folder The destination folder in Cloudinary
-     */
-    public void uploadImage(Uri imageUri, String folder) {
+    public void uploadFile(Uri fileUri, String folder) {
         try {
             // Kiểm tra MediaManager có sẵn sàng không bằng cách thử lấy instance
             MediaManager.get();
@@ -68,13 +62,12 @@ public class CloudinaryService extends AndroidViewModel {
         }
 
         // Reset URL trước khi upload mới
-        uploadedImageUrl.setValue(null);
         uploadStatus.setValue("Uploading...");
         uploadProgress.setValue(0);
 
         try {
             String requestId = MediaManager.get()
-                    .upload(imageUri)
+                    .upload(fileUri)
                     .option("folder", folder)
                     .callback(new UploadCallback() {
                         @Override
@@ -93,8 +86,6 @@ public class CloudinaryService extends AndroidViewModel {
                             String imageUrl = (String) resultData.get("secure_url");
                             
                             // Trả về URL qua LiveData
-                            uploadedImageUrl.postValue(imageUrl);
-                            
                             List<String> currentUrls = uploadedUrls.getValue();
                             if (currentUrls != null) {
                                 currentUrls.add(imageUrl);
@@ -133,13 +124,8 @@ public class CloudinaryService extends AndroidViewModel {
         }
     }
 
-    /**
-     * Upload multiple images to Cloudinary
-     * Tracks overall progress and manages concurrent uploads
-     * @param imageUris List of image URIs to upload
-     * @param folder The destination folder in Cloudinary
-     */
-    public void uploadMultipleImages(List<Uri> imageUris, String folder) {
+    // Upload multiple files to Cloudinary
+    public void uploadMultipleFiles(List<Uri> fileUris, String folder) {
         try {
             // Kiểm tra MediaManager có sẵn sàng không bằng cách thử lấy instance
             MediaManager.get();
@@ -158,13 +144,13 @@ public class CloudinaryService extends AndroidViewModel {
         uploadStatus.setValue("Uploading multiple images...");
         uploadProgress.setValue(0);
 
-        final int[] totalImages = {imageUris.size()};
+        final int[] totalImages = {fileUris.size()};
         final int[] completedUploads = {0};
 
-        for (Uri imageUri : imageUris) {
+        for (Uri fileUri : fileUris) {
             try {
                 MediaManager.get()
-                        .upload(imageUri)
+                        .upload(fileUri)
                         .option("folder", folder)
                         .callback(new UploadCallback() {
                             @Override
@@ -266,14 +252,6 @@ public class CloudinaryService extends AndroidViewModel {
      */
     public LiveData<String> getErrorMessage() {
         return errorMessage;
-    }
-
-    /**
-     * Get the uploaded image URL (for single upload)
-     * @return LiveData containing the uploaded image URL
-     */
-    public LiveData<String> getUploadedImageUrl() {
-        return uploadedImageUrl;
     }
 
     /**

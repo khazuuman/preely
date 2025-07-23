@@ -54,9 +54,9 @@ public class PaymentResultActivity extends AppCompatActivity {
                 // Nhận thông tin từ VNPay return URL
                 String requesterId = intent.getStringExtra("requesterId");
                 String giverId = intent.getStringExtra("giverId");
-                String postId = intent.getStringExtra("postId");
+                String serviceId = intent.getStringExtra("serviceId");
                 
-                handlePaymentReturn(data, requesterId, giverId, postId);
+                handlePaymentReturn(data, requesterId, giverId, serviceId);
             } else {
                 // Nhận transaction từ VNPayActivity
                 transaction = (Transaction) intent.getSerializableExtra("transaction");
@@ -103,7 +103,7 @@ public class PaymentResultActivity extends AppCompatActivity {
         });
     }
     
-    private void handlePaymentReturn(String url, String requesterId, String giverId, String postId) {
+    private void handlePaymentReturn(String url, String requesterId, String giverId, String serviceId) {
         Log.d("PaymentResultActivity", "Handling payment return URL: " + url);
         
         Uri uri = Uri.parse(url);
@@ -122,11 +122,11 @@ public class PaymentResultActivity extends AppCompatActivity {
         Log.d("PaymentResultActivity", "Pay Date: " + payDate);
         Log.d("PaymentResultActivity", "Requester ID: " + requesterId);
         Log.d("PaymentResultActivity", "Giver ID: " + giverId);
-        Log.d("PaymentResultActivity", "Post ID: " + postId);
+        Log.d("PaymentResultActivity", "Service ID: " + serviceId);
         
         // Sử dụng TransactionService để xử lý kết quả thanh toán với thông tin đầy đủ
         transactionService.processPaymentResult(responseCode, responseMessage, txnRef, amount, 
-            requesterId, giverId, postId, new TransactionService.TransactionCallback() {
+            requesterId, giverId, serviceId, new TransactionService.TransactionCallback() {
                 @Override
                 public void onSuccess(Transaction resultTransaction) {
                     transaction = resultTransaction;

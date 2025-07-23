@@ -11,8 +11,6 @@ import com.example.preely.view.fragment.ManagementFragment;
 import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.preely.view.fragment.UserManagementFragment;
-import com.example.preely.view.fragment.PostManagementFragment;
-import com.example.preely.view.fragment.TagManagementFragment;
 import com.example.preely.view.fragment.CategoryManagementFragment;
 import com.example.preely.view.fragment.TransactionManagementFragment;
 import android.app.AlertDialog;
@@ -33,9 +31,6 @@ public class ManagementActivity extends AppCompatActivity {
         if (id == R.id.navigation_users) {
             loadFragment(new UserManagementFragment());
             return true;
-        } else if (id == R.id.navigation_posts) {
-            loadFragment(new PostManagementFragment());
-            return true;
         } else if (id == R.id.navigation_categories) {
             loadFragment(new CategoryManagementFragment());
             return true;
@@ -47,13 +42,11 @@ public class ManagementActivity extends AppCompatActivity {
     }
 
     private void showMoreDialog() {
-        String[] options = {"Tags", "Transactions"};
+        String[] options = {"Transactions"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("More Management")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
-                        loadFragment(new TagManagementFragment());
-                    } else if (which == 1) {
                         loadFragment(new TransactionManagementFragment());
                     }
                 })

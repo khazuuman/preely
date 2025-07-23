@@ -7,9 +7,6 @@ import androidx.annotation.NonNull;
 
 import com.example.preely.model.entities.BaseEntity;
 import com.example.preely.model.entities.Category;
-import com.example.preely.model.entities.Image;
-import com.example.preely.model.entities.Post;
-import com.example.preely.model.entities.Tag;
 import com.example.preely.model.entities.Transaction;
 import com.example.preely.model.entities.User;
 import com.example.preely.view.CustomToast;
@@ -61,7 +58,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         User user = dc.getDocument().toObject(User.class);
                         if (user != null) {
-                            user.setId(dc.getDocument().getReference());
+                            user.setId(dc.getDocument().getId());
 
                             switch (dc.getType()) {
                                 case ADDED:
@@ -72,44 +69,6 @@ public class FirestoreRealtimeUtil {
                                     break;
                                 case REMOVED:
                                     if (listener != null) listener.onDataRemoved(user);
-                                    break;
-                            }
-                        }
-                    }
-                }
-            });
-        
-        listeners.add(registration);
-        return registration;
-    }
-
-    // Post real-time listener
-    public ListenerRegistration listenToPosts(RealtimeListener<Post> listener) {
-        ListenerRegistration registration = db.collection("post")
-            .addSnapshotListener((value, error) -> {
-                if (error != null) {
-                    Log.e(TAG, "Error listening to posts", error);
-                    if (listener != null) {
-                        listener.onError(error.getMessage());
-                    }
-                    return;
-                }
-
-                if (value != null) {
-                    for (DocumentChange dc : value.getDocumentChanges()) {
-                        Post post = dc.getDocument().toObject(Post.class);
-                        if (post != null) {
-                            post.setId(dc.getDocument().getReference());
-                            
-                            switch (dc.getType()) {
-                                case ADDED:
-                                    if (listener != null) listener.onDataAdded(post);
-                                    break;
-                                case MODIFIED:
-                                    if (listener != null) listener.onDataModified(post);
-                                    break;
-                                case REMOVED:
-                                    if (listener != null) listener.onDataRemoved(post);
                                     break;
                             }
                         }
@@ -137,7 +96,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Transaction transaction = dc.getDocument().toObject(Transaction.class);
                         if (transaction != null) {
-                            transaction.setId(dc.getDocument().getReference());
+                            transaction.setId(dc.getDocument().getId());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -175,7 +134,7 @@ public class FirestoreRealtimeUtil {
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Category category = dc.getDocument().toObject(Category.class);
                         if (category != null) {
-                            category.setId(dc.getDocument().getReference());
+                            category.setId(dc.getDocument().getId());
                             
                             switch (dc.getType()) {
                                 case ADDED:
@@ -186,82 +145,6 @@ public class FirestoreRealtimeUtil {
                                     break;
                                 case REMOVED:
                                     if (listener != null) listener.onDataRemoved(category);
-                                    break;
-                            }
-                        }
-                    }
-                }
-            });
-        
-        listeners.add(registration);
-        return registration;
-    }
-
-    // Tag real-time listener
-    public ListenerRegistration listenToTags(RealtimeListener<Tag> listener) {
-        ListenerRegistration registration = db.collection("tag")
-            .addSnapshotListener((value, error) -> {
-                if (error != null) {
-                    Log.e(TAG, "Error listening to tags", error);
-                    if (listener != null) {
-                        listener.onError(error.getMessage());
-                    }
-                    return;
-                }
-
-                if (value != null) {
-                    for (DocumentChange dc : value.getDocumentChanges()) {
-                        Tag tag = dc.getDocument().toObject(Tag.class);
-                        if (tag != null) {
-                            tag.setId(dc.getDocument().getReference());
-                            
-                            switch (dc.getType()) {
-                                case ADDED:
-                                    if (listener != null) listener.onDataAdded(tag);
-                                    break;
-                                case MODIFIED:
-                                    if (listener != null) listener.onDataModified(tag);
-                                    break;
-                                case REMOVED:
-                                    if (listener != null) listener.onDataRemoved(tag);
-                                    break;
-                            }
-                        }
-                    }
-                }
-            });
-        
-        listeners.add(registration);
-        return registration;
-    }
-
-    // Image real-time listener
-    public ListenerRegistration listenToImages(RealtimeListener<Image> listener) {
-        ListenerRegistration registration = db.collection("image")
-            .addSnapshotListener((value, error) -> {
-                if (error != null) {
-                    Log.e(TAG, "Error listening to images", error);
-                    if (listener != null) {
-                        listener.onError(error.getMessage());
-                    }
-                    return;
-                }
-
-                if (value != null) {
-                    for (DocumentChange dc : value.getDocumentChanges()) {
-                        Image image = dc.getDocument().toObject(Image.class);
-                        if (image != null) {
-                            image.setId(dc.getDocument().getReference());
-                            
-                            switch (dc.getType()) {
-                                case ADDED:
-                                    if (listener != null) listener.onDataAdded(image);
-                                    break;
-                                case MODIFIED:
-                                    if (listener != null) listener.onDataModified(image);
-                                    break;
-                                case REMOVED:
-                                    if (listener != null) listener.onDataRemoved(image);
                                     break;
                             }
                         }
@@ -301,7 +184,7 @@ public class FirestoreRealtimeUtil {
                     if (item != null) {
                         try {
                             if (item instanceof BaseEntity) {
-                                ((BaseEntity) item).setId(dc.getDocument().getReference());
+                                ((BaseEntity) item).setId(dc.getDocument().getId());
                             }
                         } catch (Exception e) {
                             Log.w(TAG, "Could not set ID for " + clazz.getSimpleName());

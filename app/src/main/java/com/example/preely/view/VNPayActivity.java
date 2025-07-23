@@ -44,7 +44,7 @@ public class VNPayActivity extends AppCompatActivity {
         transaction = (Transaction) intent.getSerializableExtra("transaction");
         String requesterId = intent.getStringExtra("requesterId");
         String giverId = intent.getStringExtra("giverId");
-        String postId = intent.getStringExtra("postId");
+        String serviceId = intent.getStringExtra("serviceId");
 
         // Validate amount
         if (amount <= 0) {
@@ -106,7 +106,7 @@ public class VNPayActivity extends AppCompatActivity {
                     resultIntent.setData(Uri.parse(url));
                     resultIntent.putExtra("requesterId", requesterId);
                     resultIntent.putExtra("giverId", giverId);
-                    resultIntent.putExtra("postId", postId);
+                    resultIntent.putExtra("serviceId", serviceId);
                     startActivity(resultIntent);
                     finish();
                     return true;
@@ -121,7 +121,7 @@ public class VNPayActivity extends AppCompatActivity {
                     Intent resultIntent = new Intent(VNPayActivity.this, PaymentResultActivity.class);
                     resultIntent.setData(Uri.parse(url));
                     resultIntent.putExtra("requesterId", requesterId);
-                    resultIntent.putExtra("postId", postId);
+                    resultIntent.putExtra("serviceId", serviceId);
                     resultIntent.putExtra("giverId", giverId);
                     startActivity(resultIntent);
                     finish();

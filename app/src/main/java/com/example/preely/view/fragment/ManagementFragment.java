@@ -43,7 +43,7 @@ public class ManagementFragment extends Fragment {
         });
 
         btnTagManagement.setOnClickListener(v -> {
-            loadFragment(new TagManagementFragment());
+            // loadFragment(new TagManagementFragment()); // Đã xóa tag management
         });
     }
 

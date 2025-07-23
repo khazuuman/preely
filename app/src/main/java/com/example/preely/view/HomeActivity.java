@@ -30,20 +30,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.adapter.CategoryMarketAdapter;
-import com.example.preely.adapter.PostMarketAdapter;
+import com.example.preely.adapter.ServiceMarketAdapter;
 import com.example.preely.authentication.SessionManager;
-import com.example.preely.model.request.PostFilterRequest;
+import com.example.preely.model.request.ServiceFilterRequest;
 import com.example.preely.model.response.CategoryResponse;
-import com.example.preely.model.response.PostResponse;
+import com.example.preely.model.response.ServiceResponse;
 import com.example.preely.model.response.UserResponse;
 import com.example.preely.viewmodel.UnreadMessageService;
 import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CategoryService;
-import com.example.preely.viewmodel.PostService;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.preely.viewmodel.ServiceViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.preely.model.entities.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,24 +54,24 @@ public class HomeActivity extends AppCompatActivity {
     private static final String ACTION_UPDATE_UNREAD = "UPDATE_UNREAD_COUNT";
     private static final int LIMIT_PER_PAGE = 6;
     private static final int SCROLL_THRESHOLD = 500;
-    private RecyclerView cateRecycleView, postRecycleView;
+    private RecyclerView cateRecycleView, serviceRecycleView;
     private TextView nameTv, unreadBadge;
     private ImageButton scrollToTopBtn, openChatButton, testMapButton;
     private ScrollView homeScrollView;
     private final List<CategoryResponse> categoryList = new ArrayList<>();
-    private final List<PostResponse> postList = new ArrayList<>();
+    private final List<Service> serviceList = new ArrayList<>();
     private CategoryMarketAdapter categoryAdapter;
-    private PostMarketAdapter postAdapter;
+    private ServiceMarketAdapter serviceAdapter;
     private CategoryService categoryService;
-    TextView seeAllPost;
+    TextView seeAllService;
     EditText searchInput;
-    private PostService postService;
+    private ServiceViewModel serviceViewModel;
     private SessionManager sessionManager;
     LinearLayout mainLayout;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isScrollListenerAttached = false;
-    private PostFilterRequest currentRequest;
+    private ServiceFilterRequest currentServiceRequest;
     private BroadcastReceiver unreadCountReceiver;
     private ProgressBar progressBar;
     private boolean categoryLoaded = false;
@@ -106,7 +106,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void findViews() {
         cateRecycleView = findViewById(R.id.cate_recycle_view);
-        postRecycleView = findViewById(R.id.post_recycle_view);
+        serviceRecycleView = findViewById(R.id.service_recycle_view);
         nameTv = findViewById(R.id.nameTv);
         unreadBadge = findViewById(R.id.unread_badge);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
@@ -117,7 +117,7 @@ public class HomeActivity extends AppCompatActivity {
         nameTv = findViewById(R.id.nameTv);
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
-        seeAllPost = findViewById(R.id.seeAllPost);
+        seeAllService = findViewById(R.id.seeAllService);
         UserResponse user = sessionManager.getUserSession();
         if (user != null) {
             nameTv.setText(user.getFull_name() == null ? user.getUsername() : user.getFull_name());
@@ -245,7 +245,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupDataServices() {
         setupCategoryService();
-        setupPostService();
+        setupServiceViewModel();
     }
 
     private void setupCategoryService() {
@@ -261,67 +261,9 @@ public class HomeActivity extends AppCompatActivity {
         categoryService.getCateList();
     }
 
-    private void setupPostService() {
-        postService = new ViewModelProvider(this).get(PostService.class);
-
-        postRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostMarketAdapter(postList, this, postService);
-        postRecycleView.setAdapter(postAdapter);
-
-        observePostList();
-        postService.getSavedPostsStatus().observe(this, map -> {
-            if (map != null) {
-                postAdapter.setSavedPostsStatusMap(map);
-                postAdapter.notifyDataSetChanged();
-            }
-        });
-        postService.getIsLastPageResult().observe(this, value -> {
-            if (value != null) {
-                isLastPage = value;
-            }
-        });
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.navigation_settings) {
-                startActivity(new Intent(this, ProfileActivity.class));
-                return true;
-            }
-            if (item.getItemId() == R.id.navigation_posts) {
-                startActivity(new Intent(this, MyPostsActivity.class));
-                return true;
-            }
-            // TODO: Xử lý các mục khác nếu cần
-            return false;
-        });
-
-        seeAllPost.setOnClickListener(v -> {
-           startActivity(new Intent(this, PostListActivity.class));
-        });
-
-        searchInput = findViewById(R.id.searchInput);
-        searchInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE ||
-                    actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_NULL) {
-                String query = searchInput.getText().toString().trim();
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
-                }
-
-                Intent intent = new Intent(this, PostListActivity.class);
-                intent.putExtra("query", query);
-                startActivity(intent);
-
-                return true;
-            }
-            return false;
-        });
-
-        currentRequest = new PostFilterRequest();
-        postService.getPostList(currentRequest);
+    private void setupServiceViewModel() {
+        serviceViewModel = new ViewModelProvider(this).get(ServiceViewModel.class);
+        // ... observer logic cho service nếu cần ...
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -351,36 +293,10 @@ public class HomeActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void observePostList() {
-        postService.getPostListResult().observe(this, postResponses -> {
-            if (postResponses != null) {
-                if (!postList.isEmpty() && postList.get(postList.size() - 1) == null) {
-                    postList.remove(postList.size() - 1);
-                    postAdapter.notifyItemRemoved(postList.size());
-                }
-
-                if (postList.isEmpty()) {
-                    postList.addAll(postResponses);
-                    postAdapter.notifyDataSetChanged();
-
-                    if (!isScrollListenerAttached) {
-                        attachScrollListener();
-                        isScrollListenerAttached = true;
-                    }
-                } else {
-                    int start = postList.size();
-                    postList.addAll(postResponses);
-                    postAdapter.notifyItemRangeInserted(start, postResponses.size());
-                }
-
-                isLoading = false;
-
-                if (postResponses.size() < LIMIT_PER_PAGE) {
-                    isLastPage = true;
-                }
-                postLoaded = true;
-                checkAllDataLoaded();
-
-                Log.d(TAG, "Posts loaded: " + postResponses.size() + ", Total: " + postList.size());
+        serviceViewModel.getServiceList().observe(this, serviceResponses -> {
+            if (serviceResponses != null) {
+                serviceList.addAll(serviceResponses);
+                // ... logic ...
             }
         });
     }
@@ -391,10 +307,6 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
 
-        postList.add(null);
-        postAdapter.notifyItemInserted(postList.size() - 1);
-
-        postService.getPostList(currentRequest);
         Log.d(TAG, "Loading more posts...");
     }
 
@@ -408,7 +320,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupFavouriteButton() {
         favouriteButton.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, SavedPostsActivity.class));
+            startActivity(new Intent(HomeActivity.this, SavedServicesActivity.class));
         });
     }
 

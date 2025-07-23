@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_service_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Service Title"
+            android:textSize="18sp"
+            android:fontFamily="@font/zain_bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_service_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Provider: John Doe"
+            android:textSize="14sp"
+            android:fontFamily="@font/zain_regular"
+            android:textColor="#1DABDD"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_service_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category: Tutoring"
+            android:textSize="14sp"
+            android:fontFamily="@font/zain_regular"
+            android:textColor="#666666"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_service_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$100"
+                android:textSize="16sp"
+                android:fontFamily="@font/zain_bold"
+                android:textColor="#1DABDD"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_service_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active"
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_regular"
+                android:textColor="#4CAF50"
+                android:background="@drawable/rounded_edge"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"/>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_book_service"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Book"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#1DABDD"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView> 

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
-import com.example.preely.model.entities.Image;
 import com.example.preely.repository.MainRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -17,18 +16,16 @@ public class ImageUploadUtil {
 
     private Context context;
     private StoreService storeService;
-    private MainRepository<Image> imageRepository;
     private FirebaseFirestore db;
 
     public ImageUploadUtil(Context context) {
         this.context = context;
         this.storeService = new StoreService(context);
-        this.imageRepository = new MainRepository<>(Image.class, CollectionName.IMAGE);
         this.db = FirebaseFirestore.getInstance();
     }
 
     public interface ImageUploadCallback {
-        void onSuccess(Image image);
+        void onSuccess(String imageUrl);
         void onError(String error);
     }
 
@@ -44,27 +41,9 @@ public class ImageUploadUtil {
         CompletableFuture<String> uploadFuture = storeService.uploadFileAsync(imageUri, "posts", fileName);
         
         uploadFuture.thenAccept(imageUrl -> {
-            // Create Image entity
-            Image image = new Image();
-            image.setPost_id(postId);
-            image.setLink(imageUrl);
-
-            // Save to Firestore using add method
-//            imageRepository.add(image, "image", new DbUtil.OnInsertCallback() {
-//                @Override
-//                public void onSuccess(com.google.firebase.firestore.DocumentReference documentReference) {
-//                    if (callback != null) {
-//                        callback.onSuccess(image);
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Exception e) {
-//                    if (callback != null) {
-//                        callback.onError("Failed to save image: " + e.getMessage());
-//                    }
-//                }
-//            });
+            if (callback != null) {
+                callback.onSuccess(imageUrl);
+            }
         }).exceptionally(throwable -> {
             if (callback != null) {
                 callback.onError("Upload failed: " + throwable.getMessage());
@@ -96,7 +75,7 @@ public class ImageUploadUtil {
         String fileName = "post_" + postId + "_" + System.currentTimeMillis() + "_" + index;
         uploadImageForPost(imageUris[index], postId, fileName, new ImageUploadCallback() {
             @Override
-            public void onSuccess(Image image) {
+            public void onSuccess(String imageUrl) {
                 // Continue with next image
                 uploadImageSequentially(imageUris, postId, index + 1, callback);
             }
@@ -111,35 +90,13 @@ public class ImageUploadUtil {
     }
 
     public void deleteImage(String imageId, ImageUploadCallback callback) {
-//        imageRepository.delete(imageId, "image", new DbUtil.OnDeleteCallBack() {
-//            @Override
-//            public void onSuccess() {
-//                if (callback != null) {
-//                    callback.onSuccess(null);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Exception e) {
-//                if (callback != null) {
-//                    callback.onError("Failed to delete image: " + e.getMessage());
-//                }
-//            }
-//        });
     }
 
     public void getImagesForPost(String postId, ImageListCallback callback) {
-        // Query images by post_id
-        Query query = db.collection("image").whereEqualTo("post_id", postId);
-        imageRepository.getAll(query).observeForever(images -> {
-            if (callback != null) {
-                callback.onSuccess(images);
-            }
-        });
     }
 
     public interface ImageListCallback {
-        void onSuccess(List<Image> images);
+        void onSuccess(List<String> imageUrls);
         void onError(String error);
     }
 } 

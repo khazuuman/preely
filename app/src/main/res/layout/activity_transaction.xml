@@ -47,13 +47,13 @@
 
         <!-- Select post (post_id) -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/post_til"
+            android:id="@+id/service_til"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/select_post"
+            android:hint="@string/select_service"
             app:startIconDrawable="@drawable/ic_edit">
             <AutoCompleteTextView
-                android:id="@+id/post_dropdown"
+                android:id="@+id/service_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"

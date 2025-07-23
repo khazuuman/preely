@@ -22,7 +22,7 @@ public class Service extends BaseEntity {
     String title;
     String description;
     Double price;
-    String availability;
+    String availability; //"Weekends", "Mon-Fri evenings"
     String university;
 
     float average_rating;

@@ -81,7 +81,6 @@ public class AddEditCategoryDialog extends Dialog {
     private void populateFields() {
         if (category != null) {
             etName.setText(category.getName());
-            etParentCategoryId.setText(category.getParent_category_id());
         }
     }
 
@@ -98,13 +97,6 @@ public class AddEditCategoryDialog extends Dialog {
         // Create or update category
         Category categoryToSave = isEditMode ? category : new Category();
         categoryToSave.setName(name);
-        
-        // Set parent category ID (can be null for root categories)
-        if (!parentCategoryId.isEmpty()) {
-            categoryToSave.setParent_category_id(parentCategoryId);
-        } else {
-            categoryToSave.setParent_category_id(null);
-        }
 
         if (listener != null) {
             listener.onCategorySaved(categoryToSave, isEditMode);

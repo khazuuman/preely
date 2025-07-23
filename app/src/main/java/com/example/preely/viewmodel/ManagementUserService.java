@@ -25,11 +25,11 @@ public class ManagementUserService {
     }
 
     public void updateUser(User user, CallBackUtil.OnUpdateCallback callback) {
-        userRepository.update(user, user.getId().getId(), callback);
+        userRepository.update(user, user.getId(), callback);
     }
 
     public void deleteUser(User user, CallBackUtil.OnDeleteCallBack callback) {
-        userRepository.delete(user.getId().getId(), callback);
+        userRepository.delete(user.getId(), callback);
     }
 
     public void listenRealtime(FirestoreRealtimeUtil.RealtimeListener<User> listener) {

@@ -27,7 +27,7 @@ public class AddEditTransactionDialog extends Dialog {
     private OnTransactionDialogListener listener;
     private boolean isEditMode;
 
-    private TextInputEditText etAmount, etGiverId, etRequesterId, etPostId;
+    private TextInputEditText etAmount, etGiverId, etRequesterId, etServiceId;
     private Spinner spinnerStatus;
     private MaterialButton btnSave, btnCancel;
 
@@ -61,7 +61,6 @@ public class AddEditTransactionDialog extends Dialog {
         etAmount = findViewById(R.id.et_amount);
         etGiverId = findViewById(R.id.et_giver_id);
         etRequesterId = findViewById(R.id.et_requester_id);
-        etPostId = findViewById(R.id.et_post_id);
         spinnerStatus = findViewById(R.id.spinner_status);
         btnSave = findViewById(R.id.btn_save);
         btnCancel = findViewById(R.id.btn_cancel);
@@ -92,7 +91,7 @@ public class AddEditTransactionDialog extends Dialog {
             }
             etGiverId.setText(transaction.getGiver_id());
             etRequesterId.setText(transaction.getRequester_id());
-            etPostId.setText(transaction.getPost_id());
+            etServiceId.setText(transaction.getService_id());
             
             // Set spinner selection based on status
             String status = transaction.getStatus();
@@ -112,7 +111,7 @@ public class AddEditTransactionDialog extends Dialog {
         String amountStr = etAmount.getText().toString().trim();
         String giverId = etGiverId.getText().toString().trim();
         String requesterId = etRequesterId.getText().toString().trim();
-        String postId = etPostId.getText().toString().trim();
+        String serviceId = etServiceId.getText().toString().trim();
         String status = spinnerStatus.getSelectedItem().toString();
 
         // Validation
@@ -143,8 +142,8 @@ public class AddEditTransactionDialog extends Dialog {
             return;
         }
 
-        if (postId.isEmpty()) {
-            etPostId.setError("Post ID is required");
+        if (serviceId.isEmpty()) {
+            etServiceId.setError("Service ID is required");
             return;
         }
 
@@ -153,7 +152,7 @@ public class AddEditTransactionDialog extends Dialog {
         transactionToSave.setAmount(amount);
         transactionToSave.setGiver_id(giverId);
         transactionToSave.setRequester_id(requesterId);
-        transactionToSave.setPost_id(postId);
+        transactionToSave.setService_id(serviceId);
         transactionToSave.setStatus(status);
         
         // Set current timestamp for new transactions

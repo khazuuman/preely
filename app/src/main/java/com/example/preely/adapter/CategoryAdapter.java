@@ -95,11 +95,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             tvCategoryName.setText(category.getName() != null ? category.getName() : "N/A");
             
             // Show parent category info
-            if (category.getParent_category_id() != null && !category.getParent_category_id().isEmpty()) {
-                tvParentCategory.setText("Parent: " + category.getParent_category_id());
-            } else {
-                tvParentCategory.setText("Root Category");
-            }
+            tvParentCategory.setText("Root Category");
             
             // TODO: Get post count for this category
             tvCategoryCount.setText("0 posts");

@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 public class Transaction extends BaseEntity implements java.io.Serializable {
 
     String giver_id;
-    String post_id;
+    String service_id;
     String requester_id;
     Number amount;
     String status;

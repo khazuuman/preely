@@ -74,7 +74,7 @@ public class NotificationService {
 
         Intent markReadIntent = new Intent(context, MessageNotificationReceiver.class);
         markReadIntent.setAction("MARK_AS_READ");
-        markReadIntent.putExtra("MESSAGE_ID", message.getId().getId());
+        markReadIntent.putExtra("MESSAGE_ID", message.getId());
         markReadIntent.putExtra("ROOM_ID", message.getRoom());
 
         PendingIntent markReadPendingIntent = PendingIntent.getBroadcast(

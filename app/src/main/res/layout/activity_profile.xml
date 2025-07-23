@@ -236,7 +236,7 @@
 
             <!-- Saved Posts -->
             <LinearLayout
-                android:id="@+id/btnSavedPosts"
+                android:id="@+id/btnSavedServices"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/selectableItemBackground"

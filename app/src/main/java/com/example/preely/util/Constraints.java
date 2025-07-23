@@ -5,12 +5,8 @@ public class Constraints {
     public interface CollectionName {
         String USERS = "user";
         String CATEGORIES = "category";
-        String POSTS = "post";
-        String TAGS = "tag";
         String MESSAGES = "messages";
         String NOTIFICATIONS = "notification";
-        String SAVED_POST = "savedposts";
-        String IMAGE = "image";
         String TRANSACTION = "transactions";
     }
 

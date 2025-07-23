@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_service_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service Title"
+                android:textSize="18sp"
+                android:fontFamily="@font/zain_bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_service_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service description goes here..."
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_regular"
+                android:textColor="#666666"
+                android:layout_marginBottom="4dp"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_service_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$100"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/zain_bold"
+                    android:textColor="#1DABDD"
+                    android:layout_marginEnd="16dp"/>
+
+                <TextView
+                    android:id="@+id/tv_service_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Available"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/zain_regular"
+                    android:textColor="#4CAF50"
+                    android:background="@drawable/rounded_edge"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_service_provider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Provider: ..."
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_regular"
+                android:textColor="#1DABDD"
+                android:layout_marginBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/tv_service_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Category: ..."
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_regular"
+                android:textColor="#666666"
+                android:layout_marginBottom="2dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btn_edit_service"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit service"
+                android:layout_marginEnd="8dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_delete_service"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_close"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete service"
+                app:tint="#FF0000" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView> 

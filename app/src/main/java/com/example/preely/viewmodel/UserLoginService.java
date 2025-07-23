@@ -91,7 +91,7 @@ public class UserLoginService extends ViewModel {
         userRepository.getOne(query).observeForever(user -> {
             if (user != null && DataUtil.checkPassword(request.getPassword(), user.getEncode_password())) {
                 user.setLast_login(Timestamp.now());
-                userRepository.update(user, user.getId().getId(), new CallBackUtil.OnUpdateCallback() {
+                userRepository.update(user, user.getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
                         Log.i("UPDATE USER", "User update successfully");
@@ -223,7 +223,7 @@ public class UserLoginService extends ViewModel {
             } else {
                 user.setLast_login(Timestamp.now());
                 user.setUpdate_at(Timestamp.now());
-                userRepository.update(user, user.getId().getId(), new CallBackUtil.OnUpdateCallback() {
+                userRepository.update(user, user.getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
                         getGoogleAccountInfo(user.getEmail());

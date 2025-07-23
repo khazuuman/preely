@@ -83,8 +83,9 @@ public class EditProfile extends AppCompatActivity {
             startActivityForResult(Intent.createChooser(intent, "Chọn ảnh đại diện"), PICK_IMAGE_REQUEST);
         });
 
-        cloudinaryService.getUploadedImageUrl().observe(this, url -> {
-            if (url != null) {
+        cloudinaryService.getUploadedUrls().observe(this, urls -> {
+            if (urls != null && !urls.isEmpty()) {
+                String url = urls.get(urls.size() - 1);
                 avatarUrl = url;
                 loadAvatarWithRetry(avatarUrl);
             }
@@ -120,18 +121,14 @@ public class EditProfile extends AppCompatActivity {
             user.setFull_name(name);
             user.setPhone_number(phone);
             user.setAddress(address);
-            user.setProvince(province);
-            user.setWard(ward);
             user.setAvatar(avatarUrl);
             // Tạo object User (entities) để update Firestore
             User userEntity = new User();
-            userEntity.setId(user.getId());
+            userEntity.setId(user.getId().getId());
             userEntity.setUsername(user.getUsername());
             userEntity.setFull_name(name);
             userEntity.setPhone_number(phone);
             userEntity.setAddress(address);
-            userEntity.setProvince(province);
-            userEntity.setWard(ward);
             userEntity.setAvatar(avatarUrl);
             userEntity.setEmail(user.getEmail());
             userEntity.set_active(true);
@@ -181,7 +178,7 @@ public class EditProfile extends AppCompatActivity {
             selectedImageUri = data.getData();
             Glide.with(this).load(selectedImageUri).placeholder(R.drawable.ic_image).into(imgAvatar);
             // Upload lên Cloudinary
-            cloudinaryService.uploadImage(selectedImageUri, "avatars");
+            cloudinaryService.uploadFile(selectedImageUri, "avatars");
         }
     }
 }

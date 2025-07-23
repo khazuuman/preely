@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.preely.model.entities.Transaction;
 import com.example.preely.model.entities.User;
-import com.example.preely.model.entities.Post;
 import com.example.preely.repository.MainRepository;
 import com.example.preely.util.CallBackUtil;
 import com.example.preely.util.Constraints;
@@ -26,12 +25,10 @@ public class TransactionService extends ViewModel {
     
     private final MainRepository<Transaction> transactionRepository;
     private final MainRepository<User> userRepository;
-    private final MainRepository<Post> postRepository;
     
     public TransactionService() {
         this.transactionRepository = new MainRepository<>(Transaction.class, CollectionName.TRANSACTION);
         this.userRepository = new MainRepository<>(User.class, CollectionName.USERS);
-        this.postRepository = new MainRepository<>(Post.class, CollectionName.POSTS);
     }
     
     /**
@@ -41,15 +38,6 @@ public class TransactionService extends ViewModel {
         Query query = FirebaseFirestore.getInstance()
             .collection(Constraints.CollectionName.USERS);
         return userRepository.getAll(query);
-    }
-    
-    /**
-     * Get the list of all posts
-     */
-    public LiveData<List<Post>> getAllPosts() {
-        Query query = FirebaseFirestore.getInstance()
-            .collection("post");
-        return postRepository.getAll(query);
     }
     
     /**
@@ -68,11 +56,11 @@ public class TransactionService extends ViewModel {
         Log.d("TransactionService", "Saving transaction: " + transaction.getId());
         
         // Use specific document ID instead of auto-generate
-        if (transaction.getId() != null && !transaction.getId().getId().isEmpty()) {
+        if (transaction.getId() != null && !transaction.getId().isEmpty()) {
             // Save with specific document ID
             FirebaseFirestore.getInstance()
                 .collection("transactions")
-                .document(transaction.getId().getId())
+                .document(transaction.getId())
                 .set(transaction)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("TransactionService", "Transaction saved successfully with ID: " + transaction.getId());
@@ -125,7 +113,7 @@ public class TransactionService extends ViewModel {
                         existingTransaction.setTransaction_date(Timestamp.now());
                         
                         // Save back to Firestore
-                        transactionRepository.update(existingTransaction, existingTransaction.getId().getId(), new CallBackUtil.OnUpdateCallback() {
+                        transactionRepository.update(existingTransaction, existingTransaction.getId(), new CallBackUtil.OnUpdateCallback() {
                             @Override
                             public void onSuccess() {
                                 Log.d("TransactionService", "Transaction status updated successfully");
@@ -157,9 +145,9 @@ public class TransactionService extends ViewModel {
     /**
      * Create a new transaction from payment information
      */
-    public Transaction createTransactionFromPayment(DocumentReference txnRef, String amount, String requesterId, String giverId, String postId) {
+    public Transaction createTransactionFromPayment(DocumentReference txnRef, String amount, String requesterId, String giverId, String serviceId) {
         Transaction transaction = new Transaction();
-        transaction.setId(txnRef);
+        transaction.setId(txnRef != null ? txnRef.getId() : null);
         
         if (amount != null) {
             try {
@@ -173,7 +161,7 @@ public class TransactionService extends ViewModel {
         
         transaction.setRequester_id(requesterId);
         transaction.setGiver_id(giverId);
-        transaction.setPost_id(postId);
+        transaction.setService_id(serviceId);
         transaction.setStatus("Unpaid");
         
         return transaction;
@@ -183,7 +171,7 @@ public class TransactionService extends ViewModel {
      * Process payment result from VNPay
      */
     public void processPaymentResult(String responseCode, String responseMessage, String txnRef, String amount,
-                                     String requesterId, String giverId, String postId, TransactionCallback callback) {
+                                     String requesterId, String giverId, String serviceId, TransactionCallback callback) {
         DocumentReference txtRefDocRef = txnRef.isEmpty() ? null : FirebaseFirestore.getInstance().document(txnRef);
         boolean isSuccess = "00".equals(responseCode);
         String status = isSuccess ? "Paid" : "Failed";
@@ -201,8 +189,8 @@ public class TransactionService extends ViewModel {
                 if (transaction.getGiver_id() == null && giverId != null) {
                     transaction.setGiver_id(giverId);
                 }
-                if (transaction.getPost_id() == null && postId != null) {
-                    transaction.setPost_id(postId);
+                if (transaction.getService_id() == null && serviceId != null) {
+                    transaction.setService_id(serviceId);
                 }
                 if (transaction.getAmount() == null || transaction.getAmount() == (Number) 0) {
                     if (amount != null) {
@@ -309,7 +297,7 @@ public class TransactionService extends ViewModel {
                 existingTransaction.setTransaction_date(Timestamp.now());
                 
                 // Save back to Firestore
-                transactionRepository.update(existingTransaction, existingTransaction.getId().getId(), new CallBackUtil.OnUpdateCallback() {
+                transactionRepository.update(existingTransaction, existingTransaction.getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
                         Log.d("TransactionService", "Transaction status updated successfully by field search");
@@ -326,7 +314,7 @@ public class TransactionService extends ViewModel {
                 // Create new transaction if not found
                 Log.d("TransactionService", "Transaction not found by field 'id', creating new one");
                 Transaction newTransaction = new Transaction();
-                newTransaction.setId(transactionId);
+                newTransaction.setId(transactionId != null ? transactionId.getId() : null);
                 newTransaction.setStatus(status);
                 String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
                 newTransaction.setTransaction_date(Timestamp.now());

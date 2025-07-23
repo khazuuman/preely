@@ -234,7 +234,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/seeAllPost"
+                        android:id="@+id/seeAllService"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="See All"
@@ -246,7 +246,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.example.preely.util.WrapContentGridRecyclerView
-                    android:id="@+id/post_recycle_view"
+                    android:id="@+id/service_recycle_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>

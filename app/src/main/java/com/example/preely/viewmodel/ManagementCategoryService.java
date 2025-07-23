@@ -26,11 +26,11 @@ public class ManagementCategoryService {
     }
 
     public void updateCategory(Category category, CallBackUtil.OnUpdateCallback callback) {
-        categoryRepository.update(category, category.getId().getId(), callback);
+        categoryRepository.update(category, category.getId(), callback);
     }
 
     public void deleteCategory(Category category, CallBackUtil.OnDeleteCallBack callback) {
-        categoryRepository.delete(category.getId().getId(), callback);
+        categoryRepository.delete(category.getId(), callback);
     }
 
     public void listenRealtime(FirestoreRealtimeUtil.RealtimeListener<Category> listener) {

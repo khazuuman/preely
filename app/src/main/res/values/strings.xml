@@ -83,6 +83,7 @@
     <string name="error_selecting_user">Error selecting user</string>
     <string name="error_selecting_post">Error selecting post</string>
     <string name="no_posts_found_for_giver">This user has no posts yet!</string>
+    <string name="no_services_found_for_giver">This user has no services yet!</string>
     <string name="menu_users">Users</string>
     <string name="menu_posts">Posts</string>
     <string name="menu_images">Images</string>
@@ -113,6 +114,10 @@
     <string name="saveBtn">Save</string>
     <string name="menu_settings">Setting</string>
     <string name="BackBtn">Back</string>
+    <string name="select_service">Select service</string>
+    <string name="no_services_to_select">No services to select!</string>
+    <string name="error_selecting_service">Error selecting service</string>
+    <string name="please_select_service">Please select a service!</string>
 
     <string-array name="items_array">
         <item>Apple</item>
@@ -121,4 +126,7 @@
         <item>Date</item>
         <item>Elderberry</item>
     </string-array>
+    <string name="category">Category</string>
+    <string name="sort_by">Sort by</string>
+    <string name="status">Status</string>
 </resources>

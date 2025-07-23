@@ -21,15 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.adapter.CategoryFilterAdapter;
 import com.example.preely.adapter.SortFilterAdapter;
-import com.example.preely.adapter.TagFilterAdapter;
 import com.example.preely.model.request.CategoryFilterRequest;
-import com.example.preely.model.request.PostFilterRequest;
+import com.example.preely.model.request.ServiceFilterRequest;
 import com.example.preely.model.request.SortFilterRequest;
-import com.example.preely.model.request.TagFilterRequest;
 import com.example.preely.model.response.CategoryResponse;
-import com.example.preely.model.response.TagResponse;
 import com.example.preely.viewmodel.CategoryService;
-import com.example.preely.viewmodel.TagService;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -46,7 +42,6 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
     ProgressBar progressBar;
     LinearLayout mainLayout;
     private final List<CategoryFilterRequest> categoryList = new ArrayList<>();
-    private final List<TagFilterRequest> tagList = new ArrayList<>();
     private final List<SortFilterRequest> sortList = new ArrayList<>(
             Arrays.asList(
                     new SortFilterRequest(0, "Most View", false),
@@ -56,18 +51,15 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
     );
     private CategoryFilterAdapter categoryFilterAdapter;
     private CategoryService categoryService;
-    private TagFilterAdapter tagFilterAdapter;
-    private TagService tagService;
     private SortFilterAdapter sortFilterAdapter;
     List<DocumentReference> category_id;
-    List<String> tag_id;
     Integer sortType;
-    PostFilterRequest postFilterRequest;
+    ServiceFilterRequest serviceFilterRequest;
     private OnFilterApplyListener filterApplyListener;
-    private boolean categoryLoaded = false, tagLoaded = false;
+    private boolean categoryLoaded = false;
 
     public interface OnFilterApplyListener {
-        void onFilterApplied(PostFilterRequest filterRequest);
+        void onFilterApplied(ServiceFilterRequest filterRequest);
     }
 
     public void setOnFilterApplyListener(OnFilterApplyListener listener) {
@@ -103,15 +95,6 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
         categoryFilterAdapter.setRecyclerView(cateRecycleView);
         cateRecycleView.setAdapter(categoryFilterAdapter);
 
-        // tag list
-        tagService = new ViewModelProvider(this).get(TagService.class);
-        observeTagList();
-        tagService.getAllTag();
-        tagRecycleView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        tagFilterAdapter = new TagFilterAdapter(tagList);
-        tagFilterAdapter.setRecyclerView(tagRecycleView);
-        tagRecycleView.setAdapter(tagFilterAdapter);
-
         // sort list
         sortRecycleView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         sortFilterAdapter = new SortFilterAdapter(sortList);
@@ -119,18 +102,12 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
 
         applyBtn.setOnClickListener(v -> {
             category_id = categoryFilterAdapter.getIdSelectedItems();
-            tag_id = tagFilterAdapter.getIdStringSelectedItems();
-            if (tag_id == null || tag_id.isEmpty()) {
-                tag_id = new ArrayList<>();
-            }
-
             sortType = sortFilterAdapter.getSelectedItem();
             Log.i("CATE_ID", category_id == null ? "null" : category_id.toString());
-            Log.i("TAG_ID", tag_id == null ? "null" : tag_id.toString());
             Log.i("SORT_TYPE", sortType == null ? "null" : sortType.toString());
-            postFilterRequest = new PostFilterRequest(null, category_id, tag_id, sortType);
+            serviceFilterRequest = new ServiceFilterRequest(null, category_id, sortType);
             if (filterApplyListener != null) {
-                filterApplyListener.onFilterApplied(postFilterRequest);
+                filterApplyListener.onFilterApplied(serviceFilterRequest);
             }
             dismiss();
         });
@@ -141,17 +118,11 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
             }
             categoryFilterAdapter.notifyDataSetChanged();
 
-            for (TagFilterRequest tag : tagList) {
-                tag.setChecked(false);
-            }
-            tagFilterAdapter.notifyDataSetChanged();
-
             for (SortFilterRequest sort : sortList) {
                 sort.setChecked(false);
             }
             sortFilterAdapter.notifyDataSetChanged();
             category_id = null;
-            tag_id = null;
             sortType = null;
         });
 
@@ -196,34 +167,8 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void observeTagList() {
-        tagService.getTagListResult().observe(this, tagResponses -> {
-            if (tagResponses != null) {
-                Map<String, Boolean> previousCheckedMap = new HashMap<>();
-                for (TagFilterRequest item : tagList) {
-                    if (item.getId() != null) {
-                        previousCheckedMap.put(item.getId().getId(), item.isChecked());
-                    } else {
-                        previousCheckedMap.put("ALL", item.isChecked());
-                    }
-                }
-                tagList.clear();
-                tagList.add(new TagFilterRequest(null, "All", previousCheckedMap.getOrDefault("ALL", false)));
-
-                for (TagResponse tagResponse : tagResponses) {
-                    boolean isChecked = previousCheckedMap.getOrDefault(tagResponse.getId().getId(), false);
-                    tagList.add(new TagFilterRequest(tagResponse.getId(), tagResponse.getName(), isChecked));
-                }
-                tagFilterAdapter.notifyDataSetChanged();
-            }
-            tagLoaded = true;
-            checkAllDataLoaded();
-        });
-    }
-
     private void checkAllDataLoaded() {
-        if (categoryLoaded && tagLoaded) {
+        if (categoryLoaded) {
             progressBar.setVisibility(View.GONE);
             mainLayout.setVisibility(View.VISIBLE);
         }
