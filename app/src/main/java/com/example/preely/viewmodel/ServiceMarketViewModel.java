@@ -262,22 +262,27 @@ public class ServiceMarketViewModel extends ViewModel {
 //        return map;
 //    }
 //
-    public void getServiceDetail(String postRef) {
-        DocumentReference postRefDoc = FirebaseFirestore.getInstance()
+    public void getServiceDetail(String serviceId) {
+        DocumentReference serviceRefDoc = FirebaseFirestore.getInstance()
                 .collection(CollectionName.SERVICE)
-                .document(postRef);
-        Log.i("POST REF", postRef);
-        AtomicReference<ServiceMarketDetailResponse> atomicReference = new AtomicReference<>(new ServiceMarketDetailResponse());
+                .document(serviceId);
 
-        postRefDoc.get().addOnSuccessListener(documentSnapshot -> {
+        Log.i("SERVICE REF", serviceId);
+
+        serviceRefDoc.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 Service service = documentSnapshot.toObject(Service.class);
                 try {
                     assert service != null;
                     ServiceMarketDetailResponse response = DataUtil.mapObj(service, ServiceMarketDetailResponse.class);
 
+                    // Map location từ Service entity
+                    response.setLocation(service.getLocation());
+                    Log.d("ServiceMarketViewModel", "Service location: " + service.getLocation());
+
                     List<Task<?>> tasks = new ArrayList<>();
 
+                    // Map category name
                     if (service.getCategory_id() != null) {
                         Task<DocumentSnapshot> categoryTask = service.getCategory_id().get();
                         tasks.add(categoryTask);
@@ -291,6 +296,7 @@ public class ServiceMarketViewModel extends ViewModel {
                         });
                     }
 
+                    // Map provider name
                     if (service.getProvider_id() != null) {
                         Task<DocumentSnapshot> providerTask = service.getProvider_id().get();
                         tasks.add(providerTask);
@@ -306,22 +312,27 @@ public class ServiceMarketViewModel extends ViewModel {
                         });
                     }
 
+                    // Set response sau khi hoàn thành tất cả tasks
                     if (tasks.isEmpty()) {
                         detailResponse.setValue(response);
                     } else {
                         Tasks.whenAllComplete(tasks).addOnSuccessListener(taskList -> {
                             detailResponse.setValue(response);
+                            Log.d("ServiceMarketViewModel", "Service detail loaded with location");
                         });
                     }
 
                 } catch (IllegalAccessException | InstantiationException e) {
-                    throw new RuntimeException(e);
+                    Log.e("ServiceMarketViewModel", "Error mapping service detail: " + e.getMessage());
+                    detailResponse.setValue(null);
                 }
             } else {
+                Log.w("ServiceMarketViewModel", "Service not found: " + serviceId);
                 detailResponse.setValue(null);
             }
+        }).addOnFailureListener(e -> {
+            Log.e("ServiceMarketViewModel", "Error loading service detail: " + e.getMessage());
+            detailResponse.setValue(null);
         });
     }
-
-
 }

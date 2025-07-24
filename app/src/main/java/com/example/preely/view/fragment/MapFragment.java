@@ -41,6 +41,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return frag;
     }
 
+    public static MapFragment newInstanceWithTitle(GeoPoint location, boolean pickEnabled, String markerTitle) {
+        MapFragment frag = new MapFragment();
+        Bundle args = new Bundle();
+        args.putDouble("lat", location != null ? location.getLatitude() : 0);
+        args.putDouble("lng", location != null ? location.getLongitude() : 0);
+        args.putBoolean("pickEnabled", pickEnabled);
+        args.putString("markerTitle", markerTitle != null ? markerTitle : "Service Location");
+        frag.setArguments(args);
+        return frag;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +82,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 15));
 
         if (initialLocation != null) {
-            mMap.addMarker(new MarkerOptions().position(center).title("Hiện tại"));
+            Bundle args = getArguments();
+            String markerTitle = args != null ? args.getString("markerTitle", "Hiện tại") : "Hiện tại";
+            mMap.addMarker(new MarkerOptions().position(center).title(markerTitle));
         }
 
         if (ContextCompat.checkSelfPermission(requireContext(),
