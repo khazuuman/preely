@@ -10,6 +10,7 @@ public class Constraints {
         String TRANSACTION = "transactions";
         String SKILL = "skill";
         String SERVICE = "service";
+        String SAVED_SERVICE = "saved_service";
     }
 
     public interface NotificationType {

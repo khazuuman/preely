@@ -9,17 +9,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.preely.authentication.SessionManager;
+import com.example.preely.model.request.SavedServiceRequest;
 import com.example.preely.model.response.ServiceMarketResponse;
+import com.example.preely.util.Constraints;
+import com.example.preely.view.CustomToast;
 import com.example.preely.view.ServiceDetailActivity;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
 import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.model.entities.Service;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -85,26 +93,28 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
                 holder.itemView.getContext().startActivity(intent);
             });
 
-//            SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
-//
-//            serviceHolder.favoriteBtn.setOnClickListener(v -> {
-//                SavedPostRequest request = new SavedPostRequest();
-//                request.setPost_id(post.getId());
-//                request.setUser_id(sessionManager.getUserSession().getId());
-//                try {
-//                    postService.insertSavedPost(request);
-//                    postService.getPostExisted().observe(lifecycleOwner, isExisted -> {
-//                        if (isExisted) {
-//                            CustomToast.makeText(holder.itemView.getContext(), "Bài đăng đã được lưu", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
-//                        } else {
-//                            CustomToast.makeText(holder.itemView.getContext(), "Đã lưu bài đăng", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
-//
-//                        }
-//                    });
-//                } catch (IllegalAccessException | InstantiationException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            });
+            SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
+
+            serviceHolder.favoriteBtn.setOnClickListener(v -> {
+                SavedServiceRequest request = new SavedServiceRequest();
+                DocumentReference serviceRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.SERVICE).document(response.getId());
+                DocumentReference userRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.USERS).document(sessionManager.getUserSession().getId());
+                request.setService_id(serviceRef);
+                request.setUser_id(userRef);
+                try {
+                    serviceMarketViewModel.checkSavedPost(request);
+                    observeOnce(serviceMarketViewModel.getIsSavedServiceExisted(), lifecycleOwner, isExisted -> {
+                        if (isExisted) {
+                            CustomToast.makeText(holder.itemView.getContext(), "Service already saved", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+                        } else {
+                            CustomToast.makeText(holder.itemView.getContext(), "Save service successfully", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+                        }
+                    });
+
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
 //            String key = sessionManager.getUserSession().getId() + "_" + post.getId();
 //            Boolean isSaved = savedPostsStatusMap.get(key);
@@ -128,6 +138,17 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
 //            });
         }
     }
+
+    public static <T> void observeOnce(LiveData<T> liveData, LifecycleOwner owner, Observer<T> observer) {
+        liveData.observe(owner, new Observer<T>() {
+            @Override
+            public void onChanged(T t) {
+                observer.onChanged(t);
+                liveData.removeObserver(this);
+            }
+        });
+    }
+
 
     @Setter
     private Map<String, Boolean> savedPostsStatusMap = new HashMap<>();
@@ -166,6 +187,7 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             super(itemView);
         }
     }
+
     public static String formatPrice(double price) {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         formatter.setMaximumFractionDigits(0);

@@ -1,19 +1,20 @@
-package com.example.preely.model.entities;
+package com.example.preely.model.request;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.AccessLevel;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class SavedService extends BaseEntity {
+@NoArgsConstructor
+public class SavedServiceRequest {
+
     DocumentReference service_id;
     DocumentReference user_id;
+
 }

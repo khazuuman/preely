@@ -8,14 +8,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.preely.model.entities.Category;
+import com.example.preely.model.entities.SavedService;
 import com.example.preely.model.entities.Service;
 import com.example.preely.model.entities.User;
+import com.example.preely.model.request.SavedServiceRequest;
 import com.example.preely.model.request.ServiceFilterRequest;
 import com.example.preely.model.response.ServiceMarketDetailResponse;
 import com.example.preely.model.response.ServiceMarketResponse;
+import com.example.preely.repository.MainRepository;
 import com.example.preely.util.DataUtil;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,11 +33,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ServiceMarketViewModel extends ViewModel {
-    //        private static final MainRepository<SavedPost> savedPostRepository = new MainRepository<>(SavedPost.class, CollectionName.SAVED_POST);
+    private static final MainRepository<SavedService> savedPostRepository = new MainRepository<>(SavedService.class, CollectionName.SAVED_SERVICE);
     private final MutableLiveData<List<ServiceMarketResponse>> serviceMarketResponseListResult = new MutableLiveData<>();
     private final MutableLiveData<ServiceMarketDetailResponse> detailResponse = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLastPageResult = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> postExisted = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isSavedServiceExisted = new MutableLiveData<>();
     private DocumentSnapshot lastVisible = null;
     private static final int PAGE_SIZE = 6;
 
@@ -41,8 +45,8 @@ public class ServiceMarketViewModel extends ViewModel {
         return isLastPageResult;
     }
 
-    public LiveData<Boolean> getPostExisted() {
-        return postExisted;
+    public LiveData<Boolean> getIsSavedServiceExisted() {
+        return isSavedServiceExisted;
     }
 
     public LiveData<List<ServiceMarketResponse>> getServiceListResult() {
@@ -193,27 +197,27 @@ public class ServiceMarketViewModel extends ViewModel {
     }
 
     // saved post
-//    public void insertSavedPost(SavedPostRequest request) throws IllegalAccessException, InstantiationException {
-//        Query query = FirebaseFirestore.getInstance()
-//                .collection(CollectionName.SAVED_POST)
-//                .whereEqualTo("user_id", request.getUser_id())
-//                .whereEqualTo("post_id", request.getPost_id())
-//                .limit(1);
-//        savedPostRepository.getOne(query).observeForever(result -> {
-//            if (result == null) {
-//                try {
-//                    insertSavedPostDetail(request);
-//                } catch (IllegalAccessException | InstantiationException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                postExisted.setValue(false);
-//                Log.i("GET SAVED POST", "Saved post insert successfully");
-//            } else {
-//                postExisted.setValue(true);
-//                Log.i("GET SAVED POST", "Saved post already exists");
-//            }
-//        });
-//    }
+    public void checkSavedPost(SavedServiceRequest request) throws IllegalAccessException, InstantiationException {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(CollectionName.SAVED_SERVICE)
+                .whereEqualTo("user_id", request.getUser_id())
+                .whereEqualTo("service_id", request.getService_id())
+                .limit(1);
+        savedPostRepository.getOne(query).observeForever(result -> {
+            if (result == null) {
+                try {
+                    insertSavedService(request);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+                isSavedServiceExisted.setValue(false);
+                Log.i("GET SAVED SERVICE", "Saved service insert successfully");
+            } else {
+                isSavedServiceExisted.setValue(true);
+                Log.i("GET SAVED SERVICE", "Saved service already exists");
+            }
+        });
+    }
 
     private final MutableLiveData<Map<String, Boolean>> savedPostsStatus = new MutableLiveData<>(new HashMap<>());
 
@@ -239,29 +243,26 @@ public class ServiceMarketViewModel extends ViewModel {
 //    }
 
 
-//    public void insertSavedPostDetail(SavedPostRequest request) throws IllegalAccessException, InstantiationException {
-//        SavedPost savedPost = DataUtil.mapObj(request, SavedPost.class);
-//        savedPost.setSave_date(Timestamp.now());
-//        Map<String, Object> map = excludeBaseTimestamps(savedPost);
-//        savedPostRepository.getDb().collection(CollectionName.SAVED_POST).add(map)
-//                .addOnSuccessListener(documentReference -> {
-//                    Log.i("INSERT SAVED POST", "Saved post insert successfully");
-//                })
-//                .addOnFailureListener(e -> {
-//                    Log.e("INSERT SAVED POST", "Failed to insert saved post");
-//                });
-//    }
+    public void insertSavedService(SavedServiceRequest request) throws IllegalAccessException, InstantiationException {
+        Map<String, Object> map = excludeBaseTimestamps(request);
+        savedPostRepository.getDb().collection(CollectionName.SAVED_SERVICE).add(map)
+                .addOnSuccessListener(documentReference -> {
+                    Log.i("INSERT SAVED SERVICE", "Saved service insert successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("INSERT SAVED SERVICE", "Failed to insert saved service");
+                });
+    }
 
-    //    public Map<String, Object> excludeBaseTimestamps(SavedPost savedPost) {
-//        Map<String, Object> map = new HashMap<>();
-//
-//        map.put("post_id", savedPost.getPost_id());
-//        map.put("save_date", savedPost.getSave_date());
-//        map.put("user_id", savedPost.getUser_id());
-//
-//        return map;
-//    }
-//
+    public Map<String, Object> excludeBaseTimestamps(SavedServiceRequest request) {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("service_id", request.getService_id());
+        map.put("user_id", request.getUser_id());
+
+        return map;
+    }
+
     public void getServiceDetail(String postRef) {
         DocumentReference postRefDoc = FirebaseFirestore.getInstance()
                 .collection(CollectionName.SERVICE)
