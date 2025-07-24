@@ -85,6 +85,10 @@
             <!-- </intent-filter> -->
         </activity>
         <activity
+            android:name=".view.UserSearchActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".view.ChatListActivity"
             android:exported="false">
         </activity>

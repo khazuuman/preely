@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.example.preely.model.entities.BaseEntity;
 import com.example.preely.util.CallBackUtil;
+import com.example.preely.util.DbUtil;
 import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -33,19 +34,6 @@ public class MainRepository<T extends BaseEntity> {
         this.modelCl = modelCl;
     }
 
-    public LiveData<T> getById(Query query) {
-        MutableLiveData<T> result = new MutableLiveData<>();
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
-                result.setValue(doc.toObject(modelCl));
-            } else {
-                result.setValue(null);
-            }
-        });
-        return result;
-    }
-
     public LiveData<List<T>> getAll(Query query) {
         MutableLiveData<List<T>> result = new MutableLiveData<>();
         List<T> resultList = new ArrayList<>();
@@ -62,17 +50,12 @@ public class MainRepository<T extends BaseEntity> {
         return result;
     }
 
-    public LiveData<T> getOne(Query query) {
+    public LiveData<T> getById(Query query) {
         MutableLiveData<T> result = new MutableLiveData<>();
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                List<DocumentSnapshot> resultList = task.getResult().getDocuments();
-                if (!resultList.isEmpty()) {
-                    DocumentSnapshot doc = task.getResult().getDocuments().get(0);
-                    result.setValue(doc.toObject(modelCl));
-                } else {
-                    result.setValue(null);
-                }
+                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                result.setValue(doc.toObject(modelCl));
             } else {
                 result.setValue(null);
             }
@@ -80,24 +63,53 @@ public class MainRepository<T extends BaseEntity> {
         return result;
     }
 
-    // Retrieve a list of documents with optional filter, ordering, and pagination
-    public LiveData<List<T>> getList(Query query, Integer pageSize, Integer pageNumber) {
-        MutableLiveData<List<T>> result = new MutableLiveData<>();
-        if (pageSize != null && pageNumber != null && pageSize > 0 && pageNumber > 0) {
-            query = query.limit(pageSize).startAfter((pageNumber - 1) * pageSize);
-        }
-        List<T> resultList = new ArrayList<>();
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    resultList.add(document.toObject(modelCl));
-                }
-                result.setValue(resultList);
+    public LiveData<T> getOne(Query query) {
+        MutableLiveData<T> resultLiveData = new MutableLiveData<>();
+
+        query.limit(1).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                // ✅ Sử dụng safe mapping
+                T item = DbUtil.safeMapToEntity(document, modelCl);
+                resultLiveData.setValue(item);
             } else {
-                result.setValue(null);
+                resultLiveData.setValue(null);
             }
         });
-        return result;
+
+        return resultLiveData;
+    }
+
+    // Retrieve a list of documents with optional filter, ordering, and pagination
+    public LiveData<List<T>> getList(Query query, Integer pageSize, Integer pageNumber) {
+        MutableLiveData<List<T>> resultLiveData = new MutableLiveData<>();
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<T> resultList = new ArrayList<>();
+
+                for (DocumentSnapshot document : task.getResult()) {
+                    if (document.exists()) {
+                        // ✅ Sử dụng safe mapping thay vì automatic deserialization
+                        T item = DbUtil.safeMapToEntity(document, modelCl);
+                        if (item != null) {
+                            resultList.add(item);
+                        } else {
+                            Log.w("MainRepository", "Failed to map document: " + document.getId());
+                        }
+                    }
+                }
+
+                resultLiveData.setValue(resultList);
+                Log.d("MainRepository", "getList completed. Found " + resultList.size() + " items");
+            } else {
+                Log.e("MainRepository", "getList failed", task.getException());
+                resultLiveData.setValue(new ArrayList<>());
+            }
+        });
+
+        return resultLiveData;
     }
 
     // Insert a single document

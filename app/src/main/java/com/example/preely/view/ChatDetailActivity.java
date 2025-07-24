@@ -1,5 +1,6 @@
 package com.example.preely.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -56,6 +57,11 @@ public class ChatDetailActivity extends AppCompatActivity {
         getIntentData();
         initializeServices();
         initializeViews();
+
+        if (!validateCurrentUser()) {
+            return;
+        }
+
         setupRecyclerView();
         setupMessageService();
         setupSendButton();
@@ -149,11 +155,55 @@ public class ChatDetailActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setStackFromEnd(true); // Hiển thị tin nhắn mới nhất ở cuối
+        layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
 
+        // ✅ Đảm bảo currentUserId không null trước khi tạo adapter
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e("ChatDetailActivity", "Current user ID is null, trying to get from session");
+
+            if (sessionManager.getUserSession() != null && sessionManager.getUserSession().getId() != null) {
+                currentUserId = sessionManager.getUserSession().getId();
+                Log.d("ChatDetailActivity", "Retrieved current user ID from session: " + currentUserId);
+            } else {
+                Log.e("ChatDetailActivity", "Cannot get current user ID, redirecting to login");
+                // Redirect to login or show error
+                finish();
+                return;
+            }
+        }
+
+        // ✅ Tạo adapter với currentUserId đã validate
         adapter = new ChatMessageAdapter(messageList, currentUserId);
         recyclerView.setAdapter(adapter);
+
+        Log.d("ChatDetailActivity", "RecyclerView setup completed with currentUserId: " + currentUserId);
+    }
+
+    private boolean validateCurrentUser() {
+        if (sessionManager.getUserSession() == null || sessionManager.getUserSession().getId() == null) {
+            Log.e("ChatDetailActivity", "Session or user ID null");
+
+            // Show error dialog
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Lỗi")
+                    .setMessage("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        // Redirect to login
+                        Intent intent = new Intent(this, Login.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setCancelable(false)
+                    .show();
+
+            return false;
+        }
+
+        currentUserId = sessionManager.getUserSession().getId();
+        Log.d("ChatDetailActivity", "Current user validated: " + currentUserId);
+        return true;
     }
 
     private void setupMessageService() {
