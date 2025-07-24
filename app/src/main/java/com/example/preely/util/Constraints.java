@@ -26,13 +26,6 @@ public class Constraints {
         int PRICE_DESC = 5;
     }
 
-   
-       
-      
-       
-        
-    
-
     public enum Availability {
         WEEKENDS("Weekends"),
         WEEKDAYS("Weekdays"),
@@ -58,11 +51,6 @@ public class Constraints {
         public String getLabel() {
             return label;
         }
-        }
-
-        public String getLabel() {
-            return label;
-        }
     }
-
 }
+

@@ -18,7 +18,6 @@ import com.example.preely.adapter.ServiceAdapter;
 import com.example.preely.model.entities.Service;
 import com.example.preely.dialog.AddEditServiceDialog;
 import com.example.preely.util.Constraints;
-import com.example.preely.viewmodel.ServiceViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
