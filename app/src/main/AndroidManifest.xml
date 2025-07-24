@@ -133,13 +133,10 @@
 
         </activity>
 
-<!--        <activity-->
-<!--            android:name=".view.SavedPostsActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity android:name=".view.ManagementActivity" />-->
-<!--        <activity android:name=".view.ProfileActivity" />-->
-<!--        <activity android:name=".view.PrivacyPolicyActivity" />-->
-<!--        <activity android:name=".view.ChangePasswordActivity" />-->
+        <activity android:name=".view.ManagementActivity" />
+        <activity android:name=".view.ProfileActivity" />
+        <activity android:name=".view.PrivacyPolicyActivity" />
+        <activity android:name=".view.ChangePasswordActivity" />
         <activity
             android:name=".view.MapTestActivity"
             android:exported="false" />
