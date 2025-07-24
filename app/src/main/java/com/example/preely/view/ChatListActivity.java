@@ -58,7 +58,7 @@ public class ChatListActivity extends AppCompatActivity {
             return;
         }
 
-        String userId = sessionManager.getUserSession().getId().getId();
+        String userId = sessionManager.getUserSession().getId();
         DocumentReference currentUserRef = FirebaseFirestore.getInstance()
                 .collection("user")
                 .document(userId);

@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -28,6 +29,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.preely.R;
 import com.example.preely.adapter.CategoryMarketAdapter;
 import com.example.preely.adapter.ServiceMarketAdapter;
@@ -48,6 +50,8 @@ import com.example.preely.model.entities.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
@@ -65,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
     private CategoryService categoryService;
     TextView seeAllService;
     EditText searchInput;
+    ImageView circleImage;
     private ServiceViewModel serviceViewModel;
     private SessionManager sessionManager;
     LinearLayout mainLayout;
@@ -85,9 +90,9 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         initializeComponents();
         setupViews();
-        setupNotificationSystem();
-        setupDataServices();
-        handleIntentExtras();
+//        setupNotificationSystem();
+//        setupDataServices();
+//        handleIntentExtras();
     }
 
     private void initializeComponents() {
@@ -98,10 +103,11 @@ public class HomeActivity extends AppCompatActivity {
     private void setupViews() {
         findViews();
         setupUserInfo();
-        setupChatButton();
-        setupMapButton();
-        setupScrollFunctionality();
-        setupFavouriteButton();
+//        setupChatButton();
+//        setupMapButton();
+//        setupScrollFunctionality();
+//        setupFavouriteButton();
+        setupCategoryView();
     }
 
     private void findViews() {
@@ -118,10 +124,7 @@ public class HomeActivity extends AppCompatActivity {
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
         seeAllService = findViewById(R.id.seeAllService);
-        UserResponse user = sessionManager.getUserSession();
-        if (user != null) {
-            nameTv.setText(user.getFull_name() == null ? user.getUsername() : user.getFull_name());
-        }
+        circleImage = findViewById(R.id.circleImageView);
         openChatButton = findViewById(R.id.button_open_chat);
         testMapButton = findViewById(R.id.test_map_button);
         homeScrollView = findViewById(R.id.homeScrollView);
@@ -129,14 +132,73 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupUserInfo() {
-        if (sessionManager.getUserSession() != null) {
-            String displayName = sessionManager.getUserSession().getFull_name();
-            if (displayName == null || displayName.isEmpty()) {
-                displayName = sessionManager.getUserSession().getUsername();
+        UserResponse user = sessionManager.getUserSession();
+        if (user != null) {
+            nameTv.setText(user.getFull_name() == null ? user.getUsername() : user.getFull_name());
+            if (user.getAvatar() == null) {
+                circleImage.setImageResource(R.drawable.img_avatar);
+            } else {
+                Glide.with(this)
+                        .load(user.getAvatar())
+                        .circleCrop()
+                        .placeholder(R.drawable.img_avatar)
+                        .into(circleImage);
             }
-            nameTv.setText(displayName != null ? displayName : "User");
         }
     }
+
+    // start category display handle
+    public void setupCategoryView() {
+        categoryService = new ViewModelProvider(this).get(CategoryService.class);
+        observeCategoryList();
+        categoryService.getCateList();
+        cateRecycleView = findViewById(R.id.cate_recycle_view);
+        cateRecycleView.setLayoutManager(new GridLayoutManager(this, 4));
+        categoryAdapter = new CategoryMarketAdapter(categoryList);
+        cateRecycleView.setAdapter(categoryAdapter);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void observeCategoryList() {
+        categoryService.getCateListResult().observe(this, categoryResponses -> {
+            if (categoryResponses != null) {
+                categoryList.clear();
+                categoryList.addAll(categoryResponses);
+                categoryAdapter.notifyDataSetChanged();
+                categoryLoaded = true;
+                checkAllDataLoaded();
+            }
+        });
+    }
+
+    // end category display handle
+
+    // start service display handle
+
+//    public void setupServiceView() {
+//        LifecycleOwner lifecycleOwner = this;
+//        serviceViewModel = new ViewModelProvider(this).get(PostService.class);
+//        postRecycleView = findViewById(R.id.post_recycle_view);
+//        postRecycleView.setLayoutManager(new LinearLayoutManager(this));
+//        postAdapter = new PostMarketAdapter(postList, lifecycleOwner, postService);
+//        postRecycleView.setAdapter(postAdapter);
+//        observePostList();
+//        currentRequest = new PostFilterRequest();
+//        postService.getPostList(currentRequest);
+//        postService.getSavedPostsStatus().observe(this, map -> {
+//            if (map != null) {
+//                postAdapter.setSavedPostsStatusMap(map);
+//                postAdapter.notifyDataSetChanged();
+//            }
+//        });
+//        postService.getIsLastPageResult().observe(this, value -> {
+//            if (value != null) {
+//                isLastPage = value;
+//            }
+//        });
+//    }
+
+    // end service display handle
 
     private void setupChatButton() {
         openChatButton.setOnClickListener(v -> {
@@ -208,7 +270,7 @@ public class HomeActivity extends AppCompatActivity {
         if (!sessionManager.getLogin()) return;
 
         try {
-            String userId = sessionManager.getUserSession().getId().getId();
+            String userId = sessionManager.getUserSession().getId();
             DocumentReference userRef = FirebaseFirestore.getInstance()
                     .collection("user").document(userId);
 
@@ -257,7 +319,6 @@ public class HomeActivity extends AppCompatActivity {
 
         observeCategoryList();
 
-        LifecycleOwner lifecycleOwner = this;
         categoryService.getCateList();
     }
 
@@ -266,30 +327,17 @@ public class HomeActivity extends AppCompatActivity {
         // ... observer logic cho service nếu cần ...
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void observeCategoryList() {
-        categoryService.getCateListResult().observe(this, categoryResponses -> {
-            if (categoryResponses != null) {
-                categoryList.clear();
-                categoryList.addAll(categoryResponses);
-                categoryAdapter.notifyDataSetChanged();
-                categoryLoaded = true;
-                checkAllDataLoaded();
+    private void attachScrollListener() {
+        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            View view = homeScrollView.getChildAt(homeScrollView.getChildCount() - 1);
+            int diff = view.getBottom() - (homeScrollView.getHeight() + homeScrollView.getScrollY());
+
+            if (diff <= 0 && !isLoading && !isLastPage) {
+                isLoading = true;
+                getMoreData();
             }
         });
     }
-
-//    private void attachScrollListener() {
-//        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-//            View view = homeScrollView.getChildAt(homeScrollView.getChildCount() - 1);
-//            int diff = view.getBottom() - (homeScrollView.getHeight() + homeScrollView.getScrollY());
-//
-//            if (diff <= 0 && !isLoading && !isLastPage) {
-//                isLoading = true;
-//                getMoreData();
-//            }
-//        });
-//    }
 
     @SuppressLint("NotifyDataSetChanged")
     private void observePostList() {
@@ -324,21 +372,21 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (sessionManager != null && !sessionManager.getLogin()) {
-            Log.d(TAG, "Session expired, redirecting to login");
-            startActivity(new Intent(this, Login.class));
-            finish();
-            return;
-        }
-
-        if (sessionManager.getLogin()) {
-            loadInitialUnreadCount();
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        if (sessionManager != null && !sessionManager.getLogin()) {
+//            Log.d(TAG, "Session expired, redirecting to login");
+//            startActivity(new Intent(this, Login.class));
+//            finish();
+//            return;
+//        }
+//
+//        if (sessionManager.getLogin()) {
+//            loadInitialUnreadCount();
+//        }
+//    }
 
     @Override
     protected void onDestroy() {
@@ -357,7 +405,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void checkAllDataLoaded() {
-        if (categoryLoaded && postLoaded) {
+//        if (categoryLoaded && postLoaded) {
+//            progressBar.setVisibility(View.GONE);
+//            mainLayout.setVisibility(View.VISIBLE);
+//        }
+        if (categoryLoaded) {
             progressBar.setVisibility(View.GONE);
             mainLayout.setVisibility(View.VISIBLE);
         }

@@ -36,5 +36,5 @@ public class User extends BaseEntity {
     Timestamp last_login;
     Timestamp registration_date;
 
-    List<DocumentReference> skill_ids;
+    List<String> skill_ids;
 }

@@ -6,10 +6,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.preely.authentication.SessionManager;
+import com.example.preely.model.entities.Skill;
 import com.example.preely.model.entities.User;
 import com.example.preely.model.request.UserLoginRequest;
 import com.example.preely.model.request.UserRegisterRequest;
+import com.example.preely.model.response.SkillResponse;
 import com.example.preely.model.response.UserResponse;
 import com.example.preely.repository.MainRepository;
 import com.example.preely.util.CallBackUtil;
@@ -17,21 +18,27 @@ import com.example.preely.util.DataUtil;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.preely.util.Constraints.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(force = true)
 public class UserLoginService extends ViewModel {
     public final MainRepository<User> userRepository = new MainRepository<>(User.class, CollectionName.USERS);
+    public final MainRepository<Skill> skillRepository = new MainRepository<>(Skill.class, CollectionName.SKILL);
     private final MutableLiveData<String> usernameError = new MutableLiveData<>();
     private final MutableLiveData<String> passwordError = new MutableLiveData<>();
     private final MutableLiveData<String> confirmPasswordError = new MutableLiveData<>();
     private final MutableLiveData<UserResponse> loginResult = new MutableLiveData<>();
     private final MutableLiveData<Boolean> signupResult = new MutableLiveData<>();
     private final MutableLiveData<UserResponse> userInfo = new MutableLiveData<>();
+
     public LiveData<UserResponse> getUserInfo() {
         return userInfo;
     }
@@ -91,6 +98,7 @@ public class UserLoginService extends ViewModel {
         userRepository.getOne(query).observeForever(user -> {
             if (user != null && DataUtil.checkPassword(request.getPassword(), user.getEncode_password())) {
                 user.setLast_login(Timestamp.now());
+                user.setUpdate_at(Timestamp.now());
                 userRepository.update(user, user.getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
@@ -103,7 +111,20 @@ public class UserLoginService extends ViewModel {
                     }
                 });
                 try {
-                    loginResult.setValue(DataUtil.mapObj(user, UserResponse.class));
+                    UserResponse userResponse = DataUtil.mapObj(user, UserResponse.class);
+                    getUserSkillList(user.getSkill_ids(), new CallBackUtil.SkillListCallback() {
+                        @Override
+                        public void onSuccess(List<SkillResponse> skillResponses) {
+                            userResponse.setSkills(skillResponses);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            userResponse.setSkills(null);
+                        }
+                    });
+
+                    loginResult.setValue(userResponse);
                 } catch (IllegalAccessException | InstantiationException e) {
                     throw new RuntimeException(e);
                 }
@@ -208,6 +229,7 @@ public class UserLoginService extends ViewModel {
                 newUser.setRegistration_date(Timestamp.now());
                 newUser.setFull_name(userFb.getDisplayName());
                 newUser.setPhone_number(userFb.getPhoneNumber());
+                newUser.setAvatar(String.valueOf(userFb.getPhotoUrl()));
                 userRepository.add(newUser, CollectionName.USERS, new CallBackUtil.OnInsertCallback() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
@@ -246,17 +268,55 @@ public class UserLoginService extends ViewModel {
                 .whereEqualTo("email", email)
                 .limit(1);
         userRepository.getOne(query).observeForever(user -> {
-           if (user != null) {
-               try {
-                   userInfo.setValue(DataUtil.mapObj(user, UserResponse.class));
-                   Log.i("GET USER", user.toString());
-               } catch (IllegalAccessException | InstantiationException e) {
-                   throw new RuntimeException(e);
-               }
-           } else {
-               userInfo.setValue(null);
-           }
+            if (user != null) {
+                try {
+                    UserResponse userResponse = DataUtil.mapObj(user, UserResponse.class);
+                    getUserSkillList(user.getSkill_ids(), new CallBackUtil.SkillListCallback() {
+                        @Override
+                        public void onSuccess(List<SkillResponse> skillResponses) {
+                            userResponse.setSkills(skillResponses);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            userResponse.setSkills(null);
+                        }
+                    });
+
+                    userInfo.setValue(userResponse);
+                    Log.i("GET USER", user.toString());
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                userInfo.setValue(null);
+            }
         });
     }
+
+    public void getUserSkillList(List<String> skillIds, CallBackUtil.SkillListCallback callback) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            callback.onSuccess(null);
+            return;
+        }
+        Query query = FirebaseFirestore.getInstance()
+                .collection(CollectionName.SKILL)
+                .whereIn(FieldPath.documentId(), skillIds);
+
+        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<Skill> results = queryDocumentSnapshots.toObjects(Skill.class);
+            List<SkillResponse> skills = new ArrayList<>();
+            for (Skill skill : results) {
+                try {
+                    SkillResponse skillResponse = DataUtil.mapObj(skill, SkillResponse.class);
+                    skills.add(skillResponse);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+            }
+            callback.onSuccess(skills);
+        }).addOnFailureListener(callback::onFailure);
+    }
+
 
 }

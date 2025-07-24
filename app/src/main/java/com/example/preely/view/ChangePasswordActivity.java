@@ -47,7 +47,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            String userId = (user.getId() != null) ? user.getId().getId() : null;
+            String userId = (user.getId() != null) ? user.getId() : null;
             android.util.Log.d("ChangePassword", "userId: " + userId);
             if (userId != null) {
                 FirebaseFirestore.getInstance()

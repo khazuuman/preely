@@ -1,6 +1,9 @@
 package com.example.preely.util;
 
+import com.example.preely.model.response.SkillResponse;
 import com.google.firebase.firestore.DocumentReference;
+
+import java.util.List;
 
 public class CallBackUtil {
     public interface OnInsertCallback {
@@ -22,6 +25,12 @@ public class CallBackUtil {
         void onSuccess();
         void onFailure(Exception e);
     }
+    public interface SkillListCallback {
+        void onSuccess(List<SkillResponse> skillResponses);
+        void onFailure(Exception e);
+    }
+
+
 
 
 }

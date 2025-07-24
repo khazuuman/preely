@@ -143,10 +143,10 @@ public class MapTestActivity extends AppCompatActivity {
             return;
         }
 
-        Log.d(TAG, "Saving location for user: " + user.getId().getId());
+        Log.d(TAG, "Saving location for user: " + user.getId());
 
         mapService.updateUserLocation(
-                user.getId().getId(),
+                user.getId(),
                 locationToSave,
                 new MapService.OnUpdateListener() {
                     @Override

@@ -72,7 +72,7 @@ public class TransactionActivity extends AppCompatActivity {
 
         // Get requester ID from session
         SessionManager sessionManager = new SessionManager(this);
-        requesterId = sessionManager.getUserSession().getId().getId();
+        requesterId = sessionManager.getUserSession().getId();
         if (requesterId == null) {
             Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_SHORT).show();
             finish();

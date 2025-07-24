@@ -70,14 +70,12 @@ dependencies {
     implementation(libs.cloudinary.android)
     implementation(libs.picasso)
     implementation(libs.google.play.services.auth)
-    implementation(libs.circle.image.view)
     implementation(libs.facebook.android.sdk)
     implementation(platform(libs.firebase.bom))
     implementation(libs.imageslideshow)
-    implementation(libs.circle.image.view)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.places)
     implementation(libs.imageslideshow.v012)
-
+    implementation(libs.circleImage)
 }

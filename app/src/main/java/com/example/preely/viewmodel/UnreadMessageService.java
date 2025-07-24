@@ -35,7 +35,7 @@ public class UnreadMessageService extends Service {
         sessionManager = new SessionManager(this);
 
         if (sessionManager.getUserSession() != null) {
-            currentUserId = sessionManager.getUserSession().getId().getId();
+            currentUserId = sessionManager.getUserSession().getId();
             startListeningForNewMessages();
         }
     }

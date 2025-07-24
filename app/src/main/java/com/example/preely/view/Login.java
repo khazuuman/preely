@@ -77,8 +77,6 @@ public class Login extends AppCompatActivity {
             return;
         }
 
-        Log.d("LoginActivity", "getLogin: " + sessionManager.getLogin());
-
         mAuth = FirebaseAuth.getInstance();
 
         // google setting
@@ -114,7 +112,6 @@ public class Login extends AppCompatActivity {
         userLoginService.getLoginResult().observe(this, userResponse -> {
             if (userResponse != null) {
                 sessionManager.setUserSession(userResponse);
-                sessionManager.setLogin(true); // Đảm bảo set trạng thái đăng nhập
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra("toast_mess", "Đăng nhập thành công");
                 startActivity(intent);
@@ -193,8 +190,6 @@ public class Login extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             userLoginService.handleGoogleLoginDetail(user);
-                            sessionManager.setLogin(true); // Đảm bảo set trạng thái đăng nhập
-                            finishAffinity();
                         }
                     } else {
                         Toast.makeText(this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
