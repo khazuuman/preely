@@ -11,10 +11,12 @@ import com.example.preely.model.entities.Category;
 import com.example.preely.model.entities.Service;
 import com.example.preely.model.entities.User;
 import com.example.preely.model.request.ServiceFilterRequest;
+import com.example.preely.model.response.ServiceMarketDetailResponse;
 import com.example.preely.model.response.ServiceMarketResponse;
 import com.example.preely.util.DataUtil;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -24,11 +26,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ServiceMarketViewModel extends ViewModel {
-    //    private static final MainRepository<SavedPost> savedPostRepository = new MainRepository<>(SavedPost.class, CollectionName.SAVED_POST);
+    //        private static final MainRepository<SavedPost> savedPostRepository = new MainRepository<>(SavedPost.class, CollectionName.SAVED_POST);
     private final MutableLiveData<List<ServiceMarketResponse>> serviceMarketResponseListResult = new MutableLiveData<>();
-    //    private final MutableLiveData<PostResponse> postResponseResult = new MutableLiveData<>();
+    private final MutableLiveData<ServiceMarketDetailResponse> detailResponse = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLastPageResult = new MutableLiveData<>();
     private final MutableLiveData<Boolean> postExisted = new MutableLiveData<>();
     private DocumentSnapshot lastVisible = null;
@@ -50,9 +53,9 @@ public class ServiceMarketViewModel extends ViewModel {
         serviceMarketResponseListResult.postValue(new ArrayList<>());
     }
 
-//    public LiveData<PostResponse> getPostResult() {
-//        return postResponseResult;
-//    }
+    public LiveData<ServiceMarketDetailResponse> getDetailResponse() {
+        return detailResponse;
+    }
 
     private Query buildPostQuery(ServiceFilterRequest request) {
         Query query = FirebaseFirestore.getInstance().collection(CollectionName.SERVICE);
@@ -115,7 +118,6 @@ public class ServiceMarketViewModel extends ViewModel {
                 if (doc.exists()) {
                     Category category = doc.toObject(Category.class);
                     assert category != null;
-                    Log.i("CATEGORY", category.toString());
                     serviceMarketResponse.setCategoryName(category.getName());
                 }
             });
@@ -250,7 +252,7 @@ public class ServiceMarketViewModel extends ViewModel {
 //                });
 //    }
 
-//    public Map<String, Object> excludeBaseTimestamps(SavedPost savedPost) {
+    //    public Map<String, Object> excludeBaseTimestamps(SavedPost savedPost) {
 //        Map<String, Object> map = new HashMap<>();
 //
 //        map.put("post_id", savedPost.getPost_id());
@@ -260,58 +262,66 @@ public class ServiceMarketViewModel extends ViewModel {
 //        return map;
 //    }
 //
-//    public void getPost(String postRef) {
-//        DocumentReference postRefDoc = FirebaseFirestore.getInstance()
-//                .collection(CollectionName.POSTS)
-//                .document(postRef);
-//        AtomicReference<PostResponse> postResponse = new AtomicReference<>(new PostResponse());
-//        postRefDoc.get().addOnSuccessListener(documentSnapshot -> {
-//            if (documentSnapshot.exists()) {
-//                Post post = documentSnapshot.toObject(Post.class);
-//                try {
-//                    assert post != null;
-//                    postResponse.set(DataUtil.mapObj(post, PostResponse.class));
-//                    if (post.getCategory_id() != null) {
-//                        Task<DocumentSnapshot> categoryTask = post.getCategory_id().get();
-//                        categoryTask.addOnSuccessListener(doc -> {
-//                            if (doc.exists()) {
-//                                Category category = doc.toObject(Category.class);
-//                                try {
-//                                    assert category != null;
-//                                    postResponse.get().setCategoryResponse(DataUtil.mapObj(category, CategoryResponse.class));
-//                                } catch (IllegalAccessException | InstantiationException e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                            }
-//                        });
-//                    }
-//                } catch (IllegalAccessException | InstantiationException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                if (post.getTag_ids() != null && !post.getTag_ids().isEmpty()) {
-//                    Task<QuerySnapshot> tagsTask = FirebaseFirestore.getInstance()
-//                            .collection(CollectionName.TAGS)
-//                            .whereIn(FieldPath.documentId(), post.getTag_ids())
-//                            .get();
-//                    tagsTask.addOnSuccessListener(snapshot -> {
-//                        List<TagResponse> tagResponses = new ArrayList<>();
-//                        for (DocumentSnapshot tagDoc : snapshot.getDocuments()) {
-//                            try {
-//                                Tag tag = tagDoc.toObject(Tag.class);
-//                                assert tag != null;
-//                                tagResponses.add(DataUtil.mapObj(tag, TagResponse.class));
-//                            } catch (IllegalAccessException | InstantiationException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                        }
-//                        postResponse.get().setTagResponses(tagResponses);
-//                    });
-//                }
-//                postResponseResult.setValue(postResponse.get());
-//            } else {
-//                postResponseResult.setValue(null);
-//            }
-//        });
-//    }
+    public void getServiceDetail(String postRef) {
+        DocumentReference postRefDoc = FirebaseFirestore.getInstance()
+                .collection(CollectionName.SERVICE)
+                .document(postRef);
+        Log.i("POST REF", postRef);
+        AtomicReference<ServiceMarketDetailResponse> atomicReference = new AtomicReference<>(new ServiceMarketDetailResponse());
+
+        postRefDoc.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Service service = documentSnapshot.toObject(Service.class);
+                try {
+                    assert service != null;
+                    ServiceMarketDetailResponse response = DataUtil.mapObj(service, ServiceMarketDetailResponse.class);
+
+                    List<Task<?>> tasks = new ArrayList<>();
+
+                    if (service.getCategory_id() != null) {
+                        Task<DocumentSnapshot> categoryTask = service.getCategory_id().get();
+                        tasks.add(categoryTask);
+                        categoryTask.addOnSuccessListener(doc -> {
+                            if (doc.exists()) {
+                                Category category = doc.toObject(Category.class);
+                                if (category != null) {
+                                    response.setCategoryName(category.getName());
+                                }
+                            }
+                        });
+                    }
+
+                    if (service.getProvider_id() != null) {
+                        Task<DocumentSnapshot> providerTask = service.getProvider_id().get();
+                        tasks.add(providerTask);
+                        providerTask.addOnSuccessListener(snapshot -> {
+                            if (snapshot.exists()) {
+                                User provider = snapshot.toObject(User.class);
+                                if (provider != null) {
+                                    response.setProviderName(
+                                            provider.getFull_name() == null ? provider.getUsername() : provider.getFull_name()
+                                    );
+                                }
+                            }
+                        });
+                    }
+
+                    if (tasks.isEmpty()) {
+                        detailResponse.setValue(response);
+                    } else {
+                        Tasks.whenAllComplete(tasks).addOnSuccessListener(taskList -> {
+                            detailResponse.setValue(response);
+                        });
+                    }
+
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                detailResponse.setValue(null);
+            }
+        });
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.example.preely.adapter;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,7 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             serviceHolder.serviceImg.setOnClickListener(v -> {
                 Intent intent = new Intent(holder.itemView.getContext(), ServiceDetailActivity.class);
                 intent.putExtra("serviceId", response.getId());
+                Log.i("SERVICE ID", String.valueOf(response.getId()));
                 holder.itemView.getContext().startActivity(intent);
             });
 

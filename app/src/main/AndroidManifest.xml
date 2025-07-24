@@ -111,6 +111,9 @@
             android:name=".view.ServiceListActivity"
             android:exported="false" />
         <activity
+            android:name=".view.ServiceDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.PaymentResultActivity"
             android:exported="false" /> <!-- <activity -->
         <!-- android:name=".view.TestUploadActivity" -->

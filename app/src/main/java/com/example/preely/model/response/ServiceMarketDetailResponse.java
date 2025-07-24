@@ -1,33 +1,33 @@
-package com.example.preely.model.entities;
+package com.example.preely.model.response;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.List;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
+@EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Service extends BaseEntity {
-    DocumentReference category_id;
-    DocumentReference provider_id;
-
-
+@NoArgsConstructor
+public class ServiceMarketDetailResponse extends CommonResponse {
     String title;
-    String description;
-    Double price;
-    String availability;
+    String providerName;
+    String categoryName;
     String university;
+    String availability;
+    Double price;
+    String status;
+    String description;
     Float average_rating;
     Integer total_reviews;
-    String status;
     List<String> image_urls;
     GeoPoint location;
 }
