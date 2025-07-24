@@ -10,10 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.model.entities.Service;
 import java.util.List;
+import android.util.Log;
+import java.util.Map;
 
 public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceViewHolder> {
     private List<Service> serviceList;
     private final OnServiceClickListener listener;
+    private Map<String, String> categoryIdToName = null;
+    private Map<String, String> providerIdToName = null;
 
     public interface OnServiceClickListener {
         void onEdit(Service service);
@@ -39,7 +43,25 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         holder.title.setText(service.getTitle());
         holder.description.setText(service.getDescription());
         holder.price.setText("$" + service.getPrice());
-        holder.status.setText(service.getAvailability());
+        holder.status.setText(service.getAvailability() != null ? service.getAvailability().getLabel() : "");
+        // Hiển thị tên category
+        String categoryName = "";
+        if (service.getCategory_id() != null && categoryIdToName != null) {
+            String id = service.getCategory_id().getId();
+            categoryName = categoryIdToName.getOrDefault(id, id);
+        }
+        holder.category.setText(categoryName);
+        // Hiển thị tên provider
+        String providerName = "";
+        if (service.getProvider_id() != null && providerIdToName != null) {
+            String id = service.getProvider_id().getId();
+            providerName = providerIdToName.getOrDefault(id, id);
+        }
+        holder.provider.setText(providerName);
+        Log.d("ServiceAdapter", "onBindViewHolder: service id=" + service.getId()
+                + ", category_id=" + (service.getCategory_id() != null ? service.getCategory_id().getPath() : "null")
+                + ", provider_id=" + (service.getProvider_id() != null ? service.getProvider_id().getPath() : "null")
+                + ", categoryName=" + categoryName + ", providerName=" + providerName);
         holder.itemView.setOnClickListener(v -> listener.onItemClick(service));
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(service));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(service));
@@ -52,6 +74,15 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
     public void setServiceList(List<Service> serviceList) {
         this.serviceList = serviceList;
+        notifyDataSetChanged();
+    }
+
+    public void setCategoryIdToName(Map<String, String> map) {
+        this.categoryIdToName = map;
+        notifyDataSetChanged();
+    }
+    public void setProviderIdToName(Map<String, String> map) {
+        this.providerIdToName = map;
         notifyDataSetChanged();
     }
 

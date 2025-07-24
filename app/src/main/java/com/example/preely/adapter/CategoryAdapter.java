@@ -56,7 +56,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     class CategoryViewHolder extends RecyclerView.ViewHolder {
         private TextView tvCategoryName;
-        private TextView tvParentCategory;
         private TextView tvCategoryCount;
         private ImageButton btnEdit;
         private ImageButton btnDelete;
@@ -64,7 +63,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCategoryName = itemView.findViewById(R.id.tv_category_name);
-            tvParentCategory = itemView.findViewById(R.id.tv_category_description);
             tvCategoryCount = itemView.findViewById(R.id.tv_category_count);
             btnEdit = itemView.findViewById(R.id.btn_edit_category);
             btnDelete = itemView.findViewById(R.id.btn_delete_category);
@@ -94,11 +92,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         public void bind(Category category) {
             tvCategoryName.setText(category.getName() != null ? category.getName() : "N/A");
             
-            // Show parent category info
-            tvParentCategory.setText("Root Category");
-            
             // TODO: Get post count for this category
-            tvCategoryCount.setText("0 posts");
+            tvCategoryCount.setText("0 services");
         }
     }
 } 

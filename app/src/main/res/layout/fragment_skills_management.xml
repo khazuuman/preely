@@ -36,11 +36,11 @@
                     android:contentDescription="Search icon"/>
 
                 <EditText
-                    android:id="@+id/et_search_service"
+                    android:id="@+id/et_search_skills"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Search services..."
+                    android:hint="Search skills..."
                     android:background="@android:color/transparent"
                     android:inputType="text"
                     android:textSize="17sp"
@@ -54,7 +54,7 @@
 
         <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_services"
+            android:id="@+id/recycler_skills"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -65,7 +65,7 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_service"
+        android:id="@+id/fab_add_skill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

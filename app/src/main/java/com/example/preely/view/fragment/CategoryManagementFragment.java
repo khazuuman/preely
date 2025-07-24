@@ -275,7 +275,6 @@ public class CategoryManagementFragment extends Fragment implements CategoryAdap
         // Show category details dialog
         StringBuilder details = new StringBuilder();
         details.append("Name: ").append(category.getName()).append("\n");
-        details.append("Parent Category: Root Category");
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Category Details")

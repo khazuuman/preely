@@ -6,6 +6,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+
+import com.example.preely.util.Constraints;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import androidx.annotation.Nullable;
@@ -61,7 +63,17 @@ public class CreateServiceActivity extends AppCompatActivity {
         }
         service.setCategory_id(null);
         service.setProvider_id(null);
-        service.setAvailability(spinnerStatus.getSelectedItem() != null ? spinnerStatus.getSelectedItem().toString() : "");
+        Object selectedItem = spinnerStatus.getSelectedItem();
+        Constraints.Availability availability = null;
+
+        if (selectedItem != null && !selectedItem.toString().isEmpty()) {
+            try {
+                availability = Constraints.Availability.valueOf(selectedItem.toString());
+            } catch (IllegalArgumentException e) {
+            }
+        }
+
+        service.setAvailability(availability);
         progressBar.setVisibility(View.GONE);
         finish();
     }

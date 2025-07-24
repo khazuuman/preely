@@ -23,6 +23,16 @@ import com.example.preely.model.entities.User;
 import com.example.preely.viewmodel.CloudinaryService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import android.widget.AutoCompleteTextView;
+import android.widget.MultiAutoCompleteTextView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentReference;
+import com.example.preely.model.entities.Skill;
+import java.util.ArrayList;
+import java.util.List;
+import android.widget.ArrayAdapter;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -34,7 +44,14 @@ public class AddEditUserDialog extends Dialog {
     private boolean isEditMode;
     private ActivityResultLauncher<Intent> avatarPickerLauncher;
 
-    private TextInputEditText etFullName, etEmail, etPhone, etAddress;
+    private TextInputEditText etFullName, etEmail, etPhone, etAddress, etUsername, etUniversity, etRating;
+    private AutoCompleteTextView actvRole;
+    private MultiAutoCompleteTextView mactvSkills;
+    private SwitchMaterial switchActive;
+    private List<Skill> skillList = new ArrayList<>();
+    private List<String> selectedSkillNames = new ArrayList<>();
+    private ArrayAdapter<String> skillsAdapter;
+    private ArrayAdapter<String> roleAdapter;
     private MaterialButton btnSave, btnCancel;
     private ImageView imgAvatarPreview;
     private MaterialButton btnChooseAvatar;
@@ -66,6 +83,8 @@ public class AddEditUserDialog extends Dialog {
 
         initViews();
         setupListeners();
+        fetchSkills();
+        setupRoleAdapter();
         if (isEditMode) {
             populateFields();
         }
@@ -76,17 +95,63 @@ public class AddEditUserDialog extends Dialog {
         etEmail = findViewById(R.id.et_email);
         etPhone = findViewById(R.id.et_phone);
         etAddress = findViewById(R.id.et_address);
+        etUsername = findViewById(R.id.et_username);
+        etUniversity = findViewById(R.id.et_university);
+        etRating = findViewById(R.id.et_rating);
+        actvRole = findViewById(R.id.actv_role);
+        mactvSkills = findViewById(R.id.mactv_skills);
+        switchActive = findViewById(R.id.switch_active);
         btnSave = findViewById(R.id.btn_save);
         btnCancel = findViewById(R.id.btn_cancel);
         imgAvatarPreview = findViewById(R.id.img_avatar_preview);
         btnChooseAvatar = findViewById(R.id.btn_choose_avatar);
-
-        // Update title TextView in layout
         TextView tvTitle = findViewById(R.id.tv_dialog_title);
         if (isEditMode) {
             tvTitle.setText("Edit User");
         } else {
             tvTitle.setText("Add New User");
+        }
+    }
+
+    private void setupRoleAdapter() {
+        String[] roles = {"user", "admin"};
+        roleAdapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, roles);
+        actvRole.setAdapter(roleAdapter);
+        actvRole.setOnClickListener(v -> actvRole.showDropDown());
+    }
+
+    private void fetchSkills() {
+        FirebaseFirestore.getInstance().collection("skills").get().addOnSuccessListener(querySnapshot -> {
+            skillList.clear();
+            List<String> skillNames = new ArrayList<>();
+            for (var doc : querySnapshot.getDocuments()) {
+                Skill s = doc.toObject(Skill.class);
+                if (s != null) {
+                    s.setId(doc.getId());
+                    skillList.add(s);
+                    skillNames.add(s.getName());
+                }
+            }
+            skillsAdapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, skillNames);
+            mactvSkills.setAdapter(skillsAdapter);
+            mactvSkills.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+            mactvSkills.setOnClickListener(v -> mactvSkills.showDropDown());
+            if (isEditMode) populateSkillsField();
+        });
+    }
+
+    private void populateSkillsField() {
+        if (user.getSkill_ids() != null && !user.getSkill_ids().isEmpty()) {
+            List<String> names = new ArrayList<>();
+            for (DocumentReference ref : user.getSkill_ids()) {
+                for (Skill s : skillList) {
+                    if (s.getId().equals(ref.getId())) {
+                        names.add(s.getName());
+                        break;
+                    }
+                }
+            }
+            mactvSkills.setText(android.text.TextUtils.join(", ", names));
         }
     }
 
@@ -102,11 +167,17 @@ public class AddEditUserDialog extends Dialog {
             etEmail.setText(user.getEmail());
             etPhone.setText(user.getPhone_number());
             etAddress.setText(user.getAddress());
+            etUsername.setText(user.getUsername());
+            etUniversity.setText(user.getUniversity());
+            actvRole.setText(user.getRole(), false);
+            switchActive.setChecked(user.is_active());
+            etRating.setText(String.valueOf(user.getRating()));
             if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
                 Glide.with(context).load(user.getAvatar()).placeholder(R.drawable.ic_account).into(imgAvatarPreview);
             } else {
                 imgAvatarPreview.setImageResource(R.drawable.ic_account);
             }
+            populateSkillsField();
         }
     }
 
@@ -151,7 +222,12 @@ public class AddEditUserDialog extends Dialog {
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         String address = etAddress.getText().toString().trim();
-
+        String username = etUsername.getText().toString().trim();
+        String university = etUniversity.getText().toString().trim();
+        String role = actvRole.getText().toString().trim();
+        boolean isActive = switchActive.isChecked();
+        float rating = 0f;
+        try { rating = Float.parseFloat(etRating.getText().toString().trim()); } catch (Exception ignored) {}
         // Validation
         if (fullName.isEmpty()) {
             etFullName.setError("Full name is required");
@@ -165,13 +241,32 @@ public class AddEditUserDialog extends Dialog {
             etEmail.setError("Invalid email format");
             return;
         }
-
         User userToSave = isEditMode ? user : new User();
         userToSave.setFull_name(fullName);
         userToSave.setEmail(email);
         userToSave.setPhone_number(phone);
         userToSave.setAddress(address);
-
+        userToSave.setUsername(username);
+        userToSave.setUniversity(university);
+        userToSave.setRole(role);
+        userToSave.set_active(isActive);
+        userToSave.setRating(rating);
+        // Skills
+        String skillsStr = mactvSkills.getText().toString();
+        List<DocumentReference> skillRefs = new ArrayList<>();
+        if (!skillsStr.isEmpty()) {
+            String[] names = skillsStr.split(",");
+            for (String name : names) {
+                String trimmed = name.trim();
+                for (Skill s : skillList) {
+                    if (s.getName().equals(trimmed)) {
+                        skillRefs.add(FirebaseFirestore.getInstance().collection("skills").document(s.getId()));
+                        break;
+                    }
+                }
+            }
+        }
+        userToSave.setSkill_ids(skillRefs);
         if (pendingAvatarUrl != null && !pendingAvatarUrl.isEmpty()) {
             userToSave.setAvatar(pendingAvatarUrl);
         }

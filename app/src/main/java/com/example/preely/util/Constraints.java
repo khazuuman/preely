@@ -22,10 +22,31 @@ public class Constraints {
         int DATE_DESC = 2;
     }
 
-    public interface PostStatus {
-        String CLAIMED = "Claimed";
-        String COMPLETED = "Completed";
-        String CANCELLED = "Cancelled";
-        String HIDDEN = "Hidden";
+    public enum Availability {
+        WEEKENDS("Weekends"),
+        WEEKDAYS("Weekdays"),
+        MON_FRI_MORNINGS("Mon-Fri mornings"),
+        MON_FRI_AFTERNOONS("Mon-Fri afternoons"),
+        MON_FRI_EVENINGS("Mon-Fri evenings"),
+        EVENINGS_ONLY("Evenings only"),
+        MORNINGS_ONLY("Mornings only"),
+        AFTERNOONS_ONLY("Afternoons only"),
+        FLEXIBLE("Flexible"),
+        FULL_TIME("Full-time"),
+        PART_TIME("Part-time"),
+        ON_DEMAND("On demand"),
+        BY_APPOINTMENT("By appointment"),
+        NOT_AVAILABLE("Not available");
+
+        private final String label;
+
+        Availability(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
     }
+
 }

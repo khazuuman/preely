@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,8 +23,7 @@ public class AddEditCategoryDialog extends Dialog {
     private OnCategoryDialogListener listener;
     private boolean isEditMode;
 
-    private TextInputEditText etName, etParentCategoryId;
-    private Spinner spinnerParentCategory;
+    private TextInputEditText etName;
     private MaterialButton btnSave, btnCancel;
 
     public interface OnCategoryDialogListener {
@@ -54,23 +54,19 @@ public class AddEditCategoryDialog extends Dialog {
 
     private void initViews() {
         etName = findViewById(R.id.et_name);
-        etParentCategoryId = findViewById(R.id.et_parent_category_id);
-        spinnerParentCategory = findViewById(R.id.spinner_parent_category);
         btnSave = findViewById(R.id.btn_save);
         btnCancel = findViewById(R.id.btn_cancel);
 
+        TextView title = findViewById(R.id.tv_dialog_title);
+
         if (isEditMode) {
-            setTitle("Edit Category");
+            title.setText("Edit Category");
         } else {
-            setTitle("Add New Category");
+            title.setText("Add New Category");
         }
     }
 
     private void setupSpinner() {
-        String[] parentOptions = {"None (Root Category)", "Electronics", "Clothing", "Books", "Home & Garden"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, parentOptions);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerParentCategory.setAdapter(adapter);
     }
 
     private void setupListeners() {
@@ -86,7 +82,6 @@ public class AddEditCategoryDialog extends Dialog {
 
     private void saveCategory() {
         String name = etName.getText().toString().trim();
-        String parentCategoryId = etParentCategoryId.getText().toString().trim();
 
         // Validation
         if (name.isEmpty()) {

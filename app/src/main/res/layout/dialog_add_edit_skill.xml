@@ -1,34 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@android:color/white">
+    android:background="@drawable/bg_dialog_rounded">
 
     <TextView
-        android:id="@+id/tv_dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Category"
+        android:text="Add/Edit Skill"
         android:textSize="20sp"
-        android:fontFamily="@font/zain_bold"
-        android:textColor="#333333"
+        android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginBottom="20dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_skill_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Category Name"
-        app:startIconDrawable="@drawable/ic_edit"
-        android:layout_marginBottom="16dp">
+        android:hint="Skill Name"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_marginBottom="20dp">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_name"
+            android:id="@+id/et_skill_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"/>
+            android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -38,23 +35,19 @@
         android:gravity="end">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel"
+            android:id="@+id/btn_cancel_skill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#666666"
-            android:backgroundTint="@android:color/transparent"
-            android:layout_marginEnd="8dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_marginEnd="8dp"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_save"
+            android:id="@+id/btn_save_skill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save"
             android:textColor="@android:color/white"
-            android:backgroundTint="#1DABDD"/>
-
+            android:backgroundTint="@color/twitter"/>
     </LinearLayout>
-
 </LinearLayout> 

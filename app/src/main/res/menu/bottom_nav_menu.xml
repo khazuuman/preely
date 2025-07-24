@@ -6,9 +6,9 @@
         android:title="Home" />
     
     <item
-        android:id="@+id/navigation_posts"
+        android:id="@+id/navigation_servicess"
         android:icon="@drawable/ic_edit"
-        android:title="@string/menu_posts" />
+        android:title="services" />
     
     <item
         android:id="@+id/navigation_settings"

@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.preely.model.entities.Service;
+import com.example.preely.util.Constraints;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +24,7 @@ public class SavedServiceViewModel extends ViewModel {
             s.setTitle("Saved Service " + i);
             s.setDescription("Description for saved service " + i);
             s.setPrice(150.0 + i);
-            s.setAvailability("Weekends");
-            demoList.add(s);
+            s.setAvailability(Constraints.Availability.valueOf("WEEKENDS")); // nếu là tên enum            demoList.add(s);
         }
         savedServiceListLiveData.setValue(demoList);
     }

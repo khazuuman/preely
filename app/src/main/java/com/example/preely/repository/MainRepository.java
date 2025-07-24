@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import com.google.firebase.Timestamp;
 
 @Getter
 @Setter
@@ -102,6 +103,11 @@ public class MainRepository<T extends BaseEntity> {
 
     // Insert a single document
     public void add(T object, String collectionName, CallBackUtil.OnInsertCallback callback) {
+        if (object instanceof com.example.preely.model.entities.BaseEntity) {
+            com.example.preely.model.entities.BaseEntity base = (com.example.preely.model.entities.BaseEntity) object;
+            if (base.getCreate_at() == null) base.setCreate_at(Timestamp.now());
+            base.setUpdate_at(Timestamp.now());
+        }
         db.collection(collectionName)
                 .add(object)
                 .addOnSuccessListener(documentReference -> {
@@ -140,6 +146,10 @@ public class MainRepository<T extends BaseEntity> {
 
     // Update a single document
     public void update(T object, String documentId, CallBackUtil.OnUpdateCallback callback) {
+        if (object instanceof com.example.preely.model.entities.BaseEntity) {
+            com.example.preely.model.entities.BaseEntity base = (com.example.preely.model.entities.BaseEntity) object;
+            base.setUpdate_at(Timestamp.now());
+        }
         DocumentReference docRef = db.collection(getCollectionName()).document(String.valueOf(documentId));
         docRef.set(object)
                 .addOnSuccessListener(aVoid -> {

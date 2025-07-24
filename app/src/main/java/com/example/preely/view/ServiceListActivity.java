@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.adapter.ServiceMarketAdapter;
 import com.example.preely.model.entities.Service;
+import com.example.preely.util.Constraints;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +54,7 @@ public class ServiceListActivity extends AppCompatActivity {
             s.setTitle("Service " + i);
             s.setDescription("Description for service " + i);
             s.setPrice(100.0 + i);
-            s.setAvailability("Weekends");
-            serviceList.add(s);
+            s.setAvailability(Constraints.Availability.valueOf("WEEKENDS")); // nếu là tên enum            serviceList.add(s);
         }
         adapter.setServiceList(serviceList);
         progressBar.setVisibility(View.GONE);

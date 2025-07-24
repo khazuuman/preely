@@ -1,5 +1,6 @@
 package com.example.preely.model.entities;
 
+import com.example.preely.util.Constraints;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
+
+import  com.example.preely.util.Constraints.Availability;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
@@ -22,7 +25,7 @@ public class Service extends BaseEntity {
     String title;
     String description;
     Double price;
-    String availability; //"Weekends", "Mon-Fri evenings"
+    Availability availability;
     String university;
 
     float average_rating;

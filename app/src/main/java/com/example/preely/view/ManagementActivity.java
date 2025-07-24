@@ -14,6 +14,8 @@ import com.example.preely.view.fragment.UserManagementFragment;
 import com.example.preely.view.fragment.CategoryManagementFragment;
 import com.example.preely.view.fragment.TransactionManagementFragment;
 import android.app.AlertDialog;
+import com.example.preely.view.fragment.ServiceManagementFragment;
+import com.example.preely.view.fragment.SkillsManagementFragment;
 
 public class ManagementActivity extends AppCompatActivity {
     @Override
@@ -31,6 +33,9 @@ public class ManagementActivity extends AppCompatActivity {
         if (id == R.id.navigation_users) {
             loadFragment(new UserManagementFragment());
             return true;
+        } else if (id == R.id.navigation_services) {
+            loadFragment(new ServiceManagementFragment());
+            return true;
         } else if (id == R.id.navigation_categories) {
             loadFragment(new CategoryManagementFragment());
             return true;
@@ -42,12 +47,14 @@ public class ManagementActivity extends AppCompatActivity {
     }
 
     private void showMoreDialog() {
-        String[] options = {"Transactions"};
+        String[] options = {"Transactions", "Skills"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("More Management")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
                         loadFragment(new TransactionManagementFragment());
+                    } else if (which == 1) {
+                        loadFragment(new SkillsManagementFragment());
                     }
                 })
                 .show();

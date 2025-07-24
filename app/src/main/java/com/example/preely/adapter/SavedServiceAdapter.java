@@ -37,7 +37,7 @@ public class SavedServiceAdapter extends RecyclerView.Adapter<SavedServiceAdapte
         Service service = serviceList.get(position);
         holder.title.setText(service.getTitle());
         holder.price.setText("$" + service.getPrice());
-        holder.status.setText(service.getAvailability());
+        holder.status.setText(service.getAvailability().getLabel());
         holder.provider.setText("Provider: " + (service.getProvider_id() != null ? service.getProvider_id().getId() : "Unknown"));
         holder.category.setText("Category: " + (service.getCategory_id() != null ? service.getCategory_id().getId() : "Unknown"));
         holder.itemView.setOnClickListener(v -> listener.onItemClick(service));
