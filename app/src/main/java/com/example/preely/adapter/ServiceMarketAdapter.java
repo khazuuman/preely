@@ -1,5 +1,6 @@
 package com.example.preely.adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.preely.model.response.ServiceMarketResponse;
+import com.example.preely.view.ServiceDetailActivity;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
 import com.google.android.material.button.MaterialButton;
 
@@ -74,6 +76,12 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             serviceHolder.serviceCategory.setText(response.getCategoryName());
             serviceHolder.servicePrice.setText(formatPrice(response.getPrice()));
             serviceHolder.serviceStatus.setText(response.getStatus());
+
+            serviceHolder.serviceImg.setOnClickListener(v -> {
+                Intent intent = new Intent(holder.itemView.getContext(), ServiceDetailActivity.class);
+                intent.putExtra("serviceId", response.getId());
+                holder.itemView.getContext().startActivity(intent);
+            });
 
 //            SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
 

@@ -10,39 +10,36 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
-import com.example.preely.model.request.CategoryFilterRequest;
-import com.example.preely.model.request.SortFilterRequest;
+import com.example.preely.model.request.AvailableFilterRequest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class SortFilterAdapter extends RecyclerView.Adapter<SortFilterAdapter.SortFilterViewHolder> {
+public class AvailableFilterAdapter extends RecyclerView.Adapter<AvailableFilterAdapter.AvaiableViewHolder> {
 
-    private final List<SortFilterRequest> itemList;
+    private final List<AvailableFilterRequest> itemList;
 
-    public SortFilterAdapter(List<SortFilterRequest> itemList) {
+    public AvailableFilterAdapter(List<AvailableFilterRequest> itemList) {
         this.itemList = itemList;
     }
 
     @NonNull
     @Override
-    public SortFilterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AvaiableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_filter_checkbox, parent, false);
-        return new SortFilterAdapter.SortFilterViewHolder(view);
+        return new AvailableFilterAdapter.AvaiableViewHolder(view);
     }
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
-    public void onBindViewHolder(@NonNull SortFilterViewHolder holder, int position) {
-        SortFilterRequest item = itemList.get(position);
+    public void onBindViewHolder(@NonNull AvaiableViewHolder holder, int position) {
+        AvailableFilterRequest item = itemList.get(position);
         holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setText(item.getName());
         holder.checkBox.setChecked(item.isChecked());
-
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                for (SortFilterRequest filter : itemList) {
+                for (AvailableFilterRequest filter : itemList) {
                     filter.setChecked(false);
                 }
                 item.setChecked(true);
@@ -58,19 +55,23 @@ public class SortFilterAdapter extends RecyclerView.Adapter<SortFilterAdapter.So
         return itemList == null ? 0 : itemList.size();
     }
 
-    public static class SortFilterViewHolder extends RecyclerView.ViewHolder {
+    public static class AvaiableViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkBox;
 
-        public SortFilterViewHolder(@NonNull View itemView) {
+        public AvaiableViewHolder(@NonNull View itemView) {
             super(itemView);
             checkBox = itemView.findViewById(R.id.checkBox);
         }
     }
 
-    public Integer getSelectedItem() {
-        for (SortFilterRequest item : itemList) {
-            if (item.isChecked()) return item.getSortType();
+    public List<String> getSelectedItem() {
+        List<String> enumNames = new ArrayList<>();
+        for (AvailableFilterRequest item : itemList) {
+            if (item.isChecked()) {
+                enumNames.add(item.getEnumName());
+            }
         }
-        return null;
+        return enumNames;
     }
+
 }

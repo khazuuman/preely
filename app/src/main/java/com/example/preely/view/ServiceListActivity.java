@@ -2,11 +2,13 @@ package com.example.preely.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -14,8 +16,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
@@ -24,13 +29,16 @@ import com.example.preely.model.entities.Service;
 import com.example.preely.model.request.ServiceFilterRequest;
 import com.example.preely.model.response.ServiceMarketResponse;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ServiceListActivity extends AppCompatActivity {
 
-    ImageView backBtn, filterBtn, searchBtn, noData;
+    ImageView backBtn, filterBtn, searchBtn, noData, scrollToTopBtn;
     RecyclerView serviceRecycleView;
     ScrollView homeScrollView;
     EditText searchInput;
@@ -44,20 +52,30 @@ public class ServiceListActivity extends AppCompatActivity {
     private ServiceFilterRequest currentRequest;
     private boolean hasLoadedOnce = false, isFiltered = false;
     private boolean serviceLoaded = false;
+    Intent intent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_service_list);
 
         setupView();
         initializeComponents();
+        setupSearchInputIntent();
         setupServiceView();
+        setupFilterByCateIntent();
         setupServiceTracking();
+        scrollHandle();
+        setupFilterBottom();
+        handleFilterRequest();
+        handleSearchRequest();
     }
 
     public void initializeComponents() {
+        intent = getIntent();
         currentRequest = new ServiceFilterRequest();
+        serviceMarketViewModel = new ViewModelProvider(this).get(ServiceMarketViewModel.class);
     }
 
     public void setupView() {
@@ -72,6 +90,12 @@ public class ServiceListActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         mainLayout.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
+        scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
+
+        backBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
+        });
     }
 
     // start service display handle
@@ -81,6 +105,10 @@ public class ServiceListActivity extends AppCompatActivity {
         serviceAdapter = new ServiceMarketAdapter(serviceList);
         serviceRecycleView.setAdapter(serviceAdapter);
         observeServiceList();
+        serviceMarketViewModel.getServiceList(currentRequest);
+        hasLoadedOnce = true;
+        addScrollListener();
+
     }
 
     public void setupServiceTracking() {
@@ -100,39 +128,44 @@ public class ServiceListActivity extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void observeServiceList() {
         serviceMarketViewModel.getServiceListResult().observe(this, serviceResponses -> {
-            if (serviceResponses != null) {
-                Log.i("observePostList", "In postResponses not null");
+            Log.i("observePostList", "Received response");
 
-                if (serviceList.isEmpty()) {
-                    serviceList.addAll(serviceResponses);
+            progressBar.setVisibility(View.GONE);
+            serviceLoaded = true;
+            isLoading = false;
+
+            if (serviceResponses != null && !serviceResponses.isEmpty()) {
+                int start = serviceList.size();
+                serviceList.addAll(serviceResponses);
+
+                if (start == 0) {
                     serviceAdapter.notifyDataSetChanged();
                 } else {
-                    int start = serviceList.size();
-                    serviceList.addAll(serviceResponses);
                     serviceAdapter.notifyItemRangeInserted(start, serviceResponses.size());
                 }
-                isLoading = false;
-                isLastPage = serviceResponses.size() < LIMIT_PER_PAGE;
-            } else {
-                Log.i("observePostList", "In postResponses is null");
-            }
-            if (serviceList == null || serviceList.isEmpty()) {
-                homeScrollView.setVisibility(View.GONE);
-                noData.setVisibility(View.VISIBLE);
-            } else {
+
                 homeScrollView.setVisibility(View.VISIBLE);
                 noData.setVisibility(View.GONE);
+            } else {
+                Log.i("observePostList", "No data received");
+                progressBar.setVisibility(View.GONE);
+                if (serviceList.isEmpty()) {
+                    homeScrollView.setVisibility(View.GONE);
+                    noData.setVisibility(View.VISIBLE);
+                }
             }
-            serviceLoaded = true;
+
+            isLastPage = (serviceResponses == null || serviceResponses.size() < LIMIT_PER_PAGE);
             checkAllDataLoaded();
         });
     }
 
+
     // end service display handle
 
     private void checkAllDataLoaded() {
+        progressBar.setVisibility(View.GONE);
         if (serviceLoaded) {
-            progressBar.setVisibility(View.GONE);
             mainLayout.setVisibility(View.VISIBLE);
         }
     }
@@ -198,6 +231,137 @@ public class ServiceListActivity extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    private void scrollHandle() {
+        scrollToTopBtn.setOnClickListener(v -> {
+            homeScrollView.smoothScrollTo(0, 0);
+        });
+        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            int scrollY = homeScrollView.getScrollY();
+            scrollToTopBtn.setVisibility(scrollY > 500 ? View.VISIBLE : View.GONE);
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setupFilterBottom() {
+        FilterBottomSheet filterBottomSheet = new FilterBottomSheet();
+        filterBtn = findViewById(R.id.filterBtn);
+        filterBottomSheet.setOnFilterApplyListener(filterRequest -> {
+            serviceLoaded = false;
+            isFiltered = true;
+            hasLoadedOnce = true;
+            filterRequest.setTitle(searchInput.getText().toString());
+            currentRequest = filterRequest;
+
+            mainLayout.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+
+            serviceMarketViewModel.resetPagination();
+            serviceMarketViewModel.resetPostListResult();
+
+            serviceList.clear();
+            serviceAdapter.notifyDataSetChanged();
+
+            removeScrollListener();
+            addScrollListener();
+
+            serviceMarketViewModel.getServiceList(currentRequest);
+        });
+        filterBtn.setOnClickListener(v -> {
+            filterBottomSheet.show(getSupportFragmentManager(), "FilterBottomSheet");
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void handleFilterRequest() {
+        FilterBottomSheet filterBottomSheet = new FilterBottomSheet();
+        filterBtn = findViewById(R.id.filterBtn);
+        filterBottomSheet.setOnFilterApplyListener(filterRequest -> {
+            searchInput.setText(null);
+            serviceLoaded = false;
+            isFiltered = true;
+            hasLoadedOnce = true;
+            filterRequest.setTitle(null);
+            currentRequest = filterRequest;
+
+            mainLayout.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+
+            serviceMarketViewModel.resetPagination();
+            serviceMarketViewModel.resetPostListResult();
+
+            serviceList.clear();
+            serviceAdapter.notifyDataSetChanged();
+
+            removeScrollListener();
+            addScrollListener();
+
+            serviceMarketViewModel.getServiceList(currentRequest);
+        });
+    }
+
+    public void handleSearchRequest() {
+        searchBtn.setOnClickListener(v -> {
+            performSearch();
+        });
+        searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_NULL) {
+                performSearch();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void performSearch() {
+        String query = searchInput.getText().toString().trim();
+        if (query.isEmpty()) return;
+
+        currentRequest = new ServiceFilterRequest();
+        currentRequest.setTitle(query);
+
+        serviceMarketViewModel.resetPagination();
+        serviceMarketViewModel.resetPostListResult();
+
+        serviceList.clear();
+        serviceAdapter.notifyDataSetChanged();
+
+        removeScrollListener();
+        addScrollListener();
+
+        serviceMarketViewModel.getServiceList(currentRequest);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setupSearchInputIntent() {
+        String searchStr = intent.getStringExtra("query");
+        if (searchStr != null && !searchStr.isEmpty()) {
+            searchInput.setText(searchStr);
+            currentRequest.setTitle(searchStr);
+        }
+    }
+
+
+    public void setupFilterByCateIntent() {
+        String cate_id = intent.getStringExtra("category_id");
+        currentRequest = new ServiceFilterRequest();
+        if (cate_id != null && !cate_id.isEmpty()) {
+            DocumentReference categoryRef = FirebaseFirestore.getInstance()
+                    .collection("category")
+                    .document(cate_id);
+            List<DocumentReference> categoryList = Collections.singletonList(categoryRef);
+            currentRequest.setCategory_ids(categoryList);
+            isFiltered = true;
+        }
     }
 
 } 

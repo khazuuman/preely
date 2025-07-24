@@ -1,23 +1,20 @@
 package com.example.preely.model.request;
 
-import com.google.firebase.firestore.DocumentReference;
-import java.util.List;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+@EqualsAndHashCode(callSuper = false)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceFilterRequest {
-    String title;
-    List<DocumentReference> category_ids;
-    Integer sortType;
-    Float rating;
-    List<String> availability;
+public class AvailableFilterRequest {
 
-} 
+    String enumName;
+    String name;
+    boolean isChecked;
+}

@@ -85,10 +85,11 @@ public class ServiceMarketViewModel extends ViewModel {
             query = query.whereIn("category_id", request.getCategory_ids());
         }
         if (request.getRating() != null) {
-            query = query.whereGreaterThanOrEqualTo("rating", request.getRating());
+            query = query.whereGreaterThanOrEqualTo("average_rating", request.getRating());
         }
         if (request.getAvailability() != null && !request.getAvailability().isEmpty()) {
-            query = query.whereArrayContainsAny("availability", request.getAvailability());
+            Log.i("AVAILABILITY", request.getAvailability().toString());
+            query = query.whereIn("availability", request.getAvailability());
         }
         query = query.limit(ServiceMarketViewModel.PAGE_SIZE);
         return query;
@@ -179,6 +180,7 @@ public class ServiceMarketViewModel extends ViewModel {
             } else {
                 Log.i("IS LAST PAGE", "last page true");
                 isLastPageResult.setValue(true);
+                serviceMarketResponseListResult.setValue(null);
             }
         });
     }

@@ -8,7 +8,10 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 6;
     private static final int SCROLL_THRESHOLD = 500;
     private RecyclerView cateRecycleView, serviceRecycleView;
+    ImageView searchBtn;
     private TextView nameTv, unreadBadge;
     private ImageButton scrollToTopBtn, openChatButton, testMapButton;
     private ScrollView homeScrollView;
@@ -84,6 +88,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         initializeComponents();
         setupViews();
+        searchInputTracking();
     }
 
     private void initializeComponents() {
@@ -115,7 +120,8 @@ public class HomeActivity extends AppCompatActivity {
         openChatButton = findViewById(R.id.button_open_chat);
         testMapButton = findViewById(R.id.test_map_button);
         favouriteButton = findViewById(R.id.button_favourite);
-
+        searchInput = findViewById(R.id.searchInput);
+        searchBtn = findViewById(R.id.searchBtn);
     }
 
     private void setupUserInfo() {
@@ -171,6 +177,7 @@ public class HomeActivity extends AppCompatActivity {
         observeServiceList();
         currentRequest = new ServiceFilterRequest();
         serviceMarketViewModel.getServiceList(currentRequest);
+        serviceRecycleView.setNestedScrollingEnabled(false);
 //        serviceMarketViewModel.getSavedPostsStatus().observe(this, map -> {
 //            if (map != null) {
 //                postAdapter.setSavedPostsStatusMap(map);
@@ -182,7 +189,9 @@ public class HomeActivity extends AppCompatActivity {
                 isLastPage = value;
             }
         });
-
+        seeAllService.setOnClickListener(v -> {
+            startActivity(new Intent(this, ServiceListActivity.class));
+        });
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -253,6 +262,59 @@ public class HomeActivity extends AppCompatActivity {
             int scrollY = homeScrollView.getScrollY();
             scrollToTopBtn.setVisibility(scrollY > 500 ? View.VISIBLE : View.GONE);
         });
+    }
+
+    public void searchInputTracking() {
+        searchBtn.setOnClickListener(v -> {
+            String query = searchInput.getText().toString().trim();
+            if (!query.isEmpty()) {
+                Intent intent = new Intent(this, ServiceListActivity.class);
+                intent.putExtra("query", query);
+                startActivity(intent);
+            }
+        });
+        searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_NULL) {
+                String query = searchInput.getText().toString().trim();
+
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
+                }
+
+                Intent intent = new Intent(this, ServiceListActivity.class);
+                intent.putExtra("query", query);
+                startActivity(intent);
+
+                return true;
+            }
+            return false;
+        });
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                int[] scrcoords = new int[2];
+                v.getLocationOnScreen(scrcoords);
+                float x = ev.getRawX() + v.getLeft() - scrcoords[0];
+                float y = ev.getRawY() + v.getTop() - scrcoords[1];
+
+                if (x < v.getLeft() || x > v.getRight() || y < v.getTop() || y > v.getBottom()) {
+                    v.clearFocus();
+
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
 }
