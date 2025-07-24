@@ -20,7 +20,6 @@ import com.example.preely.model.entities.Service;
 import com.example.preely.model.entities.Transaction;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.viewmodel.TransactionService;
-import com.example.preely.viewmodel.ServiceViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.Timestamp;
 
@@ -50,7 +49,7 @@ public class TransactionActivity extends AppCompatActivity {
     private String selectedServiceId = null;
     private String requesterId;
     private TransactionService transactionService;
-    private ServiceViewModel serviceViewModel;
+//    private ServiceViewModel serviceViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,9 +87,9 @@ public class TransactionActivity extends AppCompatActivity {
 
         // Load users và services
         transactionService = new ViewModelProvider(this).get(TransactionService.class);
-        serviceViewModel = new ViewModelProvider(this).get(ServiceViewModel.class);
+//        serviceViewModel = new ViewModelProvider(this).get(ServiceViewModel.class);
         loadUsers();
-        loadServices();
+//        loadServices();
 
         setupDropdownListeners();
         btnPayVNPay.setOnClickListener(v -> handlePayVNPay());
@@ -152,18 +151,18 @@ public class TransactionActivity extends AppCompatActivity {
         Log.d("TransactionActivity", "=== END DEBUG USERS ===");
     }
 
-    private void loadServices() {
-        progressDialog.show();
-        serviceViewModel.getServiceList().observe(this, services -> {
-            serviceList.clear();
-            if (services != null) serviceList.addAll(services);
-            serviceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                    serviceList.stream().map(Service::getTitle).collect(Collectors.toList()));
-            serviceDropdown.setAdapter(serviceAdapter);
-            progressDialog.dismiss();
-        });
-        serviceViewModel.loadServices();
-    }
+//    private void loadServices() {
+//        progressDialog.show();
+//        serviceViewModel.getServiceList().observe(this, services -> {
+//            serviceList.clear();
+//            if (services != null) serviceList.addAll(services);
+//            serviceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
+//                    serviceList.stream().map(Service::getTitle).collect(Collectors.toList()));
+//            serviceDropdown.setAdapter(serviceAdapter);
+//            progressDialog.dismiss();
+//        });
+//        serviceViewModel.loadServices();
+//    }
 
     private void debugAllServices() {
         Log.d("TransactionActivity", "=== DEBUG ALL SERVICES ===");

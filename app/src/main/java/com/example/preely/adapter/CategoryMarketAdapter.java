@@ -11,8 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.model.response.CategoryResponse;
+import com.example.preely.view.ServiceListActivity;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAdapter.CategoryViewHolder> {
 
@@ -35,9 +38,9 @@ public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAd
         CategoryResponse category = categoryList.get(position);
         holder.cateName.setText(category.getName());
         holder.itemView.setOnClickListener(v -> {
-//            Intent intent = new Intent(holder.itemView.getContext(), PostListActivity.class);
-//            intent.putExtra("category_id", category.getId());
-//            holder.itemView.getContext().startActivity(intent);
+            Intent intent = new Intent(holder.itemView.getContext(), ServiceListActivity.class);
+            intent.putExtra("category_id", category.getId());
+            holder.itemView.getContext().startActivity(intent);
         });
     }
 
@@ -48,10 +51,12 @@ public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAd
 
     public static class CategoryViewHolder extends RecyclerView.ViewHolder {
         TextView cateName;
+
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
             cateName = itemView.findViewById(R.id.cate_name);
         }
     }
+
 
 }

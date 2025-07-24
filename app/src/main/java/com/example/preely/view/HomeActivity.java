@@ -4,14 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.BroadcastReceiver;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -36,12 +35,12 @@ import com.example.preely.adapter.ServiceMarketAdapter;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.ServiceFilterRequest;
 import com.example.preely.model.response.CategoryResponse;
-import com.example.preely.model.response.ServiceResponse;
+import com.example.preely.model.response.ServiceMarketResponse;
 import com.example.preely.model.response.UserResponse;
 import com.example.preely.viewmodel.UnreadMessageService;
 import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CategoryService;
-import com.example.preely.viewmodel.ServiceViewModel;
+import com.example.preely.viewmodel.ServiceMarketViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -50,8 +49,6 @@ import com.example.preely.model.entities.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
@@ -59,28 +56,29 @@ public class HomeActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 6;
     private static final int SCROLL_THRESHOLD = 500;
     private RecyclerView cateRecycleView, serviceRecycleView;
+    ImageView searchBtn;
     private TextView nameTv, unreadBadge;
     private ImageButton scrollToTopBtn, openChatButton, testMapButton;
     private ScrollView homeScrollView;
     private final List<CategoryResponse> categoryList = new ArrayList<>();
-    private final List<Service> serviceList = new ArrayList<>();
+    private final List<ServiceMarketResponse> serviceList = new ArrayList<>();
     private CategoryMarketAdapter categoryAdapter;
     private ServiceMarketAdapter serviceAdapter;
     private CategoryService categoryService;
     TextView seeAllService;
     EditText searchInput;
     ImageView circleImage;
-    private ServiceViewModel serviceViewModel;
+    private ServiceMarketViewModel serviceMarketViewModel;
     private SessionManager sessionManager;
     LinearLayout mainLayout;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isScrollListenerAttached = false;
-    private ServiceFilterRequest currentServiceRequest;
     private BroadcastReceiver unreadCountReceiver;
     private ProgressBar progressBar;
     private boolean categoryLoaded = false;
-    private boolean postLoaded = false;
+    private boolean serviceLoaded = false;
+    private ServiceFilterRequest currentRequest;
     private MaterialButton favouriteButton;
 
     @Override
@@ -90,9 +88,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         initializeComponents();
         setupViews();
-//        setupNotificationSystem();
-//        setupDataServices();
-//        handleIntentExtras();
+        searchInputTracking();
     }
 
     private void initializeComponents() {
@@ -105,9 +101,9 @@ public class HomeActivity extends AppCompatActivity {
         setupUserInfo();
         setupChatButton();
         setupMapButton();
-//        setupScrollFunctionality();
-//        setupFavouriteButton();
         setupCategoryView();
+        setupServiceView();
+        scrollHandle();
     }
 
     private void findViews() {
@@ -115,20 +111,19 @@ public class HomeActivity extends AppCompatActivity {
         serviceRecycleView = findViewById(R.id.service_recycle_view);
         nameTv = findViewById(R.id.nameTv);
         unreadBadge = findViewById(R.id.unread_badge);
-        scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
         mainLayout = findViewById(R.id.mainLayout);
         progressBar = findViewById(R.id.progressBar);
         mainLayout.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
-        nameTv = findViewById(R.id.nameTv);
         homeScrollView = findViewById(R.id.homeScrollView);
         scrollToTopBtn = findViewById(R.id.scrollToTopBtn);
         seeAllService = findViewById(R.id.seeAllService);
         circleImage = findViewById(R.id.circleImageView);
         openChatButton = findViewById(R.id.button_open_chat);
         testMapButton = findViewById(R.id.test_map_button);
-        homeScrollView = findViewById(R.id.homeScrollView);
         favouriteButton = findViewById(R.id.button_favourite);
+        searchInput = findViewById(R.id.searchInput);
+        searchBtn = findViewById(R.id.searchBtn);
     }
 
     private void setupUserInfo() {
@@ -175,157 +170,72 @@ public class HomeActivity extends AppCompatActivity {
 
     // start service display handle
 
-//    public void setupServiceView() {
-//        LifecycleOwner lifecycleOwner = this;
-//        serviceViewModel = new ViewModelProvider(this).get(PostService.class);
-//        postRecycleView = findViewById(R.id.post_recycle_view);
-//        postRecycleView.setLayoutManager(new LinearLayoutManager(this));
-//        postAdapter = new PostMarketAdapter(postList, lifecycleOwner, postService);
-//        postRecycleView.setAdapter(postAdapter);
-//        observePostList();
-//        currentRequest = new PostFilterRequest();
-//        postService.getPostList(currentRequest);
-//        postService.getSavedPostsStatus().observe(this, map -> {
+    public void setupServiceView() {
+        LifecycleOwner lifecycleOwner = this;
+        serviceMarketViewModel = new ViewModelProvider(this).get(ServiceMarketViewModel.class);
+        serviceRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        serviceAdapter = new ServiceMarketAdapter(serviceList, lifecycleOwner, serviceMarketViewModel);
+        serviceRecycleView.setAdapter(serviceAdapter);
+        observeServiceList();
+        currentRequest = new ServiceFilterRequest();
+        serviceMarketViewModel.getServiceList(currentRequest);
+        serviceRecycleView.setNestedScrollingEnabled(false);
+//        serviceMarketViewModel.getSavedPostsStatus().observe(this, map -> {
 //            if (map != null) {
 //                postAdapter.setSavedPostsStatusMap(map);
 //                postAdapter.notifyDataSetChanged();
 //            }
 //        });
-//        postService.getIsLastPageResult().observe(this, value -> {
-//            if (value != null) {
-//                isLastPage = value;
-//            }
-//        });
-//    }
+        serviceMarketViewModel.getIsLastPageResult().observe(this, value -> {
+            if (value != null) {
+                isLastPage = value;
+            }
+        });
+        seeAllService.setOnClickListener(v -> {
+            startActivity(new Intent(this, ServiceListActivity.class));
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void observeServiceList() {
+        serviceMarketViewModel.getServiceListResult().observe(this, serviceResponse -> {
+            if (serviceResponse != null) {
+                if (!serviceList.isEmpty() && serviceList.get(serviceList.size() - 1) == null) {
+                    serviceList.remove(serviceList.size() - 1);
+                    serviceAdapter.notifyItemRemoved(serviceList.size());
+                }
+                if (serviceList.isEmpty()) {
+                    serviceList.addAll(serviceResponse);
+                    serviceAdapter.notifyDataSetChanged();
+
+                    if (!isScrollListenerAttached) {
+                        attachScrollListener();
+                        isScrollListenerAttached = true;
+                    }
+                } else {
+                    int start = serviceList.size();
+                    serviceList.addAll(serviceResponse);
+                    serviceAdapter.notifyItemRangeInserted(start, serviceResponse.size());
+                }
+                isLoading = false;
+                if (serviceResponse.size() < LIMIT_PER_PAGE) {
+                    isLastPage = true;
+                }
+                serviceLoaded = true;
+                checkAllDataLoaded();
+            }
+        });
+    }
+
+    public void getMoreData() {
+        if (isLastPage) return;
+        serviceList.add(null);
+        serviceAdapter.notifyItemInserted(serviceList.size() - 1);
+        serviceMarketViewModel.getServiceList(currentRequest);
+    }
 
     // end service display handle
 
-    private void setupChatButton() {
-        openChatButton.setOnClickListener(v -> {
-            Log.d(TAG, "Chat button clicked, isLoggedIn: " + sessionManager.getLogin());
-
-            if (sessionManager != null && sessionManager.getLogin()) {
-                updateUnreadBadge(0);
-                startActivity(new Intent(HomeActivity.this, ChatListActivity.class));
-            } else {
-                CustomToast.makeText(this, "Vui lòng đăng nhập để chat",
-                        CustomToast.LENGTH_SHORT, Constraints.NotificationType.ERROR).show();
-            }
-        });
-    }
-
-    private void setupMapButton(){
-        testMapButton.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, MapTestActivity.class));
-        });
-    }
-
-    private void setupScrollFunctionality() {
-        scrollToTopBtn.setOnClickListener(v -> homeScrollView.smoothScrollTo(0, 0));
-
-        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            int scrollY = homeScrollView.getScrollY();
-            scrollToTopBtn.setVisibility(scrollY > SCROLL_THRESHOLD ? View.VISIBLE : View.GONE);
-        });
-    }
-
-    private void setupNotificationSystem() {
-        if (sessionManager.getLogin()) {
-            Intent serviceIntent = new Intent(this, UnreadMessageService.class);
-            startService(serviceIntent);
-
-            setupUnreadCountReceiver();
-
-            loadInitialUnreadCount();
-        } else {
-            Log.w(TAG, "User not logged in, skipping notification setup");
-        }
-    }
-
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private void setupUnreadCountReceiver() {
-        unreadCountReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (ACTION_UPDATE_UNREAD.equals(intent.getAction())) {
-                    int unreadCount = intent.getIntExtra("unread_count", 0);
-                    updateUnreadBadge(unreadCount);
-                    Log.d(TAG, "Badge updated with count: " + unreadCount);
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter(ACTION_UPDATE_UNREAD);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(unreadCountReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(unreadCountReceiver, filter);
-        }
-
-        Log.d(TAG, "Unread count receiver registered");
-    }
-
-    private void loadInitialUnreadCount() {
-        if (!sessionManager.getLogin()) return;
-
-        try {
-            String userId = sessionManager.getUserSession().getId();
-            DocumentReference userRef = FirebaseFirestore.getInstance()
-                    .collection("user").document(userId);
-
-            FirebaseFirestore.getInstance().collection(Constraints.CollectionName.MESSAGES)
-                    .whereEqualTo("receiver_id", userRef)
-                    .whereEqualTo("is_read", false)
-                    .get()
-                    .addOnSuccessListener(querySnapshot -> {
-                        int unreadCount = querySnapshot.size();
-                        updateUnreadBadge(unreadCount);
-                        Log.d(TAG, "Initial unread count loaded: " + unreadCount);
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Failed to load initial unread count", e);
-                        updateUnreadBadge(0); // Fallback to 0
-                    });
-        } catch (Exception e) {
-            Log.e(TAG, "Error in loadInitialUnreadCount", e);
-        }
-    }
-
-    private void updateUnreadBadge(int count) {
-        if (unreadBadge != null) {
-            runOnUiThread(() -> {
-                if (count > 0) {
-                    unreadBadge.setVisibility(View.VISIBLE);
-                    unreadBadge.setText(count > 99 ? "99+" : String.valueOf(count));
-                } else {
-                    unreadBadge.setVisibility(View.GONE);
-                }
-            });
-        }
-    }
-
-    private void setupDataServices() {
-        setupCategoryService();
-        setupServiceViewModel();
-    }
-
-    private void setupCategoryService() {
-        categoryService = new ViewModelProvider(this).get(CategoryService.class);
-
-        cateRecycleView.setLayoutManager(new GridLayoutManager(this, 4));
-        categoryAdapter = new CategoryMarketAdapter(categoryList);
-        cateRecycleView.setAdapter(categoryAdapter);
-
-        observeCategoryList();
-
-        categoryService.getCateList();
-    }
-
-    private void setupServiceViewModel() {
-        serviceViewModel = new ViewModelProvider(this).get(ServiceViewModel.class);
-        // ... observer logic cho service nếu cần ...
-    }
 
     private void attachScrollListener() {
         homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
@@ -339,36 +249,50 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void observePostList() {
-        serviceViewModel.getServiceList().observe(this, serviceResponses -> {
-            if (serviceResponses != null) {
-                serviceList.addAll(serviceResponses);
-                // ... logic ...
-            }
+    private void checkAllDataLoaded() {
+        if (categoryLoaded && serviceLoaded) {
+            progressBar.setVisibility(View.GONE);
+            mainLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void scrollHandle() {
+        scrollToTopBtn.setOnClickListener(v -> {
+            homeScrollView.smoothScrollTo(0, 0);
+        });
+        homeScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            int scrollY = homeScrollView.getScrollY();
+            scrollToTopBtn.setVisibility(scrollY > 500 ? View.VISIBLE : View.GONE);
         });
     }
 
-    public void getMoreData() {
-        if (isLastPage) {
-            Log.d(TAG, "Already at last page, skipping load more");
-            return;
-        }
+    public void searchInputTracking() {
+        searchBtn.setOnClickListener(v -> {
+            String query = searchInput.getText().toString().trim();
+            if (!query.isEmpty()) {
+                Intent intent = new Intent(this, ServiceListActivity.class);
+                intent.putExtra("query", query);
+                startActivity(intent);
+            }
+        });
+        searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_NULL) {
+                String query = searchInput.getText().toString().trim();
 
-        Log.d(TAG, "Loading more posts...");
-    }
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
+                }
 
-    private void handleIntentExtras() {
-        String toastMess = getIntent().getStringExtra("toast_mess");
-        if (toastMess != null && !toastMess.isEmpty()) {
-            CustomToast.makeText(this, toastMess, CustomToast.LENGTH_SHORT,
-                    Constraints.NotificationType.SUCCESS).show();
-        }
-    }
+                Intent intent = new Intent(this, ServiceListActivity.class);
+                intent.putExtra("query", query);
+                startActivity(intent);
 
-    private void setupFavouriteButton() {
-        favouriteButton.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, SavedServicesActivity.class));
+                return true;
+            }
+            return false;
         });
     }
 
@@ -387,32 +311,27 @@ public class HomeActivity extends AppCompatActivity {
             loadInitialUnreadCount();
         }
     }
-
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                int[] scrcoords = new int[2];
+                v.getLocationOnScreen(scrcoords);
+                float x = ev.getRawX() + v.getLeft() - scrcoords[0];
+                float y = ev.getRawY() + v.getTop() - scrcoords[1];
 
-        if (unreadCountReceiver != null) {
-            try {
-                unregisterReceiver(unreadCountReceiver);
-                Log.d(TAG, "Unread count receiver unregistered");
-            } catch (IllegalArgumentException e) {
-                Log.w(TAG, "Receiver not registered: " + e.getMessage());
+                if (x < v.getLeft() || x > v.getRight() || y < v.getTop() || y > v.getBottom()) {
+                    v.clearFocus();
+
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
+                }
             }
         }
-
-        Log.d(TAG, "HomeActivity destroyed");
-    }
-
-    private void checkAllDataLoaded() {
-//        if (categoryLoaded && postLoaded) {
-//            progressBar.setVisibility(View.GONE);
-//            mainLayout.setVisibility(View.VISIBLE);
-//        }
-        if (categoryLoaded) {
-            progressBar.setVisibility(View.GONE);
-            mainLayout.setVisibility(View.VISIBLE);
-        }
+        return super.dispatchTouchEvent(ev);
     }
 
 }

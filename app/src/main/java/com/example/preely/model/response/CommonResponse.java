@@ -17,5 +17,4 @@ import lombok.experimental.FieldDefaults;
 public class CommonResponse {
     @DocumentId
     String id;
-//    Timestamp save_date;
 }

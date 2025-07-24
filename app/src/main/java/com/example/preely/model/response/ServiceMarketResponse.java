@@ -1,6 +1,5 @@
 package com.example.preely.model.response;
 
-import com.example.preely.model.dto.CommonDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,12 +12,11 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceResponse extends CommonResponse {
+public class ServiceMarketResponse extends CommonResponse {
     String title;
-    String description;
-    double price;
-    String categoryName;
     String providerName;
+    String categoryName;
     String status;
-    float rating;
+    String image;
+    Double price;
 } 

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.model.request.CategoryFilterRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,13 +81,16 @@ public class CategoryFilterAdapter extends RecyclerView.Adapter<CategoryFilterAd
         }
     }
 
-    public List<String> getIdSelectedItems() {
-        List<String> selected = new ArrayList<>();
+    public List<DocumentReference> getIdSelectedItems() {
+        List<DocumentReference> selected = new ArrayList<>();
         for (CategoryFilterRequest item : itemList) {
             if (item.getId() == null && item.isChecked()) {
                 return null;
             }
-            if (item.isChecked()) selected.add(item.getId());
+            if (item.isChecked()) {
+                DocumentReference cateRef = FirebaseFirestore.getInstance().collection("category").document(item.getId());
+                selected.add(cateRef);
+            }
         }
         return selected;
     }

@@ -3,18 +3,18 @@ package com.example.preely.model.request;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+@EqualsAndHashCode(callSuper = false)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceRequest {
-    String title;
-    String description;
-    double price;
-    String categoryName;
-    String providerName;
-    String status;
-} 
+public class AvailableFilterRequest {
+
+    String enumName;
+    String name;
+    boolean isChecked;
+}

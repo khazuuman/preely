@@ -294,29 +294,35 @@ public class UserLoginService extends ViewModel {
         });
     }
 
-    public void getUserSkillList(List<String> skillIds, CallBackUtil.SkillListCallback callback) {
-        if (skillIds == null || skillIds.isEmpty()) {
+    public void getUserSkillList(List<DocumentReference> skillRefs, CallBackUtil.SkillListCallback callback) {
+        if (skillRefs == null || skillRefs.isEmpty()) {
             callback.onSuccess(null);
             return;
         }
-        Query query = FirebaseFirestore.getInstance()
+        List<String> skillIds = new ArrayList<>();
+        for (DocumentReference ref : skillRefs) {
+            skillIds.add(ref.getId()); // lấy documentId
+        }
+        FirebaseFirestore.getInstance()
                 .collection(CollectionName.SKILL)
-                .whereIn(FieldPath.documentId(), skillIds);
-
-        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
-            List<Skill> results = queryDocumentSnapshots.toObjects(Skill.class);
-            List<SkillResponse> skills = new ArrayList<>();
-            for (Skill skill : results) {
-                try {
-                    SkillResponse skillResponse = DataUtil.mapObj(skill, SkillResponse.class);
-                    skills.add(skillResponse);
-                } catch (IllegalAccessException | InstantiationException e) {
-                    e.printStackTrace();
-                }
-            }
-            callback.onSuccess(skills);
-        }).addOnFailureListener(callback::onFailure);
+                .whereIn(FieldPath.documentId(), skillIds)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Skill> results = queryDocumentSnapshots.toObjects(Skill.class);
+                    List<SkillResponse> skills = new ArrayList<>();
+                    for (Skill skill : results) {
+                        try {
+                            SkillResponse skillResponse = DataUtil.mapObj(skill, SkillResponse.class);
+                            skills.add(skillResponse);
+                        } catch (IllegalAccessException | InstantiationException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    callback.onSuccess(skills);
+                })
+                .addOnFailureListener(callback::onFailure);
     }
+
 
 
 }

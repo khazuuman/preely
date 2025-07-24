@@ -3,7 +3,9 @@ package com.example.preely.model.request;
 import com.google.firebase.firestore.DocumentReference;
 
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class CategoryFilterRequest {
     private String id;
@@ -17,9 +19,4 @@ public class CategoryFilterRequest {
         this.checked = checked;
     }
 
-    public void setId(String id) { this.id = id; }
-
-    public void setName(String name) { this.name = name; }
-
-    public void setChecked(boolean checked) { this.checked = checked; }
-} 
+}

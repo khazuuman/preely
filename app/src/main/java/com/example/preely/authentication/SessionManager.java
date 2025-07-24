@@ -27,8 +27,7 @@ public class SessionManager {
     }
 
     public boolean getLogin() {
-        boolean isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false);
-        return isLoggedIn && getUserSession() != null && !isSessionExpired();
+        return getUserSession() != null && !isSessionExpired() && getRemember();
         //return isLoggedIn && getUserSession() != null && !isSessionExpired() && getRemember();
     }
 
