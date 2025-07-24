@@ -70,7 +70,7 @@ public class MainRepository<T extends BaseEntity> {
             if (task.isSuccessful() && !task.getResult().isEmpty()) {
                 DocumentSnapshot document = task.getResult().getDocuments().get(0);
 
-                // ✅ Sử dụng safe mapping
+                //Sử dụng safe mapping
                 T item = DbUtil.safeMapToEntity(document, modelCl);
                 resultLiveData.setValue(item);
             } else {
@@ -91,7 +91,7 @@ public class MainRepository<T extends BaseEntity> {
 
                 for (DocumentSnapshot document : task.getResult()) {
                     if (document.exists()) {
-                        // ✅ Sử dụng safe mapping thay vì automatic deserialization
+                        //Sử dụng safe mapping thay vì automatic deserialization
                         T item = DbUtil.safeMapToEntity(document, modelCl);
                         if (item != null) {
                             resultList.add(item);
