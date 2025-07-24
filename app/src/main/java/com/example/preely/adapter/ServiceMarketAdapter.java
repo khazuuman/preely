@@ -86,8 +86,8 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             });
 
 //            SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
-
-            serviceHolder.favoriteBtn.setOnClickListener(v -> {
+//
+//            serviceHolder.favoriteBtn.setOnClickListener(v -> {
 //                SavedPostRequest request = new SavedPostRequest();
 //                request.setPost_id(post.getId());
 //                request.setUser_id(sessionManager.getUserSession().getId());
@@ -104,7 +104,7 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
 //                } catch (IllegalAccessException | InstantiationException e) {
 //                    throw new RuntimeException(e);
 //                }
-            });
+//            });
 
 //            String key = sessionManager.getUserSession().getId() + "_" + post.getId();
 //            Boolean isSaved = savedPostsStatusMap.get(key);
