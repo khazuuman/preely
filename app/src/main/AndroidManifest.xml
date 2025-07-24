@@ -143,6 +143,10 @@
 <!--        <activity android:name=".view.MyPostsActivity" />-->
 <!--        <activity android:name=".view.ActivityCreatePost" />-->
 
+        <activity
+            android:name=".view.UserServiceManagementActivity"
+            android:exported="false" />
+
         <service
             android:name=".viewmodel.UnreadMessageService"
             android:enabled="true"

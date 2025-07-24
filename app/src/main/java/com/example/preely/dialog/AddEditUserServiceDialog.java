@@ -18,12 +18,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.activity.result.ActivityResultLauncher;
-
 import com.example.preely.R;
 import com.example.preely.adapter.ImageAdapter;
 import com.example.preely.model.entities.Category;
@@ -33,14 +31,14 @@ import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CloudinaryService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.Timestamp;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddEditServiceDialog extends Dialog {
+public class AddEditUserServiceDialog extends Dialog {
     private final Context context;
     private final Service service;
     private final OnServiceDialogListener listener;
@@ -48,6 +46,7 @@ public class AddEditServiceDialog extends Dialog {
     private final List<Category> categoryList;
     private final List<User> providerList;
     private final List<String> availabilityList;
+    private final User fixedProvider;
 
     private TextInputEditText etTitle, etDescription, etPrice, etUniversity;
     private AutoCompleteTextView actvCategory, actvProvider;
@@ -59,17 +58,15 @@ public class AddEditServiceDialog extends Dialog {
     private List<Uri> selectedImageUris = new ArrayList<>();
     private CloudinaryService cloudinaryService;
     private boolean isUploadingImages = false;
-
     private static final int REQUEST_CODE_PICK_IMAGES = 2001;
-    private static final String TAG = "AddEditServiceDialog";
-
+    private static final String TAG = "AddEditUserServiceDialog";
     private final ActivityResultLauncher<Intent> imagePickerLauncher;
 
     public interface OnServiceDialogListener {
         void onServiceSaved(Service service, boolean isEdit);
     }
 
-    public AddEditServiceDialog(@NonNull Context context, Service service, List<Category> categoryList, List<User> providerList, List<String> availabilityList, OnServiceDialogListener listener, ActivityResultLauncher<Intent> imagePickerLauncher) {
+    public AddEditUserServiceDialog(@NonNull Context context, Service service, List<Category> categoryList, List<User> providerList, List<String> availabilityList, OnServiceDialogListener listener, ActivityResultLauncher<Intent> imagePickerLauncher, User fixedProvider) {
         super(context);
         this.context = context;
         this.service = service != null ? service : new Service();
@@ -80,6 +77,7 @@ public class AddEditServiceDialog extends Dialog {
         this.availabilityList = availabilityList;
         this.cloudinaryService = new CloudinaryService((android.app.Application) ((Activity) context).getApplication());
         this.imagePickerLauncher = imagePickerLauncher;
+        this.fixedProvider = fixedProvider;
     }
 
     @Override
@@ -87,7 +85,6 @@ public class AddEditServiceDialog extends Dialog {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_add_edit_service);
-        // Ép chiều rộng dialog 90% màn hình
         Window window = getWindow();
         if (window != null) {
             window.setLayout((int) (context.getResources().getDisplayMetrics().widthPixels * 0.9), WindowManager.LayoutParams.WRAP_CONTENT);
@@ -107,6 +104,7 @@ public class AddEditServiceDialog extends Dialog {
         etUniversity = findViewById(R.id.et_university);
         actvCategory = findViewById(R.id.actv_category);
         actvProvider = findViewById(R.id.actv_provider);
+        TextInputLayout tilProvider = findViewById(R.id.til_provider);
         spinnerAvailability = findViewById(R.id.spinner_availability);
         btnSave = findViewById(R.id.btn_save);
         btnCancel = findViewById(R.id.btn_cancel);
@@ -120,22 +118,26 @@ public class AddEditServiceDialog extends Dialog {
         recyclerImages.setAdapter(imageAdapter);
         TextView tvTitle = findViewById(R.id.tv_dialog_title);
         tvTitle.setText(isEditMode ? "Edit Service" : "Add New Service");
-        actvProvider.setOnClickListener(v -> actvProvider.showDropDown());
+        // Ẩn và disable provider
+        if (fixedProvider != null) {
+            actvProvider.setText(fixedProvider.getFull_name() + " (" + fixedProvider.getEmail() + ")");
+            actvProvider.setEnabled(false);
+            actvProvider.setFocusable(false);
+            actvProvider.setVisibility(View.GONE);
+            if (tilProvider != null) tilProvider.setVisibility(View.GONE);
+        }
         actvCategory.setOnClickListener(v -> actvCategory.showDropDown());
     }
 
     private void setupAdapters() {
-        // Category
         List<String> categoryNames = new ArrayList<>();
         for (Category c : categoryList) categoryNames.add(c.getName());
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, categoryNames);
         actvCategory.setAdapter(categoryAdapter);
-        // Provider
         List<String> providerNames = new ArrayList<>();
         for (User u : providerList) providerNames.add(u.getFull_name() + " (" + u.getEmail() + ")");
         ArrayAdapter<String> providerAdapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, providerNames);
         actvProvider.setAdapter(providerAdapter);
-        // Availability (hiển thị label)
         List<String> availabilityLabels = new ArrayList<>();
         for (Constraints.Availability a : Constraints.Availability.values()) {
             availabilityLabels.add(a.getLabel());
@@ -156,7 +158,6 @@ public class AddEditServiceDialog extends Dialog {
         etDescription.setText(service.getDescription());
         etPrice.setText(service.getPrice() != null ? String.valueOf(service.getPrice()) : "");
         etUniversity.setText(service.getUniversity());
-        // Category
         if (service.getCategory_id() != null) {
             String catId = service.getCategory_id().getId();
             for (Category c : categoryList) {
@@ -166,8 +167,9 @@ public class AddEditServiceDialog extends Dialog {
                 }
             }
         }
-        // Provider
-        if (service.getProvider_id() != null) {
+        if (fixedProvider != null) {
+            actvProvider.setText(fixedProvider.getFull_name() + " (" + fixedProvider.getEmail() + ")");
+        } else if (service.getProvider_id() != null) {
             String provId = service.getProvider_id().getId();
             for (User u : providerList) {
                 String display = u.getFull_name() + " (" + u.getEmail() + ")";
@@ -177,7 +179,6 @@ public class AddEditServiceDialog extends Dialog {
                 }
             }
         }
-        // Availability
         if (service.getAvailability() != null) {
             int pos = -1;
             Constraints.Availability[] availArr = Constraints.Availability.values();
@@ -189,7 +190,6 @@ public class AddEditServiceDialog extends Dialog {
             }
             if (pos >= 0) spinnerAvailability.setSelection(pos);
         }
-        // Images
         if (service.getImage_urls() != null) {
             imageUrls.clear();
             imageUrls.addAll(service.getImage_urls());
@@ -205,7 +205,6 @@ public class AddEditServiceDialog extends Dialog {
         imagePickerLauncher.launch(intent);
     }
 
-    // Hàm này sẽ được gọi từ ActivityResultLauncher callback
     public void onImagesPicked(Intent data) {
         Log.d(TAG, "onImagesPicked: data=" + (data != null));
         List<Uri> uris = new ArrayList<>();
@@ -279,7 +278,6 @@ public class AddEditServiceDialog extends Dialog {
             etPrice.setError("Invalid price");
             return;
         }
-        // Map category name to DocumentReference
         DocumentReference categoryRef = null;
         for (Category c : categoryList) {
             if (c.getName().equals(categoryName)) {
@@ -287,15 +285,9 @@ public class AddEditServiceDialog extends Dialog {
                 break;
             }
         }
-        // Gán provider cố định nếu có
         DocumentReference providerRef = null;
-        String providerName = actvProvider.getText().toString().trim();
-        for (User u : providerList) {
-            String display = u.getFull_name() + " (" + u.getEmail() + ")";
-            if (display.equals(providerName)) {
-                providerRef = FirebaseFirestore.getInstance().collection("users").document(u.getId());
-                break;
-            }
+        if (fixedProvider != null) {
+            providerRef = FirebaseFirestore.getInstance().collection("users").document(fixedProvider.getId());
         }
         service.setTitle(title);
         service.setDescription(description);
@@ -305,7 +297,6 @@ public class AddEditServiceDialog extends Dialog {
         service.setProvider_id(providerRef);
         service.setAvailability(selectedAvailability);
         service.setImage_urls(new ArrayList<>(imageUrls));
-        // Cập nhật create_at/update_at
         service.setUpdate_at(com.google.firebase.Timestamp.now());
         if (service.getId() == null) {
             service.setCreate_at(com.google.firebase.Timestamp.now());

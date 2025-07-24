@@ -42,6 +42,8 @@ import com.example.preely.viewmodel.CategoryService;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
 import com.example.preely.viewmodel.UnreadMessageService;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.fragment.app.Fragment;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -77,6 +79,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean isScrollListenerAttached = false;
     private boolean categoryLoaded = false;
     private boolean serviceLoaded = false;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,7 @@ public class HomeActivity extends AppCompatActivity {
         setupCategoryView();
         setupServiceView();
         setupScrollFunctionality();
+        setupBottomNavigation();
     }
 
     private void findViews() {
@@ -124,6 +128,7 @@ public class HomeActivity extends AppCompatActivity {
         favouriteButton = findViewById(R.id.button_favourite);
         searchInput = findViewById(R.id.searchInput);
         searchBtn = findViewById(R.id.searchBtn);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
     }
 
     private void setupUserInfo() {
@@ -370,6 +375,24 @@ public class HomeActivity extends AppCompatActivity {
             CustomToast.makeText(this, toastMess, CustomToast.LENGTH_SHORT,
                     Constraints.NotificationType.SUCCESS).show();
         }
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.navigation_servicess) {
+                startActivity(new android.content.Intent(this, com.example.preely.view.UserServiceManagementActivity.class));
+                return true;
+            } else if (id == R.id.navigation_home) {
+                // Reload activity hoặc về Home
+                recreate();
+                return true;
+            } else if (id == R.id.navigation_settings) {
+                // TODO: Điều hướng sang trang settings nếu có
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override
