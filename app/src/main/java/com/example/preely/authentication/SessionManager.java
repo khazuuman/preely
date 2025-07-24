@@ -28,25 +28,28 @@ public class SessionManager {
 
     public boolean getLogin() {
         boolean isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false);
-        return isLoggedIn && getUserSession() != null && !isSessionExpired() && getRemember();
+        return isLoggedIn && getUserSession() != null && !isSessionExpired();
+        //return isLoggedIn && getUserSession() != null && !isSessionExpired() && getRemember();
     }
 
     //    user information
     public void setUserSession(UserResponse user) {
         if (user != null) {
             String userJson = gson.toJson(user);
-            editor.putString("USER_INFO", userJson);
-            Log.i("USER SESSION", userJson);
+            editor.putString("user", userJson);
             editor.apply();
         }
     }
 
     public UserResponse getUserSession() {
-        String userJson = sharedPreferences.getString("USER_INFO", null);
-        Log.i("USER SESSION", userJson == null ? "null" : userJson);
-        if (userJson != null) {
-            Log.i("USER RESPONSE SESSION", gson.fromJson(userJson, UserResponse.class).toString());
-            return gson.fromJson(userJson, UserResponse.class);
+        try {
+            String userJson = sharedPreferences.getString("user", null);
+            if (userJson != null) {
+                return gson.fromJson(userJson, UserResponse.class);
+            }
+        } catch (Exception e) {
+            Log.e("SessionManager", "Error parsing user session: " + e.getMessage());
+            editor.remove("user").apply();
         }
         return null;
     }
@@ -67,7 +70,7 @@ public class SessionManager {
 
     //    clear session
     public void clearSession() {
-        editor.remove("USER_INFO");
+        editor.remove("KEY_USER_ID");
         editor.remove("KEY_SESSION_TIME_OUT");
         editor.remove("KEY_REMEMBER");
         editor.remove("user");
@@ -86,5 +89,10 @@ public class SessionManager {
         return sharedPreferences.getBoolean("KEY_REMEMBER", false);
     }
 
+    public void setLogin(boolean isLoggedIn) {
+        editor.putBoolean("is_logged_in", isLoggedIn);
+        editor.apply();
+        Log.d("SessionManager", "setLogin: " + isLoggedIn);
+    }
 
 }

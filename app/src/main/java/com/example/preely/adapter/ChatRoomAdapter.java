@@ -39,7 +39,8 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
         // Null check để tránh crash
         if (room == null) return;
 
-        holder.receiverName.setText(room.getReceiverName() != null ? room.getReceiverName() : "Unknown");
+        holder.receiverFullName.setText(room.getReceiverFullName() != null ? room.getReceiverFullName() : "Unknown");
+        holder.receiverUsername.setText(room.getReceiverUsername() != null ? "@" + room.getReceiverUsername() : "@unknown");
         holder.lastMessage.setText(room.getLastMessage() != null ? room.getLastMessage() : "No message");
 
         // Click listener với error handling
@@ -50,7 +51,8 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
                     Intent intent = new Intent(context, ChatDetailActivity.class);
                     intent.putExtra("ROOM_ID", room.getRoomId());
                     intent.putExtra("RECEIVER_ID", room.getReceiverId());
-                    intent.putExtra("RECEIVER_NAME", room.getReceiverName() != null ? room.getReceiverName() : "Unknown");
+                    intent.putExtra("RECEIVER_FULL_NAME", room.getReceiverFullName() != null ? room.getReceiverFullName() : "Unknown");
+                    intent.putExtra("RECEIVER_USERNAME", room.getReceiverUsername() != null ? room.getReceiverUsername() : "Unknown");
                     context.startActivity(intent);
                 }
             } catch (Exception e) {
@@ -65,11 +67,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView receiverName, lastMessage;
+        TextView receiverFullName, receiverUsername, lastMessage;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            receiverName = itemView.findViewById(R.id.receiver_name);
+            receiverFullName = itemView.findViewById(R.id.receiver_full_name);
+            receiverUsername = itemView.findViewById(R.id.receiver_username);
             lastMessage = itemView.findViewById(R.id.last_message);
         }
     }

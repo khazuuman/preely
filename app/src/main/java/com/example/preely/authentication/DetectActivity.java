@@ -29,7 +29,7 @@ public class DetectActivity extends Application implements Application.ActivityL
         if (activityReferences == 0 && !isActivityChangingConfigurations) {
             SessionManager sessionManager = new SessionManager(getApplicationContext());
             Log.d("DetectActivity", "App backgrounded, getRemember: " + sessionManager.getRemember());
-            if (!sessionManager.getRemember()) {
+            if (!sessionManager.getRemember() && sessionManager.isSessionExpired()) {
                 sessionManager.clearSession();
                 Log.d("DetectActivity", "Session cleared because !remember");
             }

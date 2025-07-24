@@ -14,9 +14,12 @@ import lombok.experimental.FieldDefaults;
 public class MessageResponse {
     String id;
     String senderId;
-    String senderName;
+    String senderFullName;      // Mapping từ User entity khi trả về
+    String senderUsername;      // Mapping từ User entity khi trả về
     String receiverId;
-    String postId;
+    String receiverFullName;    // Mapping từ User entity khi trả về
+    String receiverUsername;    // Mapping từ User entity khi trả về
+    String serviceId;
     String content;
     boolean isRead;
     Timestamp sendAt;

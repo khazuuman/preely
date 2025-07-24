@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Màu đen nhạt theo theme của app -->
+    <solid android:color="#757575" />
+
+    <!-- Không có viền để clean hơn -->
+    <size
+        android:width="48dp"
+        android:height="48dp" />
+
+</shape>

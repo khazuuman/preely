@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class CreateMessageRequest {
     String senderId;
     String receiverId;
-    String postId;
+    String serviceId;
     String content;
     boolean isRead = false;
     String room;

@@ -112,6 +112,8 @@ public class Login extends AppCompatActivity {
         userLoginService.getLoginResult().observe(this, userResponse -> {
             if (userResponse != null) {
                 sessionManager.setUserSession(userResponse);
+                sessionManager.setLogin(true);
+                sessionManager.setSessionTimeOut(TimeUnit.HOURS.toMillis(24));
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra("toast_mess", "Đăng nhập thành công");
                 startActivity(intent);
@@ -136,8 +138,13 @@ public class Login extends AppCompatActivity {
 
         // Set remember me checkbox listener
         rememberCb.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sessionManager.setSessionTimeOut(isChecked ? TimeUnit.DAYS.toMillis(7) : 0);
-            sessionManager.setRemember(isChecked);
+            if (isChecked) {
+                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+                sessionManager.setRemember(true);
+            } else {
+                sessionManager.setSessionTimeOut(TimeUnit.HOURS.toMillis(24));
+                sessionManager.setRemember(false);
+            }
         });
 
         // Handle login button click

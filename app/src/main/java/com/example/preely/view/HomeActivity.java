@@ -103,8 +103,8 @@ public class HomeActivity extends AppCompatActivity {
     private void setupViews() {
         findViews();
         setupUserInfo();
-//        setupChatButton();
-//        setupMapButton();
+        setupChatButton();
+        setupMapButton();
 //        setupScrollFunctionality();
 //        setupFavouriteButton();
         setupCategoryView();
@@ -372,21 +372,21 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        if (sessionManager != null && !sessionManager.getLogin()) {
-//            Log.d(TAG, "Session expired, redirecting to login");
-//            startActivity(new Intent(this, Login.class));
-//            finish();
-//            return;
-//        }
-//
-//        if (sessionManager.getLogin()) {
-//            loadInitialUnreadCount();
-//        }
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (sessionManager != null && !sessionManager.getLogin()) {
+            Log.d(TAG, "Session expired, redirecting to login");
+            startActivity(new Intent(this, Login.class));
+            finish();
+            return;
+        }
+
+        if (sessionManager.getLogin()) {
+            loadInitialUnreadCount();
+        }
+    }
 
     @Override
     protected void onDestroy() {
