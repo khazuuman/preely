@@ -85,6 +85,10 @@
             <!-- </intent-filter> -->
         </activity>
         <activity
+            android:name=".view.UserSearchActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".view.ChatListActivity"
             android:exported="false">
         </activity>
@@ -130,9 +134,9 @@
 <!--        <activity android:name=".view.ProfileActivity" />-->
 <!--        <activity android:name=".view.PrivacyPolicyActivity" />-->
 <!--        <activity android:name=".view.ChangePasswordActivity" />-->
-<!--        <activity-->
-<!--            android:name=".view.MapTestActivity"-->
-<!--            android:exported="false" />-->
+        <activity
+            android:name=".view.MapTestActivity"
+            android:exported="false" />
 <!--        <activity android:name=".view.MyPostsActivity" />-->
 <!--        <activity android:name=".view.ActivityCreatePost" />-->
 

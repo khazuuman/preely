@@ -1,102 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:padding="12dp">
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground">
 
-    <!-- Profile Image with card style -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/profile_image_container"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        app:cardCornerRadius="25dp"
-        app:cardElevation="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/profile_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/default_profile" />
-    </androidx.cardview.widget.CardView>
-
-    <!-- Online status indicator -->
+    <!-- Avatar placeholder (có thể thêm ImageView cho avatar sau) -->
     <View
-        android:id="@+id/online_status"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:background="@drawable/circle_online"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/profile_image_container"
-        app:layout_constraintEnd_toEndOf="@id/profile_image_container" />
+        android:id="@+id/avatar_placeholder"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/circle_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Name and message container -->
-    <LinearLayout
-        android:id="@+id/text_container"
+    <!-- Receiver Full Name - Tên chính hiển thị trên item_chat_room -->
+    <TextView
+        android:id="@+id/receiver_full_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="8dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="@id/profile_image_container"
-        app:layout_constraintEnd_toStartOf="@id/time_container"
-        app:layout_constraintStart_toEndOf="@id/profile_image_container"
-        app:layout_constraintTop_toTopOf="@id/profile_image_container">
+        android:text="Full Name"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#212121"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/avatar_placeholder"
+        app:layout_constraintEnd_toStartOf="@id/time_text"
+        app:layout_constraintTop_toTopOf="@id/avatar_placeholder" />
 
-        <TextView
-            android:id="@+id/receiver_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Receiver Name"
-            android:textColor="#212121"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+    <!-- Receiver Username - Hiển thị bên dưới full name (tùy chọn) -->
+    <TextView
+        android:id="@+id/receiver_username"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="2dp"
+        android:text="@username"
+        android:textSize="12sp"
+        android:textColor="#757575"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/avatar_placeholder"
+        app:layout_constraintEnd_toEndOf="@id/receiver_full_name"
+        app:layout_constraintTop_toBottomOf="@id/receiver_full_name" />
 
-        <TextView
-            android:id="@+id/last_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Last message..."
-            android:textColor="#757575"
-            android:textSize="14sp" />
-    </LinearLayout>
+    <!-- Last Message -->
+    <TextView
+        android:id="@+id/last_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:text="Last message content..."
+        android:textSize="14sp"
+        android:textColor="#757575"
+        android:maxLines="2"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/avatar_placeholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receiver_username"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- Time and unread indicator -->
-    <LinearLayout
-        android:id="@+id/time_container"
+    <!-- Time (optional) -->
+    <TextView
+        android:id="@+id/time_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="end"
+        android:text="12:30"
+        android:textSize="12sp"
+        android:textColor="#999999"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/message_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:30"
-            android:textColor="#BDBDBD"
-            android:textSize="12sp" />
-
-        <View
-            android:id="@+id/unread_indicator"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/circle_unread"
-            android:visibility="gone" />
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="@id/receiver_full_name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.example.preely.view.adapter;
+package com.example.preely.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
