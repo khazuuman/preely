@@ -138,15 +138,6 @@
                         android:textColor="#333333" />
                 </LinearLayout>
 
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Service Location"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:textColor="#333333"-->
-<!--                    android:layout_marginBottom="8dp" />-->
-
                 <!-- Map Container -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -168,13 +159,6 @@
                             android:gravity="center"
                             android:background="#F5F5F5"
                             android:visibility="gone">
-
-<!--                            <TextView-->
-<!--                                android:layout_width="wrap_content"-->
-<!--                                android:layout_height="wrap_content"-->
-<!--                                android:text=""-->
-<!--                                android:textSize="48sp"-->
-<!--                                android:textColor="#CCCCCC" />-->
 
                             <TextView
                                 android:layout_width="wrap_content"
