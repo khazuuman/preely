@@ -12,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.model.response.CategoryResponse;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAdapter.CategoryViewHolder> {
 
@@ -53,5 +55,6 @@ public class CategoryMarketAdapter extends RecyclerView.Adapter<CategoryMarketAd
             cateName = itemView.findViewById(R.id.cate_name);
         }
     }
+
 
 }

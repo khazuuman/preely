@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceRequest {
+public class ServiceMarketRequest {
     String title;
     String description;
     double price;

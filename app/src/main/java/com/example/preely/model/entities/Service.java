@@ -19,15 +19,15 @@ public class Service extends BaseEntity {
     DocumentReference category_id;
     DocumentReference provider_id;
 
+
     String title;
     String description;
     Double price;
     String availability; //"Weekends", "Mon-Fri evenings"
     String university;
-
-    float average_rating;
-    int total_reviews;
-
+    Float average_rating;
+    Integer total_reviews;
+    String status;
     List<String> image_urls;
     GeoPoint location;
 }

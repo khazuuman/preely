@@ -105,7 +105,7 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
             sortType = sortFilterAdapter.getSelectedItem();
             Log.i("CATE_ID", category_id == null ? "null" : category_id.toString());
             Log.i("SORT_TYPE", sortType == null ? "null" : sortType.toString());
-            serviceFilterRequest = new ServiceFilterRequest(null, category_id, sortType);
+//            serviceFilterRequest = new ServiceFilterRequest(null, category_id, sortType);
             if (filterApplyListener != null) {
                 filterApplyListener.onFilterApplied(serviceFilterRequest);
             }

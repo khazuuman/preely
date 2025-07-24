@@ -42,9 +42,6 @@ public class CategoryService extends ViewModel {
                         throw new RuntimeException(e);
                     }
                 }
-                if (categoryResponses.size() > 7) {
-                    categoryResponses.add(7, new CategoryResponse("Khác...", ""));
-                }
                 cateListResult.setValue(categoryResponses);
                 Log.i("CATE COUNT", String.valueOf(categoryResponses.size()));
             } else {

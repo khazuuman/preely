@@ -153,7 +153,7 @@
         <ScrollView
             android:id="@+id/homeScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="650dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="20dp">
@@ -265,7 +265,7 @@
         android:id="@+id/scrollToTopBtn"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="120dp"
         android:layout_marginRight="20dp"
         android:background="@drawable/bg_scroll_to_top_btn"
         android:contentDescription="Scroll to top"
@@ -281,7 +281,5 @@
         android:layout_height="60dp"
         android:layout_gravity="center"
         android:visibility="gone" />
-
-
 
 </FrameLayout>
