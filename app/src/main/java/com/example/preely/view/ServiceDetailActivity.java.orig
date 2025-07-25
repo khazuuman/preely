@@ -84,6 +84,61 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
     private void setupViewModel() {
         serviceMarketViewModel = new ViewModelProvider(this).get(ServiceMarketViewModel.class);
+<<<<<<< HEAD
+        Intent intent = getIntent();
+        if (intent != null) {
+            String serviceId = intent.getStringExtra("serviceId");
+            if (serviceId != null) {
+                serviceMarketViewModel.getServiceDetail(serviceId);
+                serviceMarketViewModel.getDetailResponse().observe(this, detailResponse -> {
+                    if (detailResponse != null) {
+                        response = detailResponse;
+                        ArrayList<SlideModel> imageList = new ArrayList<>();
+                        if (detailResponse.getImage_urls() != null) {
+                            for (String image : detailResponse.getImage_urls()) {
+                                imageList.add(new SlideModel(image, ScaleTypes.FIT));
+                            }
+                        }
+                        if (imageList.isEmpty()) {
+                            imageList.add(new SlideModel(R.drawable.img_not_found, ScaleTypes.FIT));
+                        }
+                        imageSlider.setImageList(imageList);
+                        tvTitle.setText(detailResponse.getTitle());
+                        tvProvider.setText("Provider: " + detailResponse.getProviderName());
+                        tvCategory.setText("Category: " + detailResponse.getCategoryName());
+                        tvPrice.setText("Price: " +NumberFormat.getNumberInstance(Locale.US).format(detailResponse.getPrice()) + " VND");
+                        tvStatus.setText("Status: " + detailResponse.getStatus());
+                        tvDescription.setText(detailResponse.getDescription());
+                        tvRating.setText("(" + String.format("%.1f", detailResponse.getAverage_rating()) + ")");
+                        ratingBar.setRating(detailResponse.getAverage_rating());
+                        tvUniversity.setText("University: " + detailResponse.getUniversity());
+                        try {
+                            Constraints.Availability availability = Constraints.Availability.valueOf(detailResponse.getAvailability());
+                            tvAvailability.setText("Availability: " + availability.getLabel());
+                        } catch (IllegalArgumentException | NullPointerException e) {
+                            tvAvailability.setText("Availability: N/A");
+                        }
+                    }
+                });
+            }
+        }
+
+        btnBookService.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ServiceDetailActivity.this, BookingActivity.class);
+                intent.putExtra("serviceId", response.getId());
+                startActivity(intent);
+            }
+        });
+
+        btnSaved.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+=======
+>>>>>>> Thang4
 
         serviceMarketViewModel.getDetailResponse().observe(this, detailResponse -> {
             if (detailResponse != null) {
@@ -177,7 +232,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
                 // Hide no location overlay
                 noLocationOverlay.setVisibility(View.GONE);
-                // ĐÃ XÓA: Tự động mở BookingActivity
+
                 // Create map fragment với service location (read-only mode)
                 mapFragment = MapFragment.newInstanceWithTitle(serviceLocation, false, "📍 " + response.getTitle());
 
@@ -214,14 +269,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
     private void setupButtons() {
         btnBookService.setOnClickListener(v -> {
-            // Mở BookingActivity khi bấm nút booking
-            if (response != null && response.getId() != null) {
-                Intent intent = new Intent(ServiceDetailActivity.this, BookingActivity.class);
-                intent.putExtra("serviceId", response.getId());
-                startActivity(intent);
-            } else {
-                Log.d(TAG, "Booking button clicked but response or id is null");
-            }
+            // TODO: Implement booking functionality
+            Log.d(TAG, "Booking button clicked");
         });
 
         btnSaved.setOnClickListener(v -> {

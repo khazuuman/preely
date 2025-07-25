@@ -128,7 +128,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- <activity -->
+<<<<<<< HEAD
+
+        </activity>
+
         <activity android:name=".view.ManagementActivity" />
         <activity android:name=".view.ProfileActivity" />
         <activity android:name=".view.PrivacyPolicyActivity" />
@@ -136,15 +139,29 @@
         <activity
             android:name=".view.MapTestActivity"
             android:exported="false" />
-        <!-- <activity android:name=".view.MyPostsActivity" /> -->
-        <!-- <activity android:name=".view.ActivityCreatePost" /> -->
+<!--        <activity android:name=".view.MyPostsActivity" />-->
+<!--        <activity android:name=".view.ActivityCreatePost" />-->
 
         <activity
             android:name=".view.UserServiceManagementActivity"
             android:exported="false" />
 
         <activity android:name=".view.SettingsActivity" android:exported="false" />
-        <activity android:name=".view.SavedServicesActivity" android:exported="false" />
+
+=======
+        </activity> <!-- <activity -->
+        <!-- android:name=".view.SavedPostsActivity" -->
+        <!-- android:exported="false" /> -->
+        <!-- <activity android:name=".view.ManagementActivity" /> -->
+        <!-- <activity android:name=".view.ProfileActivity" /> -->
+        <!-- <activity android:name=".view.PrivacyPolicyActivity" /> -->
+        <!-- <activity android:name=".view.ChangePasswordActivity" /> -->
+        <!-- <activity -->
+        <!-- android:name=".view.MapTestActivity" -->
+        <!-- android:exported="false" /> -->
+        <!-- <activity android:name=".view.MyPostsActivity" /> -->
+        <!-- <activity android:name=".view.ActivityCreatePost" /> -->
+>>>>>>> KhaiND2
         <service
             android:name=".viewmodel.UnreadMessageService"
             android:enabled="true"

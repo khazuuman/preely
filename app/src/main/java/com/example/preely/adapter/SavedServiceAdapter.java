@@ -10,10 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.preely.R;
 import com.example.preely.model.entities.Service;
 import java.util.List;
+import java.util.Map;
 
 public class SavedServiceAdapter extends RecyclerView.Adapter<SavedServiceAdapter.SavedServiceViewHolder> {
     private List<Service> serviceList;
     private final OnSavedServiceClickListener listener;
+    private Map<String, String> providerIdToName = new java.util.HashMap<>();
+    private Map<String, String> categoryIdToName = new java.util.HashMap<>();
 
     public interface OnSavedServiceClickListener {
         void onRemove(Service service);
@@ -37,9 +40,17 @@ public class SavedServiceAdapter extends RecyclerView.Adapter<SavedServiceAdapte
         Service service = serviceList.get(position);
         holder.title.setText(service.getTitle());
         holder.price.setText("$" + service.getPrice());
-        holder.status.setText(service.getAvailability().getLabel());
-        holder.provider.setText("Provider: " + (service.getProvider_id() != null ? service.getProvider_id().getId() : "Unknown"));
-        holder.category.setText("Category: " + (service.getCategory_id() != null ? service.getCategory_id().getId() : "Unknown"));
+        holder.status.setText(service.getAvailability() != null ? service.getAvailability().getLabel() : "");
+        String providerName = null;
+        if (service.getProvider_id() != null) {
+            providerName = providerIdToName.get(service.getProvider_id().getId());
+        }
+        holder.provider.setText("Provider: " + (providerName != null ? providerName : "Unknown"));
+        String categoryName = null;
+        if (service.getCategory_id() != null) {
+            categoryName = categoryIdToName.get(service.getCategory_id().getId());
+        }
+        holder.category.setText("Category: " + (categoryName != null ? categoryName : "Unknown"));
         holder.itemView.setOnClickListener(v -> listener.onItemClick(service));
         holder.btnRemove.setOnClickListener(v -> listener.onRemove(service));
     }
@@ -51,6 +62,15 @@ public class SavedServiceAdapter extends RecyclerView.Adapter<SavedServiceAdapte
 
     public void setServiceList(List<Service> serviceList) {
         this.serviceList = serviceList;
+        notifyDataSetChanged();
+    }
+
+    public void setProviderIdToName(Map<String, String> map) {
+        this.providerIdToName = map;
+        notifyDataSetChanged();
+    }
+    public void setCategoryIdToName(Map<String, String> map) {
+        this.categoryIdToName = map;
         notifyDataSetChanged();
     }
 

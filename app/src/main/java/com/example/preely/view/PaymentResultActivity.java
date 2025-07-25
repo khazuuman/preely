@@ -93,6 +93,11 @@ public class PaymentResultActivity extends AppCompatActivity {
         btnBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, HomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            if (isSuccess) {
+                intent.putExtra("toast_mess", "Thanh toán thành công!");
+            } else {
+                intent.putExtra("toast_mess", "Thanh toán thất bại hoặc bị hủy!");
+            }
             startActivity(intent);
             finish();
         });
@@ -123,8 +128,14 @@ public class PaymentResultActivity extends AppCompatActivity {
         Log.d("PaymentResultActivity", "Requester ID: " + requesterId);
         Log.d("PaymentResultActivity", "Giver ID: " + giverId);
         Log.d("PaymentResultActivity", "Service ID: " + serviceId);
-        
-        // Sử dụng TransactionService để xử lý kết quả thanh toán với thông tin đầy đủ
+
+        // Nếu không thành công, chỉ show lỗi và không gọi processPaymentResult
+        if (!"00".equals(responseCode)) {
+            handlePaymentResult(responseCode, responseMessage);
+            return;
+        }
+
+        // Chỉ xử lý transaction khi thành công
         transactionService.processPaymentResult(responseCode, responseMessage, txnRef, amount, 
             requesterId, giverId, serviceId, new TransactionService.TransactionCallback() {
                 @Override
@@ -132,7 +143,6 @@ public class PaymentResultActivity extends AppCompatActivity {
                     transaction = resultTransaction;
                     handlePaymentResult(responseCode, responseMessage);
                 }
-                
                 @Override
                 public void onError(String error) {
                     Log.e("PaymentResultActivity", "Error processing payment result: " + error);
@@ -201,5 +211,18 @@ public class PaymentResultActivity extends AppCompatActivity {
         loadingProgress.setVisibility(View.GONE);
         btnBackToHome.setVisibility(View.VISIBLE);
         btnViewTransaction.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        if (isSuccess) {
+            intent.putExtra("toast_mess", "Thanh toán thành công!");
+        } else {
+            intent.putExtra("toast_mess", "Thanh toán thất bại hoặc bị hủy!");
+        }
+        startActivity(intent);
+        finish();
     }
 }

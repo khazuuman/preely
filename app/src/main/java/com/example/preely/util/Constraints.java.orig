@@ -27,6 +27,17 @@ public class Constraints {
         int PRICE_ASC = 4;
         int PRICE_DESC = 5;
     }
+
+<<<<<<< HEAD
+=======
+    public interface BookingStatus {
+        String PENDING = "Pending";
+        String CLAIMED = "Claimed";
+        String COMPLETED = "Completed";
+        String CANCELLED = "Cancelled";
+    }
+
+>>>>>>> KhaiND2
     public enum Availability {
         WEEKENDS("Weekends"),
         WEEKDAYS("Weekdays"),
@@ -53,10 +64,5 @@ public class Constraints {
             return label;
         }
     }
-
-    public static final String BOOKING_STATUS_PENDING = "PENDING";
-    public static final String BOOKING_STATUS_CONFIRMED = "CONFIRMED";
-    public static final String BOOKING_STATUS_CANCELLED = "CANCELLED";
-    public static final String BOOKING_STATUS_COMPLETED = "COMPLETED";
 }
 

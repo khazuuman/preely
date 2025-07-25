@@ -19,6 +19,9 @@ import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.BookingRequest;
 import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.BookingService;
+import com.example.preely.model.entities.Transaction;
+import com.example.preely.viewmodel.TransactionService;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -26,7 +29,8 @@ public class BookingActivity extends AppCompatActivity {
 
     Spinner spinnerTimeSlot;
     EditText etNotes;
-    Button btnSubmit;
+    Button btnConfirm, btnCancel;
+    Double servicePrice = null;
 
     String[] timeSlots = {
             "07:00 - 07:30", "07:30 - 08:00",
@@ -54,7 +58,8 @@ public class BookingActivity extends AppCompatActivity {
         Intent intent = getIntent();
         spinnerTimeSlot = findViewById(R.id.spinnerTimeSlot);
         etNotes = findViewById(R.id.etNotes);
-        btnSubmit = findViewById(R.id.btnSubmit);
+        btnConfirm = findViewById(R.id.btnConfirm);
+        btnCancel = findViewById(R.id.btnCancel);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
@@ -76,29 +81,63 @@ public class BookingActivity extends AppCompatActivity {
         DocumentReference seekerRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.USERS).document(sessionManager.getUserSession().getId());
         request.setSeeker_id(seekerRef);
 
+        // Lấy giá service từ Firestore
+        if (serviceId != null) {
+            FirebaseFirestore.getInstance().collection(Constraints.CollectionName.SERVICE)
+                .document(serviceId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    com.example.preely.model.entities.Service service = documentSnapshot.toObject(com.example.preely.model.entities.Service.class);
+                    if (service != null) {
+                        servicePrice = service.getPrice();
+                    }
+                });
+        }
 
-        btnSubmit.setOnClickListener(v -> {
+        TransactionService transactionService = new TransactionService();
+
+        btnConfirm.setOnClickListener(v -> {
             request.setTime_slot(spinnerTimeSlot.getSelectedItem().toString());
             request.setNotes(etNotes.getText().toString());
-
             try {
+                // 1. Tạo record booking
                 bookingService.insertBooking(request);
-                bookingService.getBookingResult().observe(this, result -> {
-                    if (result) {
-                        CustomToast.makeText(this, "Booking successful", Toast.LENGTH_SHORT).show();
-                    } else {
-                        CustomToast.makeText(this, "Booking failed", Toast.LENGTH_SHORT).show();
+                // 2. Tạo record transaction (Unpaid)
+                Transaction transaction = new Transaction();
+                transaction.setService_id(serviceId);
+                transaction.setRequester_id(sessionManager.getUserSession().getId());
+                transaction.setAmount(servicePrice);
+                transaction.setStatus("Unpaid");
+                transaction.setTransaction_date(Timestamp.now());
+                // Nếu muốn set giver_id, có thể lấy từ provider_id của service (nếu cần)
+                transactionService.saveTransaction(transaction, new TransactionService.TransactionCallback() {
+                    @Override
+                    public void onSuccess(Transaction t) {
+                        // Chuyển sang VNPayActivity với amount là price của service
+                        if (servicePrice != null && servicePrice > 0) {
+                            Intent vnpayIntent = new Intent(BookingActivity.this, VNPayActivity.class);
+                            vnpayIntent.putExtra("amount", servicePrice);
+                            vnpayIntent.putExtra("orderInfo", "Thanh toán dịch vụ: " + (serviceId != null ? serviceId : ""));
+                            vnpayIntent.putExtra("serviceId", serviceId);
+                            vnpayIntent.putExtra("requesterId", sessionManager.getUserSession().getId());
+                            vnpayIntent.putExtra("transactionId", t.getId());
+                            startActivity(vnpayIntent);
+                            finish();
+                        } else {
+                            Toast.makeText(BookingActivity.this, "Không lấy được giá dịch vụ!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onError(String error) {
+                        Toast.makeText(BookingActivity.this, "Tạo transaction thất bại: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException(e);
             }
-
-            // redirect to transaction
-            Intent intent1 = new Intent(this, TransactionActivity.class);
-            startActivity(intent1);
-            finish();
         });
+
+        btnCancel.setOnClickListener(v -> finish());
 
 
     }

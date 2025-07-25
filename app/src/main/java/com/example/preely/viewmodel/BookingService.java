@@ -31,7 +31,7 @@ public class BookingService extends ViewModel {
     public void insertBooking(BookingRequest request) throws IllegalAccessException, InstantiationException {
         Booking booking = DataUtil.mapObj(request, Booking.class);
         booking.setCreate_at(Timestamp.now());
-        booking.setStatus(Constraints.BookingStatus.PENDING);
+        booking.setStatus(Constraints.BOOKING_STATUS_PENDING);
         booking.setBooking_time(Timestamp.now());
         booking.setService_id(request.getService_id());
         booking.setSeeker_id(request.getSeeker_id());

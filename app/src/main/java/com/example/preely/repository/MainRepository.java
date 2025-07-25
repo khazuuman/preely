@@ -45,6 +45,7 @@ public class MainRepository<T extends BaseEntity> {
                 }
                 result.setValue(resultList);
             } else {
+                Log.e("MainRepository", "getAll failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
                 result.setValue(null);
             }
         });
