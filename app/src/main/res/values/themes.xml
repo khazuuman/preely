@@ -1,8 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Preely" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Đổi màu primary -->
+        <item name="colorPrimary">#FEF7FF</item>  <!-- Trắng -->
+        <item name="colorPrimaryDark">#000000</item>  <!-- Đen -->
+
+        <!-- Set status bar trong suốt hoặc màu trắng -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!-- Đảm bảo text/icon trên status bar hiển thị đúng -->
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowContentTransitions">true</item>
+
         <item name="fontFamily">@font/roboto_original</item>
     </style>
 

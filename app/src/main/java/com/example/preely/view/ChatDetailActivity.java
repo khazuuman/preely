@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,10 +39,13 @@ public class ChatDetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageInput;
     private ImageButton sendButton;
-    private TextView receiverFullNameText, receiverUsernameText;  // 2 TextView riêng biệt
+    private TextView receiverFullNameText, receiverUsernameText;
     private ImageView backButton;
     private SessionManager sessionManager;
     private FirestoreRealtimeUtil realtimeUtil;
+
+    // ✅ Thêm transaction button
+    private CardView transactionButton;
 
     private String roomId;
     private String receiverId;
@@ -65,6 +69,8 @@ public class ChatDetailActivity extends AppCompatActivity {
         setupRecyclerView();
         setupMessageService();
         setupSendButton();
+        // ✅ Setup transaction button
+        setupTransactionButton();
 
         // Kiểm tra session
         if (sessionManager.getUserSession() == null || sessionManager.getUserSession().getId() == null) {
@@ -75,7 +81,7 @@ public class ChatDetailActivity extends AppCompatActivity {
 
         currentUserId = sessionManager.getUserSession().getId();
 
-        // Fetch thông tin receiver để hiển thị (yêu cầu: hiện fullname lẫn username trên activity_chat_detail)
+        // Fetch thông tin receiver để hiển thị
         if (receiverId != null && !receiverId.isEmpty()) {
             fetchReceiverInfo();
         }
@@ -109,6 +115,9 @@ public class ChatDetailActivity extends AppCompatActivity {
         receiverUsernameText = findViewById(R.id.receiver_username_detail);
         backButton = findViewById(R.id.back_button);
 
+        // ✅ Khởi tạo transaction button
+        transactionButton = findViewById(R.id.transaction_button);
+
         // Set thông tin từ Intent trước (nếu có)
         if (receiverFullName != null) {
             receiverFullNameText.setText(receiverFullName);
@@ -124,7 +133,36 @@ public class ChatDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * Fetch thông tin receiver để hiển thị fullname và username (yêu cầu: hiện fullname lẫn username trên activity_chat_detail)
+     * ✅ Setup transaction button với logic hiển thị thông minh
+     */
+    private void setupTransactionButton() {
+        transactionButton.setOnClickListener(v -> {
+            try {
+                Intent intent = new Intent(ChatDetailActivity.this, TransactionActivity.class);
+
+                // ✅ Truyền thông tin receiver để pre-select trong transaction
+                intent.putExtra("RECEIVER_ID", receiverId);
+                intent.putExtra("RECEIVER_NAME", receiverFullName != null ? receiverFullName : receiverUsername);
+
+                // ✅ Truyền thêm context từ chat
+                intent.putExtra("FROM_CHAT", true);
+                intent.putExtra("ROOM_ID", roomId);
+
+                startActivity(intent);
+                Log.d("ChatDetailActivity", "Started TransactionActivity with receiver: " + receiverId);
+
+            } catch (Exception e) {
+                Log.e("ChatDetailActivity", "Error starting TransactionActivity: " + e.getMessage());
+                // Có thể hiển thị toast error ở đây
+            }
+        });
+
+        // ✅ Mặc định ẩn button, sẽ hiển thị sau khi fetch receiver info
+        transactionButton.setVisibility(View.GONE);
+    }
+
+    /**
+     * Fetch thông tin receiver và quyết định có hiển thị transaction button không
      */
     private void fetchReceiverInfo() {
         userService.getUserInfo(receiverId, new UserService.UserInfoCallback() {
@@ -134,6 +172,10 @@ public class ChatDetailActivity extends AppCompatActivity {
                 receiverFullNameText.setText(fullName);
                 // Hiển thị username bên dưới fullname
                 receiverUsernameText.setText("@" + username);
+
+                // ✅ Hiển thị transaction button sau khi có thông tin user
+                // Có thể thêm logic kiểm tra role của user (provider/seeker)
+                showTransactionButtonIfNeeded();
 
                 Log.d("ChatDetailActivity", "Receiver info loaded - Full name: " + fullName + ", Username: " + username);
             }
@@ -149,36 +191,34 @@ public class ChatDetailActivity extends AppCompatActivity {
                 if (receiverUsernameText.getText().toString().isEmpty()) {
                     receiverUsernameText.setText("@unknown");
                 }
+
+                // ✅ Vẫn hiển thị transaction button trong trường hợp lỗi
+                transactionButton.setVisibility(View.VISIBLE);
             }
         });
     }
 
-    private void setupRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setStackFromEnd(true);
-        recyclerView.setLayoutManager(layoutManager);
+    /**
+     * ✅ Logic quyết định có hiển thị transaction button hay không
+     */
+    private void showTransactionButtonIfNeeded() {
+        try {
+            // Luôn hiển thị transaction button (có thể customize logic sau)
+            transactionButton.setVisibility(View.VISIBLE);
 
-        // ✅ Đảm bảo currentUserId không null trước khi tạo adapter
-        if (currentUserId == null || currentUserId.isEmpty()) {
-            Log.e("ChatDetailActivity", "Current user ID is null, trying to get from session");
+            // ✅ Có thể thêm logic phức tạp hơn:
+            // - Chỉ hiển thị nếu receiver có role là "provider"
+            // - Chỉ hiển thị nếu receiver có services
+            // - Ẩn nếu đã có transaction pending
 
-            if (sessionManager.getUserSession() != null && sessionManager.getUserSession().getId() != null) {
-                currentUserId = sessionManager.getUserSession().getId();
-                Log.d("ChatDetailActivity", "Retrieved current user ID from session: " + currentUserId);
-            } else {
-                Log.e("ChatDetailActivity", "Cannot get current user ID, redirecting to login");
-                // Redirect to login or show error
-                finish();
-                return;
-            }
+            Log.d("ChatDetailActivity", "Transaction button shown for receiver: " + receiverId);
+
+        } catch (Exception e) {
+            Log.e("ChatDetailActivity", "Error showing transaction button: " + e.getMessage());
         }
-
-        // ✅ Tạo adapter với currentUserId đã validate
-        adapter = new ChatMessageAdapter(messageList, currentUserId);
-        recyclerView.setAdapter(adapter);
-
-        Log.d("ChatDetailActivity", "RecyclerView setup completed with currentUserId: " + currentUserId);
     }
+
+    // ... (giữ nguyên các method khác như validateCurrentUser, setupRecyclerView, etc.)
 
     private boolean validateCurrentUser() {
         if (sessionManager.getUserSession() == null || sessionManager.getUserSession().getId() == null) {
@@ -204,6 +244,31 @@ public class ChatDetailActivity extends AppCompatActivity {
         currentUserId = sessionManager.getUserSession().getId();
         Log.d("ChatDetailActivity", "Current user validated: " + currentUserId);
         return true;
+    }
+
+    private void setupRecyclerView() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(layoutManager);
+
+        // Đảm bảo currentUserId không null trước khi tạo adapter
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e("ChatDetailActivity", "Current user ID is null, trying to get from session");
+
+            if (sessionManager.getUserSession() != null && sessionManager.getUserSession().getId() != null) {
+                currentUserId = sessionManager.getUserSession().getId();
+                Log.d("ChatDetailActivity", "Retrieved current user ID from session: " + currentUserId);
+            } else {
+                Log.e("ChatDetailActivity", "Cannot get current user ID, redirecting to login");
+                finish();
+                return;
+            }
+        }
+
+        adapter = new ChatMessageAdapter(messageList, currentUserId);
+        recyclerView.setAdapter(adapter);
+
+        Log.d("ChatDetailActivity", "RecyclerView setup completed with currentUserId: " + currentUserId);
     }
 
     private void setupMessageService() {
@@ -246,7 +311,6 @@ public class ChatDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(String error) {
                 Log.e("ChatDetailActivity", "Send message failed: " + error);
-                // Có thể hiển thị Toast error ở đây
             }
         });
     }
@@ -266,17 +330,17 @@ public class ChatDetailActivity extends AppCompatActivity {
         realtimeUtil.listenToCustomQuery(query, Message.class, new FirestoreRealtimeUtil.RealtimeListener<Message>() {
             @Override
             public void onDataAdded(Message data) {
-                loadMessages();  // Reload messages khi có tin nhắn mới
+                loadMessages();
             }
 
             @Override
             public void onDataModified(Message data) {
-                loadMessages();  // Reload khi tin nhắn được sửa
+                loadMessages();
             }
 
             @Override
             public void onDataRemoved(Message data) {
-                loadMessages();  // Reload khi tin nhắn bị xóa
+                loadMessages();
             }
 
             @Override
@@ -295,7 +359,6 @@ public class ChatDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Đánh dấu tin nhắn đã đọc khi vào room
         if (roomId != null && currentUserId != null) {
             messageService.markRoomMessagesAsRead(roomId, currentUserId, new MessageService.MarkAsReadCallback() {
                 @Override

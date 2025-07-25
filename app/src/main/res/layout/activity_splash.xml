@@ -10,19 +10,21 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bg_layout"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="203dp"
+        android:layout_height="197dp"
         android:background="@drawable/bg_splash"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.701"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.504" />
 
     <ImageView
         android:id="@+id/blue_twitter_img"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/ic_twitter"
+        android:src="@drawable/ic_preely"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +34,7 @@
         android:id="@+id/white_twitter_img"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/ic_twitter"
+        android:src="@drawable/ic_preely"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

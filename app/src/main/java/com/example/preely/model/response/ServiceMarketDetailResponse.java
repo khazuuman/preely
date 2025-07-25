@@ -1,5 +1,6 @@
 package com.example.preely.model.response;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -30,4 +31,6 @@ public class ServiceMarketDetailResponse extends CommonResponse {
     Integer total_reviews;
     List<String> image_urls;
     GeoPoint location;
+    Timestamp create_at;
+    Timestamp update_at;
 }
