@@ -11,12 +11,12 @@ import com.google.firebase.firestore.Query;
 import java.util.List;
 
 public class ManagementTransactionService {
-    private final MainRepository<Transaction> transactionRepository = new MainRepository<>(Transaction.class, "transaction");
+    private final MainRepository<Transaction> transactionRepository = new MainRepository<>(Transaction.class, "transactions");
     private final FirestoreRealtimeUtil realtimeUtil = new FirestoreRealtimeUtil();
     private ListenerRegistration transactionListener;
 
     public void getAllTransactions(Observer<List<Transaction>> observer) {
-        Query query = FirebaseFirestore.getInstance().collection("transaction");
+        Query query = FirebaseFirestore.getInstance().collection("transactions");
         transactionRepository.getAll(query).observeForever(observer);
     }
 
