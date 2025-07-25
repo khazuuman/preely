@@ -388,7 +388,7 @@ public class HomeActivity extends AppCompatActivity {
                 recreate();
                 return true;
             } else if (id == R.id.navigation_settings) {
-                // TODO: Điều hướng sang trang settings nếu có
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             }
             return false;

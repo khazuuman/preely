@@ -118,6 +118,8 @@
     <string name="no_services_to_select">No services to select!</string>
     <string name="error_selecting_service">Error selecting service</string>
     <string name="please_select_service">Please select a service!</string>
+    <string name="change_password">Change Password</string>
+    <string name="saved_services">Saved Services</string>
 
     <string-array name="items_array">
         <item>Apple</item>

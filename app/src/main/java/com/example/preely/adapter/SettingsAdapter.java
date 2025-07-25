@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 import com.example.preely.model.SettingItem;
+import androidx.appcompat.widget.SwitchCompat;
 
 import java.util.List;
 
@@ -123,7 +124,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     class SwitchViewHolder extends RecyclerView.ViewHolder {
         private ImageView icon;
         private TextView title;
-        private Switch switchView;
+        private SwitchCompat switchView;
         
         public SwitchViewHolder(@NonNull View itemView) {
             super(itemView);

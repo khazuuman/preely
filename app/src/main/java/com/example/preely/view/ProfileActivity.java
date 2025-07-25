@@ -29,11 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ImageView imgAvatar, btnEditAvatar, btnMenu, btnMore;
     private TextView tvPhone, tvName;
-    private LinearLayout btnEditProfile, btnNotification,
-                        btnPrivacyPolicy, btnHelpCenter,
-                        btnHome, btnCart, btnOrders, btnWallet, btnProfile, btnLogout, btnChangePassword, btnSavedServices;
-
-    private Switch switchNotification;
+    private LinearLayout btnHome, btnCart, btnOrders, btnWallet, btnProfile;
     private SessionManager sessionManager;
     private SharedPreferences sharedPreferences;
 
@@ -51,12 +47,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Load trạng thái notification khi vào màn hình
         boolean notificationEnabled = sharedPreferences.getBoolean("notification_enabled", true);
-        switchNotification.setChecked(notificationEnabled);
+        // switchNotification.setChecked(notificationEnabled); // This line is removed
         // Lưu trạng thái khi user thay đổi
-        switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPreferences.edit().putBoolean("notification_enabled", isChecked).apply();
-            Toast.makeText(this, isChecked ? "Đã bật thông báo" : "Đã tắt thông báo", Toast.LENGTH_SHORT).show();
-        });
+        // switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> { // This line is removed
+        //     sharedPreferences.edit().putBoolean("notification_enabled", isChecked).apply();
+        //     Toast.makeText(this, isChecked ? "Đã bật thông báo" : "Đã tắt thông báo", Toast.LENGTH_SHORT).show();
+        // });
 
         // Lấy id user từ session
         UserResponse sessionUser = sessionManager.getUserSession();
@@ -100,16 +96,6 @@ public class ProfileActivity extends AppCompatActivity {
         btnMenu = findViewById(R.id.btnMenu);
         btnMore = findViewById(R.id.btnMore);
 
-        // Settings buttons
-        btnEditProfile = findViewById(R.id.btnEditProfile);
-        btnNotification = findViewById(R.id.btnNotification);
-        btnPrivacyPolicy = findViewById(R.id.btnPrivacyPolicy);
-        btnHelpCenter = findViewById(R.id.btnHelpCenter);
-        btnLogout = findViewById(R.id.btnLogout);
-        switchNotification = findViewById(R.id.switchNotification);
-        btnChangePassword = findViewById(R.id.btnChangePassword);
-        btnSavedServices = findViewById(R.id.btnSavedServices);
-
         // Bottom navigation
         btnHome = findViewById(R.id.btnHome);
         btnCart = findViewById(R.id.btnCart);
@@ -148,72 +134,30 @@ public class ProfileActivity extends AppCompatActivity {
     private void setupClickListeners() {
         // Header buttons
         btnMenu.setOnClickListener(v -> onBackPressed());
-
         btnMore.setOnClickListener(v -> {
             Toast.makeText(this, "More options", Toast.LENGTH_SHORT).show();
         });
-
-        // Profile section
+        // Profile section: Bấm vào icon bút chì để edit profile
         btnEditAvatar.setOnClickListener(v -> {
-            Toast.makeText(this, "Edit avatar", Toast.LENGTH_SHORT).show();
-        });
-
-        // Settings buttons
-        btnEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditProfile.class);
             startActivity(intent);
         });
-
-        btnNotification.setOnClickListener(v -> {
-            Toast.makeText(this, "Notification settings", Toast.LENGTH_SHORT).show();
-        });
-
-
-        btnPrivacyPolicy.setOnClickListener(v -> {
-            Intent intent = new Intent(this, PrivacyPolicyActivity.class);
-            startActivity(intent);
-        });
-
-        btnHelpCenter.setOnClickListener(v -> {
-            Toast.makeText(this, "Help Center", Toast.LENGTH_SHORT).show();
-        });
-
-        btnChangePassword.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ChangePasswordActivity.class);
-            startActivity(intent);
-        });
-
-        btnSavedServices.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SavedServicesActivity.class);
-            startActivity(intent);
-        });
-
-        // Logout
-        btnLogout.setOnClickListener(v -> {
-            logout();
-        });
-
         // Bottom navigation
         btnHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, HomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         });
-
         btnCart.setOnClickListener(v -> {
             Toast.makeText(this, "Cart", Toast.LENGTH_SHORT).show();
         });
-
         btnOrders.setOnClickListener(v -> {
             Toast.makeText(this, "Orders", Toast.LENGTH_SHORT).show();
         });
-
         btnWallet.setOnClickListener(v -> {
             Toast.makeText(this, "Wallet", Toast.LENGTH_SHORT).show();
         });
-
         btnProfile.setOnClickListener(v -> {
-            // Already on profile screen
             Toast.makeText(this, "You are on Profile screen", Toast.LENGTH_SHORT).show();
         });
     }

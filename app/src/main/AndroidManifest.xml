@@ -147,6 +147,8 @@
             android:name=".view.UserServiceManagementActivity"
             android:exported="false" />
 
+        <activity android:name=".view.SettingsActivity" android:exported="false" />
+
         <service
             android:name=".viewmodel.UnreadMessageService"
             android:enabled="true"

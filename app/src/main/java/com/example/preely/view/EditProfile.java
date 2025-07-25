@@ -92,14 +92,20 @@ public class EditProfile extends AppCompatActivity {
         });
 
         cloudinaryService.getUploadStatus().observe(this, status -> {
+            Log.d("EditProfile", "Upload status: " + status);
             if ("Uploading...".equals(status)) {
                 isUploading = true;
                 btnSave.setEnabled(false);
-                // Hiện loading nếu muốn
+                Log.d("EditProfile", "Uploading... btnSave DISABLED");
+            } else {
+                isUploading = false;
+                btnSave.setEnabled(true);
+                Log.d("EditProfile", "Upload done or idle. btnSave ENABLED");
             }
         });
 
         btnSave.setOnClickListener(v -> {
+            Log.d("EditProfile", "btnSave clicked. isUploading=" + isUploading);
             if (isUploading) {
                 Toast.makeText(this, "Vui lòng chờ ảnh tải xong!", Toast.LENGTH_SHORT).show();
                 return;
