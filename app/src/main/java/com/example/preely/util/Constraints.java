@@ -11,6 +11,7 @@ public class Constraints {
         String SKILL = "skill";
         String SERVICE = "service";
         String SAVED_SERVICE = "saved_service";
+        String BOOKING = "booking";
     }
 
     public interface NotificationType {
@@ -27,11 +28,11 @@ public class Constraints {
         int PRICE_DESC = 5;
     }
 
-    public interface PostStatus {
+    public interface BookingStatus {
+        String PENDING = "Pending";
         String CLAIMED = "Claimed";
         String COMPLETED = "Completed";
         String CANCELLED = "Cancelled";
-        String HIDDEN = "Hidden";
     }
 
     public enum Availability {

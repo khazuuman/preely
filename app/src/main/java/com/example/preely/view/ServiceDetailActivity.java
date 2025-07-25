@@ -102,7 +102,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(ServiceDetailActivity.this, BookingActivity.class);
+                intent.putExtra("serviceId", response.getId());
+                startActivity(intent);
             }
         });
 
