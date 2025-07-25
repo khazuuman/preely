@@ -3,6 +3,7 @@ package com.example.preely.view;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -70,6 +71,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         response = detailResponse;
                         ArrayList<SlideModel> imageList = new ArrayList<>();
                         if (detailResponse.getImage_urls() != null) {
+                            Log.i("ImageUrls", "ImageUrls: " + detailResponse.getImage_urls().toString());
                             for (String image : detailResponse.getImage_urls()) {
                                 imageList.add(new SlideModel(image, ScaleTypes.FIT));
                             }

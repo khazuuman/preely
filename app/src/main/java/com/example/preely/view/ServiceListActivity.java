@@ -63,8 +63,8 @@ public class ServiceListActivity extends AppCompatActivity {
         setupView();
         initializeComponents();
         setupSearchInputIntent();
-        setupServiceView();
         setupFilterByCateIntent();
+        setupServiceView();
         setupServiceTracking();
         scrollHandle();
         setupFilterBottom();
