@@ -93,6 +93,18 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
+        // Khởi tạo launcher trước khi dùng
+        notificationPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (isGranted) {
+                    Log.d(TAG, "Notification permission granted by user");
+                    setupNotificationSystem();
+                } else {
+                    Log.w(TAG, "Notification permission denied by user");
+                }
+            }
+        );
         initializeComponents();
         setupViews();
         setupNotificationPermission();
