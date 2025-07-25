@@ -35,6 +35,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class AddEditUserServiceDialog extends Dialog {
     private final List<String> availabilityList;
     private final User fixedProvider;
 
-    private TextInputEditText etTitle, etDescription, etPrice, etUniversity;
+    private TextInputEditText etTitle, etDescription, etPrice, etUniversity, etLatitude, etLongitude;
     private AutoCompleteTextView actvCategory, actvProvider;
     private Spinner spinnerAvailability;
     private MaterialButton btnSave, btnCancel, btnChooseImages;
@@ -102,6 +103,8 @@ public class AddEditUserServiceDialog extends Dialog {
         etDescription = findViewById(R.id.et_description);
         etPrice = findViewById(R.id.et_price);
         etUniversity = findViewById(R.id.et_university);
+        etLatitude = findViewById(R.id.et_latitude);
+        etLongitude = findViewById(R.id.et_longitude);
         actvCategory = findViewById(R.id.actv_category);
         actvProvider = findViewById(R.id.actv_provider);
         TextInputLayout tilProvider = findViewById(R.id.til_provider);
@@ -158,6 +161,14 @@ public class AddEditUserServiceDialog extends Dialog {
         etDescription.setText(service.getDescription());
         etPrice.setText(service.getPrice() != null ? String.valueOf(service.getPrice()) : "");
         etUniversity.setText(service.getUniversity());
+        // Hiển thị latitude/longitude nếu có
+        if (service.getLocation() != null) {
+            etLatitude.setText(String.valueOf(service.getLocation().getLatitude()));
+            etLongitude.setText(String.valueOf(service.getLocation().getLongitude()));
+        } else {
+            etLatitude.setText("");
+            etLongitude.setText("");
+        }
         if (service.getCategory_id() != null) {
             String catId = service.getCategory_id().getId();
             for (Category c : categoryList) {
@@ -251,6 +262,8 @@ public class AddEditUserServiceDialog extends Dialog {
         String description = etDescription.getText().toString().trim();
         String priceStr = etPrice.getText().toString().trim();
         String university = etUniversity.getText().toString().trim();
+        String latitudeStr = etLatitude.getText().toString().trim();
+        String longitudeStr = etLongitude.getText().toString().trim();
         String categoryName = actvCategory.getText().toString().trim();
         int availabilityPos = spinnerAvailability.getSelectedItemPosition();
         Constraints.Availability selectedAvailability = Constraints.Availability.values()[availabilityPos];
@@ -265,6 +278,27 @@ public class AddEditUserServiceDialog extends Dialog {
         }
         if (TextUtils.isEmpty(categoryName)) {
             actvCategory.setError("Category is required");
+            return;
+        }
+        if (TextUtils.isEmpty(latitudeStr)) {
+            etLatitude.setError("Latitude is required");
+            return;
+        }
+        if (TextUtils.isEmpty(longitudeStr)) {
+            etLongitude.setError("Longitude is required");
+            return;
+        }
+        double latitude, longitude;
+        try {
+            latitude = Double.parseDouble(latitudeStr);
+        } catch (NumberFormatException e) {
+            etLatitude.setError("Invalid latitude");
+            return;
+        }
+        try {
+            longitude = Double.parseDouble(longitudeStr);
+        } catch (NumberFormatException e) {
+            etLongitude.setError("Invalid longitude");
             return;
         }
         if (imageUrls.isEmpty()) {
@@ -293,6 +327,7 @@ public class AddEditUserServiceDialog extends Dialog {
         service.setDescription(description);
         service.setPrice(price);
         service.setUniversity(university);
+        service.setLocation(new GeoPoint(latitude, longitude));
         service.setCategory_id(categoryRef);
         service.setProvider_id(providerRef);
         service.setAvailability(selectedAvailability);

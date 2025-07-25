@@ -137,7 +137,8 @@
                     android:layout_marginTop="16dp"
                     android:minHeight="48dp"
                     android:padding="12dp"
-                    android:autofillHints="addressLocality"/>
+                    android:autofillHints="addressLocality"
+                    android:visibility="gone"/>
 
                 <EditText
                     android:id="@+id/edtWard"
@@ -148,7 +149,8 @@
                     android:layout_marginTop="16dp"
                     android:minHeight="48dp"
                     android:padding="12dp"
-                    android:autofillHints="addressRegion"/>
+                    android:autofillHints="addressRegion"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/tvRating"
