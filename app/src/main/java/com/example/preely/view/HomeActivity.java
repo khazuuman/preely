@@ -1,5 +1,10 @@
 package com.example.preely.view;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,6 +44,7 @@ import com.example.preely.model.response.ServiceMarketResponse;
 import com.example.preely.model.response.UserResponse;
 import com.example.preely.util.Constraints;
 import com.example.preely.viewmodel.CategoryService;
+import com.example.preely.viewmodel.NotificationService;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
 import com.example.preely.viewmodel.UnreadMessageService;
 import com.google.android.material.button.MaterialButton;
@@ -77,6 +83,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean isScrollListenerAttached = false;
     private boolean categoryLoaded = false;
     private boolean serviceLoaded = false;
+    private ActivityResultLauncher<String> notificationPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         initializeComponents();
         setupViews();
+        setupNotificationPermission();
         setupNotificationSystem();
         searchInputTracking();
         handleIntentExtras();
@@ -241,14 +249,44 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupNotificationSystem() {
         if (sessionManager.getLogin()) {
+            Log.d(TAG, "🔔 Starting UnreadMessageService...");
+
             Intent serviceIntent = new Intent(this, UnreadMessageService.class);
             startService(serviceIntent);
+
             setupUnreadCountReceiver();
             loadInitialUnreadCount();
+
+            Log.d(TAG, "✅ Notification system setup completed");
         } else {
-            Log.w(TAG, "User not logged in, skipping notification setup");
+            Log.w(TAG, "❌ User not logged in, skipping notification setup");
         }
     }
+
+    /**
+     *  Setup notification permission (Android 13+)
+     */
+    private void setupNotificationPermission() {
+        NotificationService notificationService = new NotificationService(this);
+        boolean hasPermission = notificationService.hasNotificationPermission();
+
+        Log.d(TAG, "🔔 Notification permission status: " + hasPermission);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "❌ POST_NOTIFICATIONS permission not granted");
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                Log.d(TAG, "✅ POST_NOTIFICATIONS permission granted");
+                setupNotificationSystem();
+            }
+        } else {
+            Log.d(TAG, "✅ Android < 13, no permission needed");
+            setupNotificationSystem();
+        }
+    }
+
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void setupUnreadCountReceiver() {
@@ -279,7 +317,7 @@ public class HomeActivity extends AppCompatActivity {
                     .collection("user").document(userId);
             FirebaseFirestore.getInstance().collection(Constraints.CollectionName.MESSAGES)
                     .whereEqualTo("receiver_id", userRef)
-                    .whereEqualTo("is_read", false)
+                    .whereEqualTo("_read", false)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
                         int unreadCount = querySnapshot.size();

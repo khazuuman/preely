@@ -235,7 +235,7 @@ public class MessageService extends ViewModel {
                 .collection(Constraints.CollectionName.MESSAGES)
                 .whereEqualTo("room", roomId)
                 .whereEqualTo("receiver_id", currentUserRef)
-                .whereEqualTo("is_read", false);
+                .whereEqualTo("_read", false);
 
         unreadInRoomQuery.get().addOnSuccessListener(querySnapshot -> {
             if (querySnapshot.isEmpty()) {
@@ -246,7 +246,7 @@ public class MessageService extends ViewModel {
             WriteBatch batch = FirebaseFirestore.getInstance().batch();
 
             for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                batch.update(doc.getReference(), "is_read", true);
+                batch.update(doc.getReference(), "_read", true);
             }
 
             batch.commit()
