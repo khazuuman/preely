@@ -42,6 +42,7 @@ import com.example.preely.viewmodel.CategoryService;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
 import com.example.preely.viewmodel.UnreadMessageService;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -88,6 +89,7 @@ public class HomeActivity extends AppCompatActivity {
         setupNotificationSystem();
         searchInputTracking();
         handleIntentExtras();
+        setupBottomNavigation();
     }
 
     private void initializeComponents() {
@@ -207,6 +209,7 @@ public class HomeActivity extends AppCompatActivity {
         seeAllService.setOnClickListener(v -> {
             startActivity(new Intent(this, ServiceListActivity.class));
         });
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -370,6 +373,17 @@ public class HomeActivity extends AppCompatActivity {
             CustomToast.makeText(this, toastMess, CustomToast.LENGTH_SHORT,
                     Constraints.NotificationType.SUCCESS).show();
         }
+    }
+
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.navigation_settings) {
+                startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

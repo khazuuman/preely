@@ -19,6 +19,7 @@ import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.entities.User;
 import com.example.preely.model.response.UserResponse;
 import com.example.preely.view.CustomToast;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.bumptech.glide.Glide;
 import com.example.preely.repository.MainRepository;
@@ -87,6 +88,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Load dark mode state
         loadDarkModeState();
+        setupBottomNavigation();
     }
 
     private void initViews() {
@@ -215,6 +217,26 @@ public class ProfileActivity extends AppCompatActivity {
         btnProfile.setOnClickListener(v -> {
             // Already on profile screen
             Toast.makeText(this, "You are on Profile screen", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_settings);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.navigation_home) {
+                startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
+                finish();
+                return true;
+            } else if (item.getItemId() == R.id.navigation_settings) {
+                // Đã ở trang profile/settings
+                return true;
+            } else if (item.getItemId() == R.id.navigation_servicess) {
+                startActivity(new Intent(ProfileActivity.this, ServiceListActivity.class));
+                finish();
+                return true;
+            }
+            return false;
         });
     }
 
