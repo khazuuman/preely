@@ -249,7 +249,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupNotificationSystem() {
         if (sessionManager.getLogin()) {
-            Log.d(TAG, "🔔 Starting UnreadMessageService...");
+            Log.d(TAG, " Starting UnreadMessageService...");
 
             Intent serviceIntent = new Intent(this, UnreadMessageService.class);
             startService(serviceIntent);
@@ -257,9 +257,9 @@ public class HomeActivity extends AppCompatActivity {
             setupUnreadCountReceiver();
             loadInitialUnreadCount();
 
-            Log.d(TAG, "✅ Notification system setup completed");
+            Log.d(TAG, " Notification system setup completed");
         } else {
-            Log.w(TAG, "❌ User not logged in, skipping notification setup");
+            Log.w(TAG, " User not logged in, skipping notification setup");
         }
     }
 
@@ -275,18 +275,17 @@ public class HomeActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
-                Log.w(TAG, "❌ POST_NOTIFICATIONS permission not granted");
+                Log.w(TAG, " POST_NOTIFICATIONS permission not granted");
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             } else {
-                Log.d(TAG, "✅ POST_NOTIFICATIONS permission granted");
+                Log.d(TAG, " POST_NOTIFICATIONS permission granted");
                 setupNotificationSystem();
             }
         } else {
-            Log.d(TAG, "✅ Android < 13, no permission needed");
+            Log.d(TAG, " Android < 13, no permission needed");
             setupNotificationSystem();
         }
     }
-
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void setupUnreadCountReceiver() {
