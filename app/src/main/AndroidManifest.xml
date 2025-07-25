@@ -8,8 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>-->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
@@ -25,27 +24,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Preely"
         tools:targetApi="31">
-<!--        <activity-->
-<!--            android:name=".view.CreatePostActivity"-->
-<!--            android:exported="false" />-->
+        <activity
+            android:name=".view.BookingActivity"
+            android:exported="false" />
+        <!-- <activity -->
+        <!-- android:name=".view.CreatePostActivity" -->
+        <!-- android:exported="false" /> -->
         <activity
             android:name=".view.ForgotPasswordActivity"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
 
 
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             <!-- </intent-filter> -->
-        </activity>
-<!--        <activity-->
-<!--            android:name=".view.PostDetailActivity"-->
-<!--            android:exported="false" /> -->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity> <!-- <activity -->
+        <!-- android:name=".view.PostDetailActivity" -->
+        <!-- android:exported="false" /> -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -58,19 +61,14 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
-
-<!--        <activity-->
-<!--            android:name=".view.PostListActivity"-->
-<!--            android:exported="true">-->
-
-<!--            &lt;!&ndash; <intent-filter> &ndash;&gt;-->
-<!--            &lt;!&ndash; <action android:name="android.intent.action.MAIN" /> &ndash;&gt;-->
-
-
-<!--            &lt;!&ndash; <category android:name="android.intent.category.LAUNCHER" /> &ndash;&gt;-->
-<!--            &lt;!&ndash; </intent-filter> &ndash;&gt;-->
-<!--        </activity>-->
+            android:value="@string/google_maps_key" /> <!-- <activity -->
+        <!-- android:name=".view.PostListActivity" -->
+        <!-- android:exported="true"> -->
+        <!-- &lt;!&ndash; <intent-filter> &ndash;&gt; -->
+        <!-- &lt;!&ndash; <action android:name="android.intent.action.MAIN" /> &ndash;&gt; -->
+        <!-- &lt;!&ndash; <category android:name="android.intent.category.LAUNCHER" /> &ndash;&gt; -->
+        <!-- &lt;!&ndash; </intent-filter> &ndash;&gt; -->
+        <!-- </activity> -->
         <activity
             android:name=".view.CustomToast"
             android:exported="false"
@@ -78,8 +76,10 @@
         <activity
             android:name=".view.HomeActivity"
             android:exported="true">
+
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
+
 
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             <!-- </intent-filter> -->
@@ -90,12 +90,10 @@
         </activity>
         <activity
             android:name=".view.ChatListActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
         <activity
             android:name=".view.ChatDetailActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
         <activity
             android:name=".view.EditProfile"
             android:exported="false" />
@@ -130,9 +128,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-        </activity>
-
+        </activity> <!-- <activity -->
         <activity android:name=".view.ManagementActivity" />
         <activity android:name=".view.ProfileActivity" />
         <activity android:name=".view.PrivacyPolicyActivity" />
@@ -140,15 +136,14 @@
         <activity
             android:name=".view.MapTestActivity"
             android:exported="false" />
-<!--        <activity android:name=".view.MyPostsActivity" />-->
-<!--        <activity android:name=".view.ActivityCreatePost" />-->
+        <!-- <activity android:name=".view.MyPostsActivity" /> -->
+        <!-- <activity android:name=".view.ActivityCreatePost" /> -->
 
         <activity
             android:name=".view.UserServiceManagementActivity"
             android:exported="false" />
 
         <activity android:name=".view.SettingsActivity" android:exported="false" />
-
         <service
             android:name=".viewmodel.UnreadMessageService"
             android:enabled="true"
@@ -162,7 +157,6 @@
                 <action android:name="MARK_AS_READ" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

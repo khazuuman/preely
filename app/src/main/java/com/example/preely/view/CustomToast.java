@@ -14,7 +14,7 @@ import com.example.preely.util.Constraints.*;
 import com.example.preely.R;
 
 public class CustomToast extends Toast {
-    private static final long SHORT = 4000;
+    private static final long SHORT = 2000;
     private static final long LONG = 7000;
 
     public CustomToast(Context context) {

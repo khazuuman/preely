@@ -105,7 +105,7 @@
     <string name="phone_text">+1 111*****99</string>
     <string name="hint_username">Tên đăng nhập</string>
     <string name="hint_email">Email</string>
-<!--    <string name="app_name" tools:ignore="DuplicateDefinition">DropdownDemo</string>-->
+    <!--    <string name="app_name" tools:ignore="DuplicateDefinition">DropdownDemo</string>-->
     <string name="hint_phone">Số điện thoại</string>
     <string name="hint_address">Địa chỉ</string>
     <string name="hint_province">Tỉnh/Thành phố</string>

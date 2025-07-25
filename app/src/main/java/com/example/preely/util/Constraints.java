@@ -10,6 +10,8 @@ public class Constraints {
         String TRANSACTION = "transactions";
         String SKILL = "skill";
         String SERVICE = "service";
+        String SAVED_SERVICE = "saved_service";
+        String BOOKING = "booking";
     }
 
     public interface NotificationType {
@@ -25,7 +27,6 @@ public class Constraints {
         int PRICE_ASC = 4;
         int PRICE_DESC = 5;
     }
-
     public enum Availability {
         WEEKENDS("Weekends"),
         WEEKDAYS("Weekdays"),

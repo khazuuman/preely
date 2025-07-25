@@ -321,7 +321,9 @@ public class ServiceListActivity extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
         String query = searchInput.getText().toString().trim();
-        if (query.isEmpty()) return;
+
+        currentRequest = new ServiceFilterRequest();
+        currentRequest.setTitle(query.isEmpty() ? null : query);
 
         currentRequest = new ServiceFilterRequest();
         currentRequest.setTitle(query);
