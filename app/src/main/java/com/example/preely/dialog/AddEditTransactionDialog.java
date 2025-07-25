@@ -120,7 +120,7 @@ public class AddEditTransactionDialog extends Dialog {
             return;
         }
 
-        Number amount = null;
+        Double amount = null;
         try {
             amount = Double.parseDouble(amountStr);
             if (amount.doubleValue() <= 0) {

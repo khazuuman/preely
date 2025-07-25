@@ -41,7 +41,13 @@ public class MainRepository<T extends BaseEntity> {
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    resultList.add(document.toObject(modelCl));
+                    Object raw = document.get("transaction_date");
+                    Log.d("TransactionDebug", "Doc: " + document.getId() + ", transaction_date type: " + (raw != null ? raw.getClass().getName() : "null") + ", value: " + raw);
+                    try {
+                        resultList.add(document.toObject(modelCl));
+                    } catch (Exception e) {
+                        Log.e("MainRepository", "Failed to map document: " + document.getId() + " - " + e.getMessage());
+                    }
                 }
                 result.setValue(resultList);
             } else {

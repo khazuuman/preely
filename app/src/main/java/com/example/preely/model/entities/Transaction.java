@@ -18,7 +18,7 @@ public class Transaction extends BaseEntity implements java.io.Serializable {
     String giver_id;
     String service_id;
     String requester_id;
-    Number amount;
+    Double amount;
     String status;
     Timestamp transaction_date;
 
