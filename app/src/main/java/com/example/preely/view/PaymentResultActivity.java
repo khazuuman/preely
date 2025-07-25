@@ -14,10 +14,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.preely.R;
+import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.entities.Transaction;
+import com.example.preely.model.response.UserResponse;
 import com.example.preely.viewmodel.TransactionService;
 import com.google.android.material.button.MaterialButton;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -129,25 +134,57 @@ public class PaymentResultActivity extends AppCompatActivity {
         Log.d("PaymentResultActivity", "Giver ID: " + giverId);
         Log.d("PaymentResultActivity", "Service ID: " + serviceId);
 
-        // Nếu không thành công, chỉ show lỗi và không gọi processPaymentResult
         if (!"00".equals(responseCode)) {
             handlePaymentResult(responseCode, responseMessage);
             return;
         }
 
-        // Chỉ xử lý transaction khi thành công
-        transactionService.processPaymentResult(responseCode, responseMessage, txnRef, amount, 
-            requesterId, giverId, serviceId, new TransactionService.TransactionCallback() {
-                @Override
-                public void onSuccess(Transaction resultTransaction) {
-                    transaction = resultTransaction;
-                    handlePaymentResult(responseCode, responseMessage);
+        // Lấy userId hiện tại
+        SessionManager sessionManager = new SessionManager(this);
+        UserResponse user = sessionManager.getUserSession();
+        if (user == null) {
+            showError("Không xác định được người dùng hiện tại!");
+            return;
+        }
+        String userId = user.getId();
+        // Truy vấn transaction mới nhất của user này
+        FirebaseFirestore.getInstance().collection("transactions")
+            .whereEqualTo("requester_id", userId)
+            .orderBy("transaction_date", Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
+                if (!querySnapshot.isEmpty()) {
+                    Transaction latestTransaction = querySnapshot.getDocuments().get(0).toObject(Transaction.class);
+                    if (latestTransaction != null) {
+                        // Update status sang 'Paid'
+                        latestTransaction.setStatus("Paid");
+                        FirebaseFirestore.getInstance().collection("transactions")
+                            .document(querySnapshot.getDocuments().get(0).getId())
+                            .set(latestTransaction)
+                            .addOnSuccessListener(aVoid -> {
+                                transaction = latestTransaction;
+                                handlePaymentResult(responseCode, responseMessage);
+                            })
+                            .addOnFailureListener(e -> {
+                                showError("Không thể cập nhật trạng thái giao dịch: " + e.getMessage());
+                            });
+                    } else {
+                        showError("Không tìm thấy giao dịch mới nhất!");
+                    }
+                } else {
+                    showError("Không tìm thấy giao dịch mới nhất!");
                 }
-                @Override
-                public void onError(String error) {
-                    Log.e("PaymentResultActivity", "Error processing payment result: " + error);
-                    showError("Lỗi xử lý kết quả thanh toán: " + error);
+            })
+            .addOnFailureListener(e -> {
+                if (e.getMessage() != null && e.getMessage().contains("FAILED_PRECONDITION") && e.getMessage().contains("https://")) {
+                    // Tìm và log link tạo index
+                    int idx = e.getMessage().indexOf("https://");
+                    int endIdx = e.getMessage().indexOf(' ', idx);
+                    String indexUrl = endIdx > idx ? e.getMessage().substring(idx, endIdx) : e.getMessage().substring(idx);
+                    Log.e("FirestoreIndex", "Tạo index Firestore tại: " + indexUrl);
                 }
+                showError("Lỗi truy vấn giao dịch: " + e.getMessage());
             });
     }
     
