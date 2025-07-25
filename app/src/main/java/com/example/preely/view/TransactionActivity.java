@@ -69,6 +69,8 @@ public class TransactionActivity extends AppCompatActivity {
         progressDialog.setMessage(getString(R.string.loading_data));
         progressDialog.setCancelable(false);
 
+        handleIntentFromChat();
+
         // Get requester ID from session
         SessionManager sessionManager = new SessionManager(this);
         requesterId = sessionManager.getUserSession().getId();
@@ -511,5 +513,55 @@ public class TransactionActivity extends AppCompatActivity {
             if (s.getId().equals(serviceId)) return s.getTitle();
         }
         return "";
+    }
+
+    /**
+     *  Xử lý dữ liệu được truyền từ ChatDetailActivity
+     */
+    private void handleIntentFromChat() {
+        Intent intent = getIntent();
+        if (intent != null) {
+            boolean fromChat = intent.getBooleanExtra("FROM_CHAT", false);
+
+            if (fromChat) {
+                String receiverId = intent.getStringExtra("RECEIVER_ID");
+                String receiverName = intent.getStringExtra("RECEIVER_NAME");
+                String roomId = intent.getStringExtra("ROOM_ID");
+
+                Log.d("TransactionActivity", "Started from chat with receiver: " + receiverName + " (ID: " + receiverId + ")");
+
+                // Pre-select receiver nếu có
+                if (receiverId != null && receiverName != null) {
+                    preSelectReceiver(receiverId, receiverName);
+                }
+
+                // Có thể hiển thị toast thông báo
+                Toast.makeText(this, "Tạo giao dịch với " + (receiverName != null ? receiverName : "người dùng"),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     *  Pre-select receiver trong dropdown
+     */
+    private void preSelectReceiver(String receiverId, String receiverName) {
+        try {
+            // Set text cho dropdown
+            giverDropdown.setText(receiverName);
+            selectedGiverId = receiverId;
+
+            // Enable service dropdown
+            serviceDropdown.setEnabled(true);
+            serviceDropdown.setHint(getString(R.string.select_service));
+
+            // Load services cho receiver này
+            loadServicesForGiver(selectedGiverId);
+
+            Log.d("TransactionActivity", "Pre-selected receiver: " + receiverName + " with ID: " + receiverId);
+
+        } catch (Exception e) {
+            Log.e("TransactionActivity", "Error pre-selecting receiver: " + e.getMessage());
+        }
     }
 } 
