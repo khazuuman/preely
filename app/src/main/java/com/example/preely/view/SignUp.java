@@ -63,7 +63,7 @@ public class SignUp extends AppCompatActivity {
         usernameError = findViewById(R.id.username_error_tv);
         passwordError = findViewById(R.id.password_error_tv);
         passwordConfirmError = findViewById(R.id.password_confirm_error_tv);
-        ggIcon = findViewById(R.id.gg_icon);
+        ggIcon = findViewById(R.id.google_icon);
 
         setupGoogle();
         sessionManager = new SessionManager(getApplicationContext());
@@ -112,7 +112,6 @@ public class SignUp extends AppCompatActivity {
                 Log.i("USER INFO", userResponse.toString());
                 sessionManager.setUserSession(userResponse);
                 sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
-                sessionManager.setRemember(true);
 
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra("toast_mess", "Đăng nhập thành công");

@@ -22,4 +22,7 @@ public class Booking extends BaseEntity {
     String time_slot;
     String status;
     String notes;
+    Integer unit_count;
+    Double total_price;
+
 }

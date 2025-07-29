@@ -1,5 +1,7 @@
 package com.example.preely.util;
 
+import lombok.Getter;
+
 public class Constraints {
 
     public interface CollectionName {
@@ -12,6 +14,12 @@ public class Constraints {
         String SERVICE = "service";
         String SAVED_SERVICE = "saved_service";
         String BOOKING = "booking";
+    }
+
+    public interface AccountType {
+        String LOCAL = "local";
+        String GOOGLE = "google";
+        String TWITTER = "twitter";
     }
 
     public interface NotificationType {
@@ -27,6 +35,8 @@ public class Constraints {
         int PRICE_ASC = 4;
         int PRICE_DESC = 5;
     }
+
+    @Getter
     public enum Availability {
         WEEKENDS("Weekends"),
         WEEKDAYS("Weekdays"),
@@ -49,14 +59,25 @@ public class Constraints {
             this.label = label;
         }
 
-        public String getLabel() {
-            return label;
+    }
+
+    @Getter
+    public enum PriceUnitType {
+        HOUR("hour"),
+        DAY("day"),
+        WEEK("week"),
+        MONTH("month"),
+        ONCE("once");
+        private final String label;
+
+        PriceUnitType(String label) {
+            this.label = label;
         }
     }
 
-    public static final String BOOKING_STATUS_PENDING = "PENDING";
-    public static final String BOOKING_STATUS_CONFIRMED = "CONFIRMED";
-    public static final String BOOKING_STATUS_CANCELLED = "CANCELLED";
-    public static final String BOOKING_STATUS_COMPLETED = "COMPLETED";
-}
+        public static final String BOOKING_STATUS_PENDING = "PENDING";
+        public static final String BOOKING_STATUS_CONFIRMED = "CONFIRMED";
+        public static final String BOOKING_STATUS_CANCELLED = "CANCELLED";
+        public static final String BOOKING_STATUS_COMPLETED = "COMPLETED";
+    }
 

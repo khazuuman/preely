@@ -1,5 +1,8 @@
 package com.example.preely.util;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -13,6 +16,10 @@ import com.google.gson.JsonSerializer;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 
 public class DataUtil {
@@ -101,4 +108,65 @@ public class DataUtil {
                 })
                 .create();
     }
+
+    @SuppressLint("SimpleDateFormat")
+    public static int isFutureDate(String dateInput) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        try {
+            Date inputDate = dateFormat.parse(dateInput);
+            Date currentDate = new Date();
+
+            assert inputDate != null;
+
+            Calendar calInput = Calendar.getInstance();
+            calInput.setTime(inputDate);
+            calInput.set(Calendar.HOUR_OF_DAY, 0);
+            calInput.set(Calendar.MINUTE, 0);
+            calInput.set(Calendar.SECOND, 0);
+            calInput.set(Calendar.MILLISECOND, 0);
+
+            Calendar calCurrent = Calendar.getInstance();
+            calCurrent.setTime(currentDate);
+            calCurrent.set(Calendar.HOUR_OF_DAY, 0);
+            calCurrent.set(Calendar.MINUTE, 0);
+            calCurrent.set(Calendar.SECOND, 0);
+            calCurrent.set(Calendar.MILLISECOND, 0);
+
+            if (calInput.after(calCurrent)) {
+                return 1;  // dateInput > currentDate
+            } else if (calInput.equals(calCurrent)) {
+                return 2;  // dateInput == currentDate
+            } else {
+                return 0;  // dateInput < currentDate
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+
+
+    @SuppressLint("SimpleDateFormat")
+    public static boolean isAtLeast3HoursFromNow(String timeInput) {
+        try {
+           SimpleDateFormat format = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+            Date bookingDate = format.parse(timeInput);
+
+            long currentTimeMillis = System.currentTimeMillis();
+            assert bookingDate != null;
+            long bookingTimeMillis = bookingDate.getTime();
+            Log.i("TIME FORMAT", String.valueOf(bookingTimeMillis));
+            long threeHoursInMillis = 3 * 60 * 60 * 1000;
+
+            Log.i("TIME MINUS", String.valueOf(bookingTimeMillis - currentTimeMillis));
+            return bookingTimeMillis - currentTimeMillis >= threeHoursInMillis;
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

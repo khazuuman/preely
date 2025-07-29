@@ -11,12 +11,12 @@
             android:id="@+id/imageSlider"
             android:layout_width="match_parent"
             android:layout_height="250dp"
+            android:layout_marginBottom="10dp"
             app:iss_auto_cycle="true"
             app:iss_corner_radius="20"
             app:iss_delay="1000"
             app:iss_period="1000"
-            app:iss_title_background="@color/black"
-            android:layout_marginBottom="10dp"/>
+            app:iss_title_background="@color/black" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -35,107 +35,142 @@
                     android:id="@+id/tv_service_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Service Title"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
                     android:textColor="#333333"
-                    android:layout_marginBottom="8dp" />
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_service_provider"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Provider: John Doe"
-                    android:textSize="16sp"
                     android:textColor="#1DABDD"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_service_category"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Category: Tutoring"
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_service_university"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="University: FPT University"
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_service_availability"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Availability: Weekends Only"
-                    android:textSize="16sp"
-                    android:textColor="#FF9800"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_service_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Price: $100"
-                    android:textSize="18sp"
-                    android:textColor="#1DABDD"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_service_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Status: Available"
-                    android:textSize="16sp"
-                    android:textColor="#4CAF50"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_service_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Service description goes here..."
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:layout_marginBottom="16dp" />
+                    android:textSize="16sp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="25dp"
+                        android:text="Skill: "
+                        android:textColor="#1DABDD"
+                        android:textSize="16sp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/skill_recycler_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp" />
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/tv_service_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Category: Tutoring"
+                    android:textColor="#666666"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_service_university"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="University: FPT University"
+                    android:textColor="#666666"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_service_availability"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Availability: Weekends Only"
+                    android:textColor="#FF9800"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/tv_service_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Price: $100"
+                        android:textColor="#1DABDD"
+                        android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/tv_service_price_unit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="/H"
+                        android:textColor="#1DABDD"
+                        android:layout_marginLeft="3dp"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/tv_service_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Status: Available"
+                    android:textColor="#4CAF50"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_service_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Service description goes here..."
+                    android:textColor="#666666"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rating: "
-                        android:textSize="16sp"
-                        android:textColor="#333333" />
+                        android:textColor="#333333"
+                        android:textSize="16sp" />
 
                     <RatingBar
                         android:id="@+id/ratingBar"
                         android:layout_width="wrap_content"
                         android:layout_height="50dp"
-                        android:numStars="5"
-                        android:stepSize="0.5"
-                        android:rating="4.5"
+                        android:layout_marginStart="8dp"
                         android:isIndicator="true"
-                        android:layout_marginStart="8dp" />
+                        android:numStars="5"
+                        android:rating="4.5"
+                        android:stepSize="0.5" />
 
                     <TextView
                         android:id="@+id/tvRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="(3.8)"
                         android:layout_marginStart="10dp"
-                        android:textSize="16sp"
-                        android:textColor="#333333" />
+                        android:text="(3.8)"
+                        android:textColor="#333333"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <!-- Map Container -->
@@ -155,18 +190,18 @@
                             android:id="@+id/no_location_overlay"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center"
                             android:background="#F5F5F5"
+                            android:gravity="center"
+                            android:orientation="vertical"
                             android:visibility="gone">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
                                 android:text="Không có thông tin vị trí"
-                                android:textSize="14sp"
                                 android:textColor="#999999"
-                                android:layout_marginTop="8dp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
 
                     </FrameLayout>
@@ -179,17 +214,17 @@
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/button_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:orientation="horizontal"
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
 
@@ -197,21 +232,21 @@
                 android:id="@+id/btn_booking"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:text="Booking"
                 android:backgroundTint="#4CAF50"
-                android:textColor="@android:color/white"
-                android:layout_marginEnd="8dp" />
+                android:text="Booking"
+                android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/btn_saved"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Saved"
                 android:backgroundTint="#2196F3"
-                android:textColor="@android:color/white"
-                android:layout_marginStart="8dp" />
+                android:text="Saved"
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
     </LinearLayout>

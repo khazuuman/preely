@@ -7,15 +7,19 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.entities.Category;
 import com.example.preely.model.entities.SavedService;
 import com.example.preely.model.entities.Service;
+import com.example.preely.model.entities.Skill;
 import com.example.preely.model.entities.User;
 import com.example.preely.model.request.SavedServiceRequest;
 import com.example.preely.model.request.ServiceFilterRequest;
 import com.example.preely.model.response.ServiceMarketDetailResponse;
 import com.example.preely.model.response.ServiceMarketResponse;
+import com.example.preely.model.response.SkillResponse;
 import com.example.preely.repository.MainRepository;
+import com.example.preely.util.Constraints;
 import com.example.preely.util.DataUtil;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -59,6 +63,12 @@ public class ServiceMarketViewModel extends ViewModel {
 
     public LiveData<ServiceMarketDetailResponse> getDetailResponse() {
         return detailResponse;
+    }
+
+    private final MutableLiveData<Boolean> isBookingExist = new MutableLiveData<>();
+
+    public LiveData<Boolean> getIsBookingExist() {
+        return isBookingExist;
     }
 
     private Query buildPostQuery(ServiceFilterRequest request) {
@@ -109,7 +119,7 @@ public class ServiceMarketViewModel extends ViewModel {
             if (service.getImage_urls() != null && !service.getImage_urls().isEmpty()) {
                 serviceMarketResponse.setImage(service.getImage_urls().get(0));
             }
-            Log.i("SERVICE", serviceMarketResponse.toString());
+            Log.i("SERVICE RESPONSE", serviceMarketResponse.toString());
         } catch (Exception e) {
             return Tasks.forException(e);
         }
@@ -129,20 +139,60 @@ public class ServiceMarketViewModel extends ViewModel {
         //  provider
         if (service.getProvider_id() != null) {
             Task<DocumentSnapshot> providerTask = service.getProvider_id().get();
-            subTasks.add(providerTask);
-            providerTask.addOnSuccessListener(snapshot -> {
-                if (snapshot.exists()) {
-                    User provider = snapshot.toObject(User.class);
-                    assert provider != null;
-                    Log.i("USER", provider.toString());
-                    serviceMarketResponse.setProviderName(provider.getFull_name());
+
+            Task<?> combinedTask = providerTask.continueWithTask(task -> {
+                if (!task.isSuccessful() || task.getResult() == null || !task.getResult().exists()) {
+                    return Tasks.forResult(null);
                 }
+                User provider = task.getResult().toObject(User.class);
+                if (provider == null) return Tasks.forResult(null);
+
+                serviceMarketResponse.setProviderName(provider.getFull_name());
+
+                return fetchSkills(provider.getSkill_ids()).continueWith(skillTask -> {
+                    if (skillTask.isSuccessful()) {
+                        serviceMarketResponse.setSkills(skillTask.getResult());
+                    }
+                    return null;
+                });
             });
+
+            subTasks.add(combinedTask);
         }
 
         return Tasks.whenAll(subTasks)
                 .continueWith(task -> serviceMarketResponse);
     }
+
+    private Task<List<SkillResponse>> fetchSkills(List<DocumentReference> skillRefs) {
+        if (skillRefs == null || skillRefs.isEmpty()) {
+            return Tasks.forResult(new ArrayList<>());
+        }
+        List<Task<DocumentSnapshot>> skillTasks = new ArrayList<>();
+        for (DocumentReference skillRef : skillRefs) {
+            skillTasks.add(skillRef.get());
+        }
+        return Tasks.whenAllSuccess(skillTasks)
+                .continueWith(task -> {
+                    List<?> results = task.getResult();
+                    List<SkillResponse> skillResponses = new ArrayList<>();
+                    for (Object obj : results) {
+                        DocumentSnapshot doc = (DocumentSnapshot) obj;
+                        Skill skill = doc.toObject(Skill.class);
+                        if (skill != null) {
+                            Log.i("SKILL", skill.toString());
+
+                            try {
+                                skillResponses.add(DataUtil.mapObj(skill, SkillResponse.class));
+                            } catch (IllegalAccessException | InstantiationException e) {
+                                Log.e("fetchSkills", "Mapping skill failed: " + e.getMessage());
+                            }
+                        }
+                    }
+                    return skillResponses;
+                });
+    }
+
 
     public void getServiceList(ServiceFilterRequest request) {
 
@@ -173,7 +223,6 @@ public class ServiceMarketViewModel extends ViewModel {
                     for (Object obj : results) {
                         finalList.add((ServiceMarketResponse) obj);
                     }
-                    Log.i("FINAL LIST", finalList.toString());
                     if (finalList.size() < PAGE_SIZE) {
                         Log.i("IS LAST PAGE", "last page true");
                         isLastPageResult.setValue(true);
@@ -300,17 +349,25 @@ public class ServiceMarketViewModel extends ViewModel {
                     // Map provider name
                     if (service.getProvider_id() != null) {
                         Task<DocumentSnapshot> providerTask = service.getProvider_id().get();
-                        tasks.add(providerTask);
-                        providerTask.addOnSuccessListener(snapshot -> {
-                            if (snapshot.exists()) {
-                                User provider = snapshot.toObject(User.class);
-                                if (provider != null) {
-                                    response.setProviderName(
-                                            provider.getFull_name() == null ? provider.getUsername() : provider.getFull_name()
-                                    );
-                                }
+
+                        Task<?> combinedTask = providerTask.continueWithTask(task -> {
+                            if (!task.isSuccessful() || task.getResult() == null || !task.getResult().exists()) {
+                                return Tasks.forResult(null);
                             }
+                            User provider = task.getResult().toObject(User.class);
+                            if (provider == null) return Tasks.forResult(null);
+
+                            response.setProviderName(provider.getFull_name());
+
+                            return fetchSkills(provider.getSkill_ids()).continueWith(skillTask -> {
+                                if (skillTask.isSuccessful()) {
+                                    response.setSkills(skillTask.getResult());
+                                }
+                                return null;
+                            });
                         });
+
+                        tasks.add(combinedTask);
                     }
 
                     // Set response sau khi hoàn thành tất cả tasks
@@ -334,6 +391,20 @@ public class ServiceMarketViewModel extends ViewModel {
         }).addOnFailureListener(e -> {
             Log.e("ServiceMarketViewModel", "Error loading service detail: " + e.getMessage());
             detailResponse.setValue(null);
+        });
+    }
+
+    public void checkBookingExist(DocumentReference serviceId, DocumentReference seekerId) {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(Constraints.CollectionName.BOOKING)
+                .whereEqualTo("service_id", serviceId)
+                .whereEqualTo("seeker_id", seekerId);
+        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (!queryDocumentSnapshots.isEmpty()) {
+                isBookingExist.setValue(true);
+            } else {
+                isBookingExist.setValue(false);
+            }
         });
     }
 }

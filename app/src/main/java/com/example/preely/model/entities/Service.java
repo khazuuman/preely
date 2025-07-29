@@ -31,6 +31,7 @@ public class Service extends BaseEntity {
     Float average_rating;
     Integer total_reviews;
     String status;
+    Constraints.PriceUnitType price_unit;
     List<String> image_urls;
     GeoPoint location;
 }

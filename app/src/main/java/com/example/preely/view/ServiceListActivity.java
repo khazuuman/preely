@@ -106,6 +106,7 @@ public class ServiceListActivity extends AppCompatActivity {
         serviceRecycleView.setLayoutManager(new LinearLayoutManager(this));
         serviceAdapter = new ServiceMarketAdapter(serviceList);
         serviceRecycleView.setAdapter(serviceAdapter);
+        serviceRecycleView.setNestedScrollingEnabled(false);
         observeServiceList();
         serviceMarketViewModel.getServiceList(currentRequest);
         hasLoadedOnce = true;

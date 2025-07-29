@@ -34,6 +34,7 @@ public class UserResponse extends CommonResponse {
     GeoPoint location;
     String avatar;
     String role;
+    String provider;
     List<SkillResponse> skills;
 
 }

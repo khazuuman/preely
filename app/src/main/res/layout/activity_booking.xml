@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,22 +19,78 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Time Slot -->
+        <!-- Date Selection -->
         <TextView
-            android:text="Time Slot"
+            android:text="Select Start Date"
             android:textStyle="bold"
             android:textSize="18sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <Spinner
-            android:id="@+id/spinnerTimeSlot"
-            android:layout_marginBottom="16dp"
+        <TextView
+            android:id="@+id/day_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="Date is required"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone" />
+        <DatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:calendarViewShown="false"
+            />
+
+        <!-- Time Selection -->
+        <TextView
+            android:text="Select Start Time"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/time_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="10dp"
+            android:text="Time is required"/>
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:timePickerMode="spinner" />
+        <!-- Unit Count Input -->
+        <TextView
+            android:text="Quantity (Number of units)"
+            android:textStyle="bold"
+            android:textSize="18sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <EditText
+            android:id="@+id/etUnitCount"
+            android:inputType="number"
+            android:hint="Enter quantity (e.g. 2)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/unit_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:paddingStart="10dp"
+            android:text="Quantity is required"/>
         <!-- Notes -->
         <TextView
+            android:layout_marginTop="24dp"
             android:text="Notes"
             android:textStyle="bold"
             android:textSize="18sp"
@@ -52,6 +107,16 @@
             android:layout_marginBottom="24dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvTotalPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Price: 0"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FF5722"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
 
         <!-- Confirm & Cancel Buttons -->
         <LinearLayout

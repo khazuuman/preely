@@ -88,12 +88,13 @@ public class UserLoginService extends ViewModel {
 
     public void loginByUsername(UserLoginRequest request) {
         if (!loginValidate(request)) {
-            loginResult.setValue(null);
+            userInfo.setValue(null);
             return;
         }
         Query query = FirebaseFirestore.getInstance()
                 .collection(CollectionName.USERS)
-                .whereEqualTo("username", request.getUsername());
+                .whereEqualTo("username", request.getUsername())
+                .whereEqualTo("provider", AccountType.LOCAL);
 
         userRepository.getOne(query).observeForever(user -> {
             if (user != null && DataUtil.checkPassword(request.getPassword(), user.getEncode_password())) {
@@ -124,13 +125,13 @@ public class UserLoginService extends ViewModel {
                         }
                     });
 
-                    loginResult.setValue(userResponse);
+                    userInfo.setValue(userResponse);
                 } catch (IllegalAccessException | InstantiationException e) {
                     throw new RuntimeException(e);
                 }
             } else {
                 Log.e("USER", "Failed to get user");
-                loginResult.setValue(null);
+                userInfo.setValue(null);
             }
         });
     }
@@ -140,6 +141,7 @@ public class UserLoginService extends ViewModel {
         Query query = FirebaseFirestore.getInstance()
                 .collection(CollectionName.USERS)
                 .whereEqualTo("username", username)
+                .whereEqualTo("provider", AccountType.LOCAL)
                 .limit(1);
 
         userRepository.getOne(query).observeForever(user -> {
@@ -197,7 +199,7 @@ public class UserLoginService extends ViewModel {
                 user.set_active(true);
                 user.setCreate_at(Timestamp.now());
                 user.setRegistration_date(Timestamp.now());
-
+                user.setProvider(AccountType.LOCAL);
                 userRepository.add(user, CollectionName.USERS, new CallBackUtil.OnInsertCallback() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
@@ -219,6 +221,7 @@ public class UserLoginService extends ViewModel {
         Query query = FirebaseFirestore.getInstance()
                 .collection(CollectionName.USERS)
                 .whereEqualTo("email", userFb.getEmail())
+                .whereEqualTo("provider", AccountType.GOOGLE)
                 .limit(1);
         userRepository.getOne(query).observeForever(user -> {
             if (user == null) {
@@ -230,10 +233,11 @@ public class UserLoginService extends ViewModel {
                 newUser.setFull_name(userFb.getDisplayName());
                 newUser.setPhone_number(userFb.getPhoneNumber());
                 newUser.setAvatar(String.valueOf(userFb.getPhotoUrl()));
+                newUser.setProvider(AccountType.GOOGLE);
                 userRepository.add(newUser, CollectionName.USERS, new CallBackUtil.OnInsertCallback() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        getGoogleAccountInfo(newUser.getEmail());
+                        getAccountInfo(newUser.getEmail(), AccountType.GOOGLE);
                         Log.i("INSERT USER", "User insert successfully");
                     }
 
@@ -248,7 +252,7 @@ public class UserLoginService extends ViewModel {
                 userRepository.update(user, user.getId(), new CallBackUtil.OnUpdateCallback() {
                     @Override
                     public void onSuccess() {
-                        getGoogleAccountInfo(user.getEmail());
+                        getAccountInfo(user.getEmail(), AccountType.GOOGLE);
                         Log.i("UPDATE USER", "User update successfully");
                     }
 
@@ -262,11 +266,22 @@ public class UserLoginService extends ViewModel {
         });
     }
 
-    public void getGoogleAccountInfo(String email) {
-        Query query = FirebaseFirestore.getInstance()
-                .collection(CollectionName.USERS)
-                .whereEqualTo("email", email)
-                .limit(1);
+    public void getAccountInfo(String id, String accType) {
+        Query query = null;
+        if (accType.equals(AccountType.GOOGLE)) {
+            query = FirebaseFirestore.getInstance()
+                    .collection(CollectionName.USERS)
+                    .whereEqualTo("email", id)
+                    .whereEqualTo("provider", AccountType.GOOGLE)
+                    .limit(1);
+        } else if (accType.equals(AccountType.TWITTER)) {
+            query = FirebaseFirestore.getInstance()
+                    .collection(CollectionName.USERS)
+                    .whereEqualTo("username", id)
+                    .whereEqualTo("provider", AccountType.TWITTER)
+                    .limit(1);
+        }
+        assert query != null;
         userRepository.getOne(query).observeForever(user -> {
             if (user != null) {
                 try {
@@ -292,6 +307,55 @@ public class UserLoginService extends ViewModel {
                 userInfo.setValue(null);
             }
         });
+    }
+
+    public void handleTwitterLoginDetail(FirebaseUser userFb) {
+        Query query = FirebaseFirestore.getInstance()
+                .collection(CollectionName.USERS)
+                .whereEqualTo("username", userFb.getUid())
+                .whereEqualTo("provider", AccountType.TWITTER)
+                .limit(1);
+        userRepository.getOne(query).observeForever(user -> {
+            if (user == null) {
+                User newUser = new User();
+                newUser.set_active(true);
+                newUser.setCreate_at(Timestamp.now());
+                newUser.setRegistration_date(Timestamp.now());
+                newUser.setFull_name(userFb.getDisplayName());
+                newUser.setUsername(userFb.getUid());
+                newUser.setAvatar(String.valueOf(userFb.getPhotoUrl()));
+                newUser.setProvider(AccountType.TWITTER);
+                userRepository.add(newUser, CollectionName.USERS, new CallBackUtil.OnInsertCallback() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        getAccountInfo(newUser.getUsername(), AccountType.TWITTER);
+                        Log.i("INSERT USER", "User insert successfully");
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e("INSERT USER", "Failed to insert user");
+                    }
+                });
+            } else {
+                user.setLast_login(Timestamp.now());
+                user.setUpdate_at(Timestamp.now());
+                userRepository.update(user, user.getId(), new CallBackUtil.OnUpdateCallback() {
+                    @Override
+                    public void onSuccess() {
+                        getAccountInfo(user.getUsername(), AccountType.TWITTER);
+                        Log.i("UPDATE USER", "User update successfully");
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e("UPDATE USER", "Failed to update user");
+                    }
+
+                });
+            }
+        });
+
     }
 
     public void getUserSkillList(List<DocumentReference> skillRefs, CallBackUtil.SkillListCallback callback) {

@@ -1,5 +1,7 @@
 package com.example.preely.view;
 
+import static com.example.preely.adapter.ServiceMarketAdapter.observeOnce;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,15 +17,22 @@ import android.widget.TextView;
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
+import com.example.preely.adapter.SkillMarketAdapter;
+import com.example.preely.authentication.SessionManager;
+import com.example.preely.model.request.SavedServiceRequest;
 import com.example.preely.model.response.ServiceMarketDetailResponse;
 import com.example.preely.util.Constraints;
 import com.example.preely.view.fragment.MapFragment;
 import com.example.preely.viewmodel.ServiceMarketViewModel;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
 
@@ -35,12 +44,13 @@ public class ServiceDetailActivity extends AppCompatActivity {
     private static final String TAG = "ServiceDetailActivity";
 
     ServiceMarketViewModel serviceMarketViewModel;
-    TextView tvTitle, tvProvider, tvCategory, tvPrice, tvStatus, tvDescription, tvRating, tvUniversity, tvAvailability;
+    TextView tvTitle, tvProvider, tvCategory, tvPrice, tvStatus, tvDescription, tvRating, tvUniversity, tvAvailability, tvPriceUnit;
     RatingBar ratingBar;
     Button btnBookService, btnSaved;
     ImageSlider imageSlider;
     ProgressBar progressBar;
     ServiceMarketDetailResponse response;
+    RecyclerView skillRecyclerView;
 
     // Map components
     private FrameLayout mapContainer;
@@ -74,6 +84,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         btnSaved = findViewById(R.id.btn_saved);
         tvUniversity = findViewById(R.id.tv_service_university);
         tvAvailability = findViewById(R.id.tv_service_availability);
+        skillRecyclerView = findViewById(R.id.skill_recycler_view);
+        tvPriceUnit = findViewById(R.id.tv_service_price_unit);
 
         // Map views
         mapContainer = findViewById(R.id.map_container);
@@ -111,6 +123,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     private void populateServiceInfo(ServiceMarketDetailResponse detailResponse) {
         try {
             // Image slider
@@ -150,15 +163,24 @@ public class ServiceDetailActivity extends AppCompatActivity {
             }
 
             // Availability
-            try {
-                if (detailResponse.getAvailability() != null) {
-                    Constraints.Availability availability = Constraints.Availability.valueOf(detailResponse.getAvailability());
-                    tvAvailability.setText("Availability: " + availability.getLabel());
-                } else {
-                    tvAvailability.setText("Availability: N/A");
-                }
-            } catch (IllegalArgumentException e) {
-                tvAvailability.setText("Availability: " + (detailResponse.getAvailability() != null ? detailResponse.getAvailability() : "N/A"));
+            tvAvailability.setText("Availability: " + (detailResponse.getAvailability() != null ? detailResponse.getAvailability().getLabel() : "N/A"));
+
+            // Skill
+            skillRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+            SkillMarketAdapter skillAdapter = new SkillMarketAdapter(detailResponse.getSkills());
+            skillRecyclerView.setAdapter(skillAdapter);
+
+            //price unit
+            if (response.getPrice_unit().equals(Constraints.PriceUnitType.HOUR)) {
+                tvPriceUnit.setText("/H");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.DAY)) {
+                tvPriceUnit.setText("/D");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.WEEK)) {
+                tvPriceUnit.setText("/W");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.MONTH)) {
+                tvPriceUnit.setText("/M");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.ONCE)) {
+                tvPriceUnit.setVisibility(View.GONE);
             }
 
         } catch (Exception e) {
@@ -213,20 +235,56 @@ public class ServiceDetailActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
         btnBookService.setOnClickListener(v -> {
             // Mở BookingActivity khi bấm nút booking
             if (response != null && response.getId() != null) {
-                Intent intent = new Intent(ServiceDetailActivity.this, BookingActivity.class);
-                intent.putExtra("serviceId", response.getId());
-                startActivity(intent);
+                DocumentReference serviceRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.SERVICE).document(response.getId());
+                DocumentReference userRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.USERS).document(sessionManager.getUserSession().getId());
+                serviceMarketViewModel.checkBookingExist(serviceRef, userRef);
+                observeOnce(serviceMarketViewModel.getIsBookingExist(), this, isExisted -> {
+                    if (isExisted) {
+                        CustomToast.makeText(getApplicationContext(),
+                                "Booking already existed",
+                                CustomToast.LENGTH_SHORT,
+                                Constraints.NotificationType.ERROR).show();
+                    } else {
+                        Intent intent = new Intent(ServiceDetailActivity.this, BookingActivity.class);
+                        intent.putExtra("serviceResponse", response);
+                        startActivity(intent);
+                    }
+                });
             } else {
                 Log.d(TAG, "Booking button clicked but response or id is null");
             }
         });
 
         btnSaved.setOnClickListener(v -> {
-            // TODO: Implement save service functionality
-            Log.d(TAG, "Save button clicked");
+            SavedServiceRequest request = new SavedServiceRequest();
+            DocumentReference serviceRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.SERVICE).document(response.getId());
+            DocumentReference userRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.USERS).document(sessionManager.getUserSession().getId());
+            request.setService_id(serviceRef);
+            request.setUser_id(userRef);
+            try {
+                serviceMarketViewModel.checkSavedPost(request);
+                observeOnce(serviceMarketViewModel.getIsSavedServiceExisted(), this, isExisted -> {
+                    if (isExisted) {
+                        CustomToast.makeText(getApplicationContext(),
+                                "Service already saved",
+                                CustomToast.LENGTH_SHORT,
+                                Constraints.NotificationType.SUCCESS).show();
+                    } else {
+                        CustomToast.makeText(getApplicationContext(),
+                                "Save service successfully",
+                                CustomToast.LENGTH_SHORT,
+                                Constraints.NotificationType.SUCCESS).show();
+                    }
+                });
+
+
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 

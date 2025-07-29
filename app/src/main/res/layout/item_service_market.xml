@@ -3,101 +3,226 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_margin="5dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:padding="8dp">
 
         <ImageView
-            android:layout_width="130dp"
-            android:layout_height="130dp"
             android:id="@+id/service_img"
-            android:src="@drawable/img_not_found"
-            android:layout_marginRight="10dp"/>
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/bg_service_market_img"
+            android:clipToOutline="true"
+            android:scaleType="center"
+            android:src="@drawable/img_test" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_service_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:fontFamily="@font/zain_bold"
-                android:text="Service Title"
-                android:textColor="#333333"
-                android:textSize="18sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="0dp"
+                    android:layout_height="25dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_service_market_img"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Service Titlg"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginRight="3dp"
+                        android:src="@drawable/ic_rating_filled" />
+
+                    <TextView
+                        android:id="@+id/tv_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4.6/5"
+                        android:textColor="@color/black"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
 
             <TextView
-                android:id="@+id/tv_service_provider"
+                android:id="@+id/tv_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:fontFamily="@font/zain_regular"
-                android:text="Provider: John Doe"
-                android:textColor="#1DABDD"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_service_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:fontFamily="@font/zain_regular"
-                android:text="Category: Tutoring"
-                android:textColor="#666666"
-                android:textSize="14sp" />
+                android:layout_marginBottom="5dp"
+                android:text="Tutoring"
+                android:textColor="#A3A3A3"
+                android:textSize="10sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tv_service_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:fontFamily="@font/zain_bold"
-                    android:text="$100"
-                    android:textColor="#1DABDD"
-                    android:textSize="16sp" />
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginRight="3dp"
+                    android:src="@drawable/ic_provider" />
 
                 <TextView
-                    android:id="@+id/tv_service_status"
+                    android:id="@+id/tv_provider"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_edge"
-                    android:fontFamily="@font/zain_regular"
-                    android:paddingStart="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="2dp"
-                    android:text="Active"
-                    android:textColor="#4CAF50"
-                    android:textSize="14sp" />
+                    android:layout_height="18dp"
+                    android:text="John Doe"
+                    android:textColor="#575757"
+                    android:textSize="12sp" />
+
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/favorite_btn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="end"
-                android:layout_marginTop="8dp"
-                android:backgroundTint="@android:color/transparent"
-                app:icon="@drawable/ic_favorite"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="30dp"
-                app:iconTint="#ff4141"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginRight="3dp"
+                    android:src="@drawable/ic_skill" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/skill_recycler_view"
+                    android:orientation="horizontal"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginRight="3dp"
+                    android:src="@drawable/ic_available" />
+
+                <TextView
+                    android:id="@+id/tv_available"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:text="Weekly"
+                    android:textColor="#575757"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginRight="3dp"
+                    android:src="@drawable/ic_status" />
+
+                <TextView
+                    android:id="@+id/tv_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:text="Active"
+                    android:textColor="#575757"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="3dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="13dp"
+                        android:text="Start from"
+                        android:textSize="10sp"
+                        android:textColor="#3D3D3D"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:id="@+id/tv_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="7 $"
+                                android:textColor="@color/black"
+                                android:textFontWeight="600"
+                                android:textSize="14sp"/>
+                            <TextView
+                                android:id="@+id/price_unit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="/H"
+                                android:textColor="@color/black"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saved_service_btn"
+                    android:layout_width="85dp"
+                    android:layout_height="35dp"
+                    android:text="Add To Wishlist"
+                    android:padding="0dp"
+                    android:textSize="10sp"
+                    app:cornerRadius="5dp"
+                    android:textColor="@color/white"
+                    android:backgroundTint="#FF9000"
+                    android:gravity="center"/>
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

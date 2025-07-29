@@ -3,6 +3,8 @@ package com.example.preely.model.request;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.io.Serializable;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,11 +21,11 @@ public class BookingRequest {
 
     DocumentReference service_id;
     DocumentReference seeker_id;
-    DocumentReference provider_id;
 
-    Timestamp booking_time;
     String time_slot;
     String status;
     String notes;
+    Integer unit_count;
+    Double total_price;
 
 }

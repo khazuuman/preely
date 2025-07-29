@@ -24,7 +24,7 @@
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/ic_twitter"/>
+            android:src="@drawable/ic_preely"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -158,11 +158,16 @@
             android:gravity="center">
 
             <ImageView
-                android:id="@+id/gg_icon"
-                android:layout_weight="1"
-                android:layout_width="30dp"
+                android:id="@+id/google_icon"
+                android:layout_width="40dp"
                 android:layout_height="30dp"
+                android:layout_marginEnd="40dp"
                 android:src="@drawable/ic_google"/>
+            <ImageView
+                android:id="@+id/twitter_icon"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_twitter"/>
         </LinearLayout>
 
         <LinearLayout

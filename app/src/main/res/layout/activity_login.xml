@@ -31,9 +31,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
             android:text="Login to Your Account"
             android:fontFamily="@font/zain_regular"
-            android:textSize="38sp"
+            android:textSize="35sp"
             android:textFontWeight="800"/>
     </LinearLayout>
 
@@ -155,10 +156,15 @@
 
             <ImageView
                 android:id="@+id/google_icon"
-                android:layout_weight="1"
-                android:layout_width="30dp"
+                android:layout_width="40dp"
                 android:layout_height="30dp"
+                android:layout_marginEnd="40dp"
                 android:src="@drawable/ic_google"/>
+            <ImageView
+                android:id="@+id/twitter_icon"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_twitter"/>
         </LinearLayout>
 
         <LinearLayout

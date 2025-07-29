@@ -1,5 +1,6 @@
 package com.example.preely.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.preely.R;
@@ -66,12 +68,15 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             ServiceMarketResponse response = serviceList.get(position);
             ServiceMarketViewHolder serviceHolder = (ServiceMarketViewHolder) holder;
+            //title
             serviceHolder.serviceTitle.setText(response.getTitle());
+            //image
             if (response.getImage() != null && !response.getImage().isEmpty()) {
                 Glide.with(serviceHolder.serviceImg.getContext())
                         .load(response.getImage())
@@ -81,17 +86,48 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             } else {
                 serviceHolder.serviceImg.setImageResource(R.drawable.img_not_found);
             }
+            //provider
             serviceHolder.serviceProvider.setText(response.getProviderName());
+            //category
             serviceHolder.serviceCategory.setText(response.getCategoryName());
-            serviceHolder.servicePrice.setText(formatPrice(response.getPrice()));
+            // rating
+            if (response.getAverage_rating() != null) {
+                serviceHolder.tvRating.setText(String.format("%.1f", response.getAverage_rating()));
+            } else {
+                serviceHolder.tvRating.setText("0");
+            }
+            //status
             serviceHolder.serviceStatus.setText(response.getStatus());
-
+            //availability
+            if (response.getAvailability() != null) {
+                serviceHolder.tvAvailable.setText(response.getAvailability().getLabel());
+            } else {
+                serviceHolder.tvAvailable.setText("N/A");
+            }
+            //price
+            serviceHolder.servicePrice.setText(NumberFormat.getNumberInstance(Locale.US).format(response.getPrice()) + " VND");
+            //price unit
+            if (response.getPrice_unit().equals(Constraints.PriceUnitType.HOUR)) {
+                serviceHolder.priceUnit.setText("/H");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.DAY)) {
+                serviceHolder.priceUnit.setText("/D");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.WEEK)) {
+                serviceHolder.priceUnit.setText("/W");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.MONTH)) {
+                serviceHolder.priceUnit.setText("/M");
+            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.ONCE)) {
+                serviceHolder.priceUnit.setVisibility(View.GONE);
+            }
+            //click event
             serviceHolder.serviceImg.setOnClickListener(v -> {
                 Intent intent = new Intent(holder.itemView.getContext(), ServiceDetailActivity.class);
                 intent.putExtra("serviceId", response.getId());
-                Log.i("SERVICE ID", String.valueOf(response.getId()));
                 holder.itemView.getContext().startActivity(intent);
             });
+
+            serviceHolder.skillRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+            SkillMarketAdapter skillAdapter = new SkillMarketAdapter(response.getSkills());
+            serviceHolder.skillRecyclerView.setAdapter(skillAdapter);
 
             SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
 
@@ -115,27 +151,6 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
                     throw new RuntimeException(e);
                 }
             });
-
-//            String key = sessionManager.getUserSession().getId() + "_" + post.getId();
-//            Boolean isSaved = savedPostsStatusMap.get(key);
-//
-//            if (isSaved != null && isSaved) {
-//                postHolder.favoriteBtn.setImageResource(R.drawable.ic_favorite_full_color);
-//            } else {
-//                postHolder.favoriteBtn.setImageResource(R.drawable.ic_favorite);
-//            }
-
-
-//            postHolder.postImg.setOnClickListener(v -> {
-//                Intent intent = new Intent(holder.itemView.getContext(), PostDetailActivity.class);
-//                intent.putExtra("postId", post.getId().getId());
-//                holder.itemView.getContext().startActivity(intent);
-//            });
-//            postHolder.postTitle.setOnClickListener(v -> {
-//                Intent intent = new Intent(holder.itemView.getContext(), PostDetailActivity.class);
-//                intent.putExtra("postId", post.getId().getId());
-//                holder.itemView.getContext().startActivity(intent);
-//            });
         }
     }
 
@@ -148,10 +163,6 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
         });
     }
-
-
-    @Setter
-    private Map<String, Boolean> savedPostsStatusMap = new HashMap<>();
 
 
     @Override
@@ -167,18 +178,23 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
     public static class ServiceMarketViewHolder extends RecyclerView.ViewHolder {
 
         ImageView serviceImg;
-        TextView serviceTitle, serviceProvider, serviceCategory, servicePrice, serviceStatus;
+        TextView serviceTitle, serviceProvider, serviceCategory, servicePrice, serviceStatus, tvRating, tvAvailable, priceUnit;
         MaterialButton favoriteBtn;
+        RecyclerView skillRecyclerView;
 
         public ServiceMarketViewHolder(@NonNull View itemView) {
             super(itemView);
             serviceImg = itemView.findViewById(R.id.service_img);
-            serviceTitle = itemView.findViewById(R.id.tv_service_title);
-            serviceProvider = itemView.findViewById(R.id.tv_service_provider);
-            serviceCategory = itemView.findViewById(R.id.tv_service_category);
-            servicePrice = itemView.findViewById(R.id.tv_service_price);
-            serviceStatus = itemView.findViewById(R.id.tv_service_status);
-            favoriteBtn = itemView.findViewById(R.id.favorite_btn);
+            serviceTitle = itemView.findViewById(R.id.tv_title);
+            serviceProvider = itemView.findViewById(R.id.tv_provider);
+            serviceCategory = itemView.findViewById(R.id.tv_category);
+            servicePrice = itemView.findViewById(R.id.tv_price);
+            serviceStatus = itemView.findViewById(R.id.tv_status);
+            favoriteBtn = itemView.findViewById(R.id.saved_service_btn);
+            skillRecyclerView = itemView.findViewById(R.id.skill_recycler_view);
+            tvRating = itemView.findViewById(R.id.tv_rating);
+            tvAvailable = itemView.findViewById(R.id.tv_available);
+            priceUnit = itemView.findViewById(R.id.price_unit);
         }
     }
 

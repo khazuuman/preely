@@ -13,7 +13,8 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowContentTransitions">true</item>
 
-        <item name="fontFamily">@font/roboto_original</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="fontFamily">@font/poppins</item>
     </style>
 
     <style name="Theme.Preely" parent="Base.Theme.Preely" />

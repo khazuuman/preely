@@ -13,12 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.preely.R;
 import com.example.preely.authentication.SessionManager;
 import com.example.preely.model.request.UserLoginRequest;
+import com.example.preely.util.Constraints;
 import com.example.preely.util.Constraints.NotificationType;
 import com.example.preely.util.ViewUtil;
 import com.example.preely.viewmodel.UserLoginService;
@@ -27,14 +29,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.OAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Objects;
@@ -47,7 +53,7 @@ public class Login extends AppCompatActivity {
     TextView usernameErrorTv, passwordErrorTv;
     TextInputEditText usernameInput, passwordInput;
     SessionManager sessionManager;
-    ImageView ggIcon;
+    ImageView ggIcon, twitterIcon;
 
     private static final int RC_SIGN_IN = 1001;
     private GoogleSignInClient mGoogleSignInClient;
@@ -69,6 +75,7 @@ public class Login extends AppCompatActivity {
         passwordInput = findViewById(R.id.password_input);
         rememberCb = findViewById(R.id.remember_cb);
         ggIcon = findViewById(R.id.google_icon);
+        twitterIcon = findViewById(R.id.twitter_icon);
 
         sessionManager = new SessionManager(getApplicationContext());
         if (sessionManager.getLogin()) {
@@ -108,42 +115,31 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        // Observe login result
-        userLoginService.getLoginResult().observe(this, userResponse -> {
-            if (userResponse != null) {
-                sessionManager.setUserSession(userResponse);
-                sessionManager.setLogin(true);
-                sessionManager.setSessionTimeOut(TimeUnit.HOURS.toMillis(24));
-                Intent intent = new Intent(this, HomeActivity.class);
-                intent.putExtra("toast_mess", "Đăng nhập thành công");
-                startActivity(intent);
-                finishAffinity();
-            } else {
-                CustomToast.makeText(this, "Invalid username or password", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();
-            }
-        });
-
         userLoginService.getUserInfo().observe(this, userResponse -> {
             if (userResponse != null) {
+                if (userResponse.getProvider().equals(Constraints.AccountType.GOOGLE) || userResponse.getProvider().equals(Constraints.AccountType.TWITTER)) {
+                    sessionManager.setUserSession(userResponse);
+                    sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+                    sessionManager.setRemember(true);
+                } else if (userResponse.getProvider().equals(Constraints.AccountType.LOCAL)) {
+                    sessionManager.setUserSession(userResponse);
+                    sessionManager.setLogin(true);
+                    if (rememberCb.isChecked()) {
+                        sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
+                        sessionManager.setRemember(true);
+                    } else {
+                        sessionManager.setSessionTimeOut(TimeUnit.HOURS.toMillis(24));
+                        sessionManager.setRemember(false);
+                    }
+                    Log.i("SESSION INFO", String.valueOf(sessionManager.getRemember()));
+                }
                 Log.i("USER INFO", userResponse.toString());
-                sessionManager.setUserSession(userResponse);
-                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
-                sessionManager.setRemember(true);
 
                 Intent intent = new Intent(this, HomeActivity.class);
-                intent.putExtra("toast_mess", "Đăng nhập thành công");
+                intent.putExtra("toast_mess", "Login successful!");
                 startActivity(intent);
-            }
-        });
-
-        // Set remember me checkbox listener
-        rememberCb.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                sessionManager.setSessionTimeOut(TimeUnit.DAYS.toMillis(7));
-                sessionManager.setRemember(true);
             } else {
-                sessionManager.setSessionTimeOut(TimeUnit.HOURS.toMillis(24));
-                sessionManager.setRemember(false);
+                CustomToast.makeText(this, "Login fail", CustomToast.LENGTH_SHORT, NotificationType.ERROR).show();
             }
         });
 
@@ -152,7 +148,6 @@ public class Login extends AppCompatActivity {
             String username = Objects.requireNonNull(usernameInput.getText()).toString().trim();
             String password = Objects.requireNonNull(passwordInput.getText()).toString().trim();
             if (username.equals("admin") && password.equals("Admin@123")) {
-                sessionManager.setRemember(true);
                 sessionManager.setSessionTimeOut(24 * 60 * 60 * 1000); // 1 ngày
                 Intent intent = new Intent(Login.this, ManagementActivity.class);
                 startActivity(intent);
@@ -170,6 +165,7 @@ public class Login extends AppCompatActivity {
         });
 
         ggIcon.setOnClickListener(v -> signInWithGoogle());
+        twitterIcon.setOnClickListener(v -> loginWithTwitter());
 
         // Input tracking for real-time error clearing
         ViewUtil.clearErrorOnTextChanged(usernameInput, usernameErrorTv);
@@ -224,5 +220,22 @@ public class Login extends AppCompatActivity {
                 Toast.makeText(this, "Đăng nhập thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void loginWithTwitter() {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        OAuthProvider.Builder provider = OAuthProvider.newBuilder("twitter.com");
+
+        firebaseAuth
+                .startActivityForSignInWithProvider(this, provider.build())
+                .addOnSuccessListener(authResult -> {
+                    FirebaseUser user = authResult.getUser();
+                    if (user != null) {
+                        userLoginService.handleTwitterLoginDetail(user);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Đăng nhập thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }

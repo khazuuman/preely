@@ -32,6 +32,7 @@ public class User extends BaseEntity {
     float rating;
     String avatar;
     String role;
+    String provider;
     GeoPoint location;
     Timestamp last_login;
     Timestamp registration_date;
