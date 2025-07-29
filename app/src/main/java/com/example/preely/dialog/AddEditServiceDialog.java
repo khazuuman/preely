@@ -106,8 +106,8 @@ public class AddEditServiceDialog extends Dialog {
         etDescription = findViewById(R.id.et_description);
         etPrice = findViewById(R.id.et_price);
         etUniversity = findViewById(R.id.et_university);
-        etLatitude = findViewById(R.id.et_latitude);
-        etLongitude = findViewById(R.id.et_longitude);
+//        etLatitude = findViewById(R.id.et_latitude);
+//        etLongitude = findViewById(R.id.et_longitude);
         actvCategory = findViewById(R.id.actv_category);
         actvProvider = findViewById(R.id.actv_provider);
         spinnerAvailability = findViewById(R.id.spinner_availability);

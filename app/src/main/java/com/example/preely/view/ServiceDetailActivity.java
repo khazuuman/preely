@@ -177,9 +177,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
                 // Hide no location overlay
                 noLocationOverlay.setVisibility(View.GONE);
-                // ĐÃ XÓA: Tự động mở BookingActivity
-                // Create map fragment với service location (read-only mode)
-                mapFragment = MapFragment.newInstanceWithTitle(serviceLocation, false, "📍 " + response.getTitle());
+
+                // Create map fragment với service location (read-only mode - không cho pick)
+                mapFragment = MapFragment.newInstanceWithTitle(serviceLocation, false, response.getTitle());
 
                 // Add map fragment vào container
                 getSupportFragmentManager()

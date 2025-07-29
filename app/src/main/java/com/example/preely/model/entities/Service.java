@@ -26,6 +26,7 @@ public class Service extends BaseEntity {
     String title;
     String description;
     Double price;
+    String price_unit;
     Availability availability;
     String university;
     Float average_rating;
