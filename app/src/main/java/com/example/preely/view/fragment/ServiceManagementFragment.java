@@ -1,5 +1,7 @@
 package com.example.preely.view.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,20 +20,18 @@ import com.example.preely.adapter.ServiceAdapter;
 import com.example.preely.model.entities.Service;
 import com.example.preely.dialog.AddEditServiceDialog;
 import com.example.preely.util.Constraints;
+import com.example.preely.view.FullscreenMapPickerActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 import com.example.preely.model.entities.Category;
 import com.example.preely.model.entities.User;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.preely.viewmodel.ManagementServiceService;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import java.util.HashMap;
@@ -47,7 +47,11 @@ public class ServiceManagementFragment extends Fragment {
     private ManagementServiceService managementServiceService;
     private List<Category> cachedCategories = new ArrayList<>();
     private List<User> cachedProviders = new ArrayList<>();
+
+    //  Activity Result Launchers
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> mapPickerLauncher; // Thêm map picker launcher
+
     private AddEditServiceDialog addEditServiceDialog;
     private static final String TAG = "ServiceManagement";
 
@@ -55,19 +59,30 @@ public class ServiceManagementFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_service_management, container, false);
+
+        initViews(view);
+        setupRecyclerView();
+        setupViewModels();
+        setupActivityResultLaunchers(); //  Setup launchers
+        setupListeners();
+        setupSearch();
+
+        // Load initial data
+        managementServiceService.loadServices();
+        managementServiceService.fetchCategories();
+        managementServiceService.fetchUsers();
+
+        return view;
+    }
+
+    private void initViews(View view) {
         recyclerView = view.findViewById(R.id.recycler_services);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         fabAdd = view.findViewById(R.id.fab_add_service);
         etSearch = view.findViewById(R.id.et_search_service);
-        managementServiceService = new ViewModelProvider(this).get(ManagementServiceService.class);
-        imagePickerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (addEditServiceDialog != null && result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    addEditServiceDialog.onImagesPicked(result.getData());
-                }
-            }
-        );
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ServiceAdapter(serviceList, new ServiceAdapter.OnServiceClickListener() {
             @Override
             public void onEdit(Service service) {
@@ -83,13 +98,43 @@ public class ServiceManagementFragment extends Fragment {
             }
         });
         recyclerView.setAdapter(adapter);
+    }
+
+    private void setupViewModels() {
+        managementServiceService = new ViewModelProvider(this).get(ManagementServiceService.class);
         observeViewModel();
+    }
+
+    /**
+     *  Setup Activity Result Launchers (image + map)
+     */
+    private void setupActivityResultLaunchers() {
+        // Image picker launcher
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (addEditServiceDialog != null && result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        addEditServiceDialog.onImagesPicked(result.getData());
+                    }
+                }
+        );
+
+        //  Map picker launcher (thêm mới)
+        mapPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        GeoPoint newLocation = FullscreenMapPickerActivity.getSelectedLocation(result.getData());
+                        if (newLocation != null && addEditServiceDialog != null) {
+                            addEditServiceDialog.handleMapPickerResult(newLocation);
+                        }
+                    }
+                }
+        );
+    }
+
+    private void setupListeners() {
         fabAdd.setOnClickListener(v -> showAddEditServiceDialog(null, false));
-        setupSearch();
-        managementServiceService.loadServices();
-        managementServiceService.fetchCategories();
-        managementServiceService.fetchUsers();
-        return view;
     }
 
     private void observeViewModel() {
@@ -104,18 +149,20 @@ public class ServiceManagementFragment extends Fragment {
             adapter.setServiceList(serviceList);
             Log.d(TAG, "Adapter setServiceList, size: " + serviceList.size());
         });
+
         managementServiceService.getCategoryList().observe(getViewLifecycleOwner(), categories -> {
             cachedCategories.clear();
             if (categories != null) cachedCategories.addAll(categories);
             Map<String, String> categoryIdToName = new HashMap<>();
-            for (com.example.preely.model.entities.Category c : cachedCategories) categoryIdToName.put(c.getId(), c.getName());
+            for (Category c : cachedCategories) categoryIdToName.put(c.getId(), c.getName());
             adapter.setCategoryIdToName(categoryIdToName);
         });
+
         managementServiceService.getUserList().observe(getViewLifecycleOwner(), users -> {
             cachedProviders.clear();
             if (users != null) cachedProviders.addAll(users);
             Map<String, String> providerIdToName = new HashMap<>();
-            for (com.example.preely.model.entities.User u : cachedProviders) providerIdToName.put(u.getId(), u.getFull_name());
+            for (User u : cachedProviders) providerIdToName.put(u.getId(), u.getFull_name());
             adapter.setProviderIdToName(providerIdToName);
         });
     }
@@ -142,7 +189,7 @@ public class ServiceManagementFragment extends Fragment {
             List<Service> filtered = new ArrayList<>();
             for (Service s : originalServiceList) {
                 if ((s.getTitle() != null && s.getTitle().toLowerCase().contains(query.toLowerCase())) ||
-                    (s.getDescription() != null && s.getDescription().toLowerCase().contains(query.toLowerCase()))) {
+                        (s.getDescription() != null && s.getDescription().toLowerCase().contains(query.toLowerCase()))) {
                     filtered.add(s);
                 }
             }
@@ -153,34 +200,44 @@ public class ServiceManagementFragment extends Fragment {
         Log.d(TAG, "Adapter setServiceList after filter, size: " + serviceList.size());
     }
 
+    /**
+     *  Show dialog với map picker launcher
+     */
     private void showAddEditServiceDialog(Service service, boolean isEdit) {
-        // Chỉ show dialog khi đã có dữ liệu category và provider
         if (cachedCategories.isEmpty() || cachedProviders.isEmpty()) {
             Toast.makeText(getContext(), "Loading data...", Toast.LENGTH_SHORT).show();
             managementServiceService.fetchCategories();
             managementServiceService.fetchUsers();
             return;
         }
+
         List<String> availabilityLabels = new ArrayList<>();
         for (Constraints.Availability a : Constraints.Availability.values()) {
             availabilityLabels.add(a.getLabel());
         }
+
+        //  Pass both launchers to dialog
         addEditServiceDialog = new AddEditServiceDialog(
-            getContext(),
-            service,
-            cachedCategories,
-            cachedProviders,
-            availabilityLabels,
-            (savedService, editMode) -> {
-                if (editMode) {
-                    managementServiceService.updateService(savedService);
-                } else {
-                    managementServiceService.addService(savedService);
-                }
-            },
-            imagePickerLauncher
+                getContext(),
+                service,
+                cachedCategories,
+                cachedProviders,
+                availabilityLabels,
+                (savedService, editMode) -> {
+                    if (editMode) {
+                        managementServiceService.updateService(savedService);
+                    } else {
+                        managementServiceService.addService(savedService);
+                    }
+                },
+                imagePickerLauncher,
+                mapPickerLauncher //  Pass map picker launcher
         );
+
         addEditServiceDialog.show();
+
+        //  Clear reference when dismissed
+        addEditServiceDialog.setOnDismissListener(dialog -> addEditServiceDialog = null);
     }
 
     private void deleteService(Service service) {
@@ -190,4 +247,4 @@ public class ServiceManagementFragment extends Fragment {
     private void showServiceDetailDialog(Service service) {
         // TODO: Hiển thị dialog chi tiết service (tùy ý)
     }
-} 
+}
