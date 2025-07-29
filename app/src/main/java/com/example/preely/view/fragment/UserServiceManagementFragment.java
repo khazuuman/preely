@@ -1,5 +1,7 @@
 package com.example.preely.view.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +22,11 @@ import com.example.preely.model.entities.Category;
 import com.example.preely.model.entities.Service;
 import com.example.preely.model.entities.User;
 import com.example.preely.util.Constraints;
+import com.example.preely.view.FullscreenMapPickerActivity;
 import com.example.preely.viewmodel.ManagementServiceService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +49,8 @@ public class UserServiceManagementFragment extends Fragment {
     private String currentUserId;
     private User currentUser;
     private static final String TAG = "UserServiceManagement";
-    private ActivityResultLauncher<android.content.Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> mapPickerLauncher;
 
     @Nullable
     @Override
@@ -92,6 +98,18 @@ public class UserServiceManagementFragment extends Fragment {
                     addEditServiceDialog.onImagesPicked(result.getData());
                 }
             }
+        );
+        mapPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        GeoPoint newLocation = FullscreenMapPickerActivity.getSelectedLocation(result.getData());
+                        if (newLocation != null && addEditServiceDialog != null) {
+                            // Callback để update dialog với location mới
+                            addEditServiceDialog.handleMapPickerResult(newLocation);
+                        }
+                    }
+                }
         );
         return view;
     }
@@ -191,9 +209,12 @@ public class UserServiceManagementFragment extends Fragment {
                 }
             },
             imagePickerLauncher,
+            mapPickerLauncher,
             currentUser
         );
         addEditServiceDialog.show();
+
+        addEditServiceDialog.setOnCancelListener(dialog -> addEditServiceDialog = null);
     }
 
     private void deleteService(Service service) {

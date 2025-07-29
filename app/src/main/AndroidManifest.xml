@@ -145,6 +145,9 @@
             android:name=".view.UserServiceManagementActivity"
             android:exported="false" />
 
+        <activity android:name=".view.FullscreenMapPickerActivity"
+            android:exported="false" />
+
         <activity android:name=".view.SettingsActivity" android:exported="false" />
         <activity android:name=".view.SavedServicesActivity" android:exported="false" />
         <service
