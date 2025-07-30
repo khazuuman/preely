@@ -106,6 +106,14 @@
                     android:padding="12dp"
                     android:autofillHints="emailAddress"/>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:gravity="end">
+                </LinearLayout>
+
                 <EditText
                     android:id="@+id/edtPhone"
                     android:layout_width="match_parent"
@@ -161,12 +169,58 @@
                     android:layout_marginTop="16dp"
                     android:textColor="@color/black"/>
 
-                <Button
-                    android:id="@+id/btnSave"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilSkills"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/saveBtn"
-                    android:layout_marginTop="32dp"/>
+                    android:layout_marginTop="16dp"
+                    android:hint="Chọn kỹ năng">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/actvSkills"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:minHeight="48dp"
+                        android:padding="12dp"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupSkills"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:singleLine="false"
+                    app:singleSelection="false"
+                    app:chipSpacing="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="32dp"
+                    android:gravity="end">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancelBottom"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cancel"
+                        android:layout_marginEnd="8dp"
+                        app:backgroundTint="@color/cancel"
+                        android:textColor="@color/white"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveBottom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/saveBtn"
+                        app:backgroundTint="@color/twitter"
+                        android:textColor="@color/white"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
