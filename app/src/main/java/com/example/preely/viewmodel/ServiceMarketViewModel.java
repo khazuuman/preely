@@ -31,6 +31,7 @@ import com.google.firebase.firestore.Query;
 import com.example.preely.util.Constraints.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -398,7 +399,11 @@ public class ServiceMarketViewModel extends ViewModel {
         Query query = FirebaseFirestore.getInstance()
                 .collection(Constraints.CollectionName.BOOKING)
                 .whereEqualTo("service_id", serviceId)
-                .whereEqualTo("seeker_id", seekerId);
+                .whereEqualTo("seeker_id", seekerId)
+                .whereIn("status", Arrays.asList(
+                        Constraints.BOOKING_STATUS_PENDING,
+                        Constraints.BOOKING_STATUS_CONFIRMED
+                ));
         query.get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (!queryDocumentSnapshots.isEmpty()) {
                 isBookingExist.setValue(true);
