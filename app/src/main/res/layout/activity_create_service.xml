@@ -157,10 +157,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cancel"
-                        android:textColor="#666666"
-                        android:backgroundTint="@android:color/transparent"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#FF5722"
                         android:layout_marginEnd="8dp"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/zain_bold"
+                        style="@style/Widget.MaterialComponents.Button"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_save"
@@ -168,7 +171,10 @@
                         android:layout_height="wrap_content"
                         android:text="Save"
                         android:textColor="@android:color/white"
-                        android:backgroundTint="#1DABDD"/>
+                        android:backgroundTint="#1DABDD"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/zain_bold"/>
 
                 </LinearLayout>
 

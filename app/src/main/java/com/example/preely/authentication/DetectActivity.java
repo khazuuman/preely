@@ -8,6 +8,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.cloudinary.android.MediaManager;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DetectActivity extends Application implements Application.ActivityLifecycleCallbacks {
     private int activityReferences = 0;
     private boolean isActivityChangingConfigurations = false;
@@ -15,6 +19,14 @@ public class DetectActivity extends Application implements Application.ActivityL
     @Override
     public void onCreate() {
         super.onCreate();
+        
+        // Initialize Cloudinary
+        Map<String, String> config = new HashMap<>();
+        config.put("cloud_name", "dpsgcdrlx");
+        config.put("api_key", "959226593637423");
+        config.put("api_secret", "p54qEoP00iChUMofQX9SoeLuOsk");
+        MediaManager.init(this, config);
+        
         registerActivityLifecycleCallbacks(this);
     }
 

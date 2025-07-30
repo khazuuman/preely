@@ -77,8 +77,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Hủy"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_marginEnd="8dp" />
+                android:textColor="@android:color/white"
+                android:backgroundTint="#FF5722"
+                android:layout_marginEnd="8dp"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_bold"
+                style="@style/Widget.MaterialComponents.Button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_confirm_location"
@@ -90,7 +95,10 @@
                 android:textColor="#FFFFFF"
                 android:layout_marginStart="8dp"
                 android:enabled="false"
-                android:alpha="0.5" />
+                android:alpha="0.5"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_bold" />
 
         </LinearLayout>
     </LinearLayout>

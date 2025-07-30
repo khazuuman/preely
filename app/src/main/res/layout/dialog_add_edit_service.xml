@@ -51,19 +51,45 @@
                 android:maxLines="5"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Price -->
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Price & Price Unit -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Price"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:orientation="horizontal"
             android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_price"
-                android:layout_width="match_parent"
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="2"
+                android:hint="Price"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Price Unit"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <AutoCompleteTextView
+                    android:id="@+id/actv_price_unit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
         <!-- University -->
         <com.google.android.material.textfield.TextInputLayout
@@ -296,7 +322,12 @@
             android:layout_height="wrap_content"
             android:text="Choose Images"
             android:icon="@drawable/ic_image"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/twitter"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:fontFamily="@font/zain_bold"/>
 
         <!-- Buttons -->
         <LinearLayout
@@ -312,8 +343,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Cancel"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_marginEnd="8dp"/>
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_marginEnd="8dp"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#FF5722"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_bold"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save"
@@ -322,7 +358,10 @@
                 android:layout_weight="1"
                 android:text="Save"
                 android:textColor="@android:color/white"
-                android:backgroundTint="@color/twitter"/>
+                android:backgroundTint="@color/twitter"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_bold"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

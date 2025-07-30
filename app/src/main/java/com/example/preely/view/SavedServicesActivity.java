@@ -7,7 +7,7 @@ import android.widget.ProgressBar;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.preely.R;
@@ -58,7 +58,7 @@ public class SavedServicesActivity extends AppCompatActivity implements SavedSer
         progressBar = findViewById(R.id.progressBar);
         emptyState = findViewById(R.id.emptyState);
         swipeRefresh = findViewById(R.id.swipeRefresh);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SavedServiceAdapter(savedServices, this);
         recyclerView.setAdapter(adapter);
         sessionManager = new SessionManager(this);
@@ -182,12 +182,48 @@ public class SavedServicesActivity extends AppCompatActivity implements SavedSer
 
     @Override
     public void onRemove(Service service) {
-        // TODO: Xử lý xóa khỏi danh sách saved services (và xóa trên Firestore nếu cần)
-        savedServices.remove(service);
-        adapter.notifyDataSetChanged();
-        if (savedServices.isEmpty()) {
-            showEmptyState();
+        // Delete from Firestore database
+        if (currentUser == null || currentUser.getId() == null) {
+            return;
         }
+        
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        
+        // Find the saved service document that matches both user_id and service_id
+        Query query = db.collection(Constraints.CollectionName.SAVED_SERVICE)
+                .whereEqualTo("user_id", db.collection(Constraints.CollectionName.USERS).document(currentUser.getId()))
+                .whereEqualTo("service_id", db.collection(Constraints.CollectionName.SERVICE).document(service.getId()));
+        
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                // Delete the first matching document
+                task.getResult().getDocuments().get(0).getReference().delete()
+                        .addOnSuccessListener(aVoid -> {
+                            // Remove from UI list
+                            savedServices.remove(service);
+                            adapter.notifyDataSetChanged();
+                            if (savedServices.isEmpty()) {
+                                showEmptyState();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            // Handle error - could show a toast message here
+                            // For now, just remove from UI as fallback
+                            savedServices.remove(service);
+                            adapter.notifyDataSetChanged();
+                            if (savedServices.isEmpty()) {
+                                showEmptyState();
+                            }
+                        });
+            } else {
+                // If not found in database, just remove from UI
+                savedServices.remove(service);
+                adapter.notifyDataSetChanged();
+                if (savedServices.isEmpty()) {
+                    showEmptyState();
+                }
+            }
+        });
     }
 
     @Override

@@ -87,9 +87,17 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
                 serviceHolder.serviceImg.setImageResource(R.drawable.img_not_found);
             }
             //provider
-            serviceHolder.serviceProvider.setText(response.getProviderName());
+            if (response.getProviderName() != null) {
+                serviceHolder.serviceProvider.setText(response.getProviderName());
+            } else {
+                serviceHolder.serviceProvider.setText("N/A");
+            }
             //category
-            serviceHolder.serviceCategory.setText(response.getCategoryName());
+            if (response.getCategoryName() != null) {
+                serviceHolder.serviceCategory.setText(response.getCategoryName());
+            } else {
+                serviceHolder.serviceCategory.setText("N/A");
+            }
             // rating
             if (response.getAverage_rating() != null) {
                 serviceHolder.tvRating.setText(String.format("%.1f", response.getAverage_rating()));
@@ -97,7 +105,11 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
                 serviceHolder.tvRating.setText("0");
             }
             //status
-            serviceHolder.serviceStatus.setText(response.getStatus());
+            if (response.getStatus() != null) {
+                serviceHolder.serviceStatus.setText(response.getStatus());
+            } else {
+                serviceHolder.serviceStatus.setText("N/A");
+            }
             //availability
             if (response.getAvailability() != null) {
                 serviceHolder.tvAvailable.setText(response.getAvailability().getLabel());
@@ -107,22 +119,29 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             //price
             serviceHolder.servicePrice.setText(NumberFormat.getNumberInstance(Locale.US).format(response.getPrice()) + " VND");
             //price unit
-            if (response.getPrice_unit().equals(Constraints.PriceUnitType.HOUR)) {
-                serviceHolder.priceUnit.setText("/H");
-            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.DAY)) {
-                serviceHolder.priceUnit.setText("/D");
-            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.WEEK)) {
-                serviceHolder.priceUnit.setText("/W");
-            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.MONTH)) {
-                serviceHolder.priceUnit.setText("/M");
-            } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.ONCE)) {
+            if (response.getPrice_unit() != null) {
+                if (response.getPrice_unit().equals(Constraints.PriceUnitType.HOUR)) {
+                    serviceHolder.priceUnit.setText("/H");
+                } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.DAY)) {
+                    serviceHolder.priceUnit.setText("/D");
+                } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.WEEK)) {
+                    serviceHolder.priceUnit.setText("/W");
+                } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.MONTH)) {
+                    serviceHolder.priceUnit.setText("/M");
+                } else if (response.getPrice_unit().equals(Constraints.PriceUnitType.ONCE)) {
+                    serviceHolder.priceUnit.setVisibility(View.GONE);
+                }
+            } else {
+                // Default to ONCE if price_unit is null
                 serviceHolder.priceUnit.setVisibility(View.GONE);
             }
             //click event
             serviceHolder.serviceImg.setOnClickListener(v -> {
-                Intent intent = new Intent(holder.itemView.getContext(), ServiceDetailActivity.class);
-                intent.putExtra("serviceId", response.getId());
-                holder.itemView.getContext().startActivity(intent);
+                if (response.getId() != null) {
+                    Intent intent = new Intent(holder.itemView.getContext(), ServiceDetailActivity.class);
+                    intent.putExtra("serviceId", response.getId());
+                    holder.itemView.getContext().startActivity(intent);
+                }
             });
 
             serviceHolder.skillRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -132,23 +151,25 @@ public class ServiceMarketAdapter extends RecyclerView.Adapter<RecyclerView.View
             SessionManager sessionManager = new SessionManager(holder.itemView.getContext());
 
             serviceHolder.favoriteBtn.setOnClickListener(v -> {
-                SavedServiceRequest request = new SavedServiceRequest();
-                DocumentReference serviceRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.SERVICE).document(response.getId());
-                DocumentReference userRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.USERS).document(sessionManager.getUserSession().getId());
-                request.setService_id(serviceRef);
-                request.setUser_id(userRef);
-                try {
-                    serviceMarketViewModel.checkSavedPost(request);
-                    observeOnce(serviceMarketViewModel.getIsSavedServiceExisted(), lifecycleOwner, isExisted -> {
-                        if (isExisted) {
-                            CustomToast.makeText(holder.itemView.getContext(), "Service already saved", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
-                        } else {
-                            CustomToast.makeText(holder.itemView.getContext(), "Save service successfully", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
-                        }
-                    });
+                if (response.getId() != null && sessionManager.getUserSession() != null) {
+                    SavedServiceRequest request = new SavedServiceRequest();
+                    DocumentReference serviceRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.SERVICE).document(response.getId());
+                    DocumentReference userRef = FirebaseFirestore.getInstance().collection(Constraints.CollectionName.USERS).document(sessionManager.getUserSession().getId());
+                    request.setService_id(serviceRef);
+                    request.setUser_id(userRef);
+                    try {
+                        serviceMarketViewModel.checkSavedPost(request);
+                        observeOnce(serviceMarketViewModel.getIsSavedServiceExisted(), lifecycleOwner, isExisted -> {
+                            if (isExisted) {
+                                CustomToast.makeText(holder.itemView.getContext(), "Service already saved", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+                            } else {
+                                CustomToast.makeText(holder.itemView.getContext(), "Save service successfully", CustomToast.LENGTH_SHORT, Constraints.NotificationType.SUCCESS).show();
+                            }
+                        });
 
-                } catch (IllegalAccessException | InstantiationException e) {
-                    throw new RuntimeException(e);
+                    } catch (IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
         }

@@ -57,7 +57,7 @@ public class AddEditServiceDialog extends Dialog {
     private final List<String> availabilityList;
 
     private TextInputEditText etTitle, etDescription, etPrice, etUniversity;
-    private AutoCompleteTextView actvCategory, actvProvider;
+    private AutoCompleteTextView actvCategory, actvProvider, actvPriceUnit;
     private Spinner spinnerAvailability;
     private MaterialButton btnSave, btnCancel, btnChooseImages;
     private RecyclerView recyclerImages;
@@ -161,6 +161,7 @@ public class AddEditServiceDialog extends Dialog {
         etUniversity = findViewById(R.id.et_university);
         actvCategory = findViewById(R.id.actv_category);
         actvProvider = findViewById(R.id.actv_provider);
+        actvPriceUnit = findViewById(R.id.actv_price_unit);
         spinnerAvailability = findViewById(R.id.spinner_availability);
         btnSave = findViewById(R.id.btn_save);
         btnCancel = findViewById(R.id.btn_cancel);
@@ -189,6 +190,7 @@ public class AddEditServiceDialog extends Dialog {
 
         actvProvider.setOnClickListener(v -> actvProvider.showDropDown());
         actvCategory.setOnClickListener(v -> actvCategory.showDropDown());
+        actvPriceUnit.setOnClickListener(v -> actvPriceUnit.showDropDown());
     }
 
     private void setupAdapters() {
@@ -212,6 +214,14 @@ public class AddEditServiceDialog extends Dialog {
         ArrayAdapter<String> availabilityAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, availabilityLabels);
         availabilityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerAvailability.setAdapter(availabilityAdapter);
+
+        // Price Unit
+        List<String> priceUnitLabels = new ArrayList<>();
+        for (Constraints.PriceUnitType p : Constraints.PriceUnitType.values()) {
+            priceUnitLabels.add(p.getLabel());
+        }
+        ArrayAdapter<String> priceUnitAdapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, priceUnitLabels);
+        actvPriceUnit.setAdapter(priceUnitAdapter);
     }
 
     private void setupListeners() {
@@ -370,6 +380,11 @@ public class AddEditServiceDialog extends Dialog {
             if (pos >= 0) spinnerAvailability.setSelection(pos);
         }
 
+        // Price Unit
+        if (service.getPrice_unit() != null) {
+            actvPriceUnit.setText(service.getPrice_unit().getLabel(), false);
+        }
+
         // Images
         if (service.getImage_urls() != null && imageAdapter != null) {
             imageUrls.clear();
@@ -433,6 +448,16 @@ public class AddEditServiceDialog extends Dialog {
         String categoryName = actvCategory.getText().toString().trim();
         int availabilityPos = spinnerAvailability.getSelectedItemPosition();
         Constraints.Availability selectedAvailability = Constraints.Availability.values()[availabilityPos];
+        
+        // Get selected price unit from AutoCompleteTextView
+        String selectedPriceUnitText = actvPriceUnit.getText().toString().trim();
+        Constraints.PriceUnitType selectedPriceUnit = null;
+        for (Constraints.PriceUnitType p : Constraints.PriceUnitType.values()) {
+            if (p.getLabel().equals(selectedPriceUnitText)) {
+                selectedPriceUnit = p;
+                break;
+            }
+        }
 
         if (TextUtils.isEmpty(title)) {
             etTitle.setError("Title is required");
@@ -493,7 +518,14 @@ public class AddEditServiceDialog extends Dialog {
         service.setCategory_id(categoryRef);
         service.setProvider_id(providerRef);
         service.setAvailability(selectedAvailability);
+        service.setPrice_unit(selectedPriceUnit);
         service.setImage_urls(new ArrayList<>(imageUrls));
+        
+        // Set default values for missing fields
+        if (service.getStatus() == null) {
+            service.setStatus("active");
+        }
+        
         service.setUpdate_at(Timestamp.now());
         if (service.getId() == null) {
             service.setCreate_at(Timestamp.now());

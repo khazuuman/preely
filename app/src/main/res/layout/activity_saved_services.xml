@@ -32,8 +32,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:padding="8dp"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_saved_service" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -62,6 +61,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/img_no_data"
+                android:contentDescription="No saved services" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -69,7 +74,8 @@
                 android:text="No saved services yet"
                 android:textColor="@color/black"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/zain_bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -77,7 +83,8 @@
                 android:layout_marginTop="8dp"
                 android:text="Start saving services to see them here"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/zain_regular" />
 
         </LinearLayout>
 
